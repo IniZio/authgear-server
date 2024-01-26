@@ -4,10 +4,15 @@
   "version": "0.1.0",
   "scripts": {
     "export-graphql-schema": "node export-graphql-schema.js",
-    "generate-go-timezones": "node generate-go-timezones.js"
+    "generate-go-timezones": "node generate-go-timezones.js",
+    "preformat": "grep -rl '{{' ../../resources/authgear/templates/en/web/authflowv2/__error.html | xargs sed -i '' 's/{{/{%/g; s/}}/%}/g'",
+    "format": "djlint ../../resources/authgear/templates/en/web/authflowv2/__error.html --configuration .djlintrc --reformat --quiet || true",
+    "postformat": "grep -rl '{%' ../../resources/authgear/templates/en/web/authflowv2/__error.html | xargs sed -i '' 's/{%/{{/g; s/%}/}}/g'",
+    "lint": "djlint ../../resources/authgear/templates/en/web/authflowv2/__error.html --configuration .djlintrc --check"
   },
   "devDependencies": {
     "cldr-localenames-modern": "44.0.1",
+    "djlint": "1.34.1",
     "graphql": "16.8.1",
     "luxon": "3.4.4",
     "mjml": "4.14.1",

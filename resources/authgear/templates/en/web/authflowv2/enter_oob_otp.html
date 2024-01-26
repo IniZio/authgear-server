@@ -11,19 +11,19 @@
     {{ end }}
   {{ end }}
 
-  <div class="flex flex-col gap-y-8">
-    <div class="flex flex-col gap-y-4">
+<div class="flex flex-col gap-y-8">
+  <div class="flex flex-col gap-y-4">
       {{ template "authflowv2/__header.html" . }}
-      <h1 class="screen-title">
+    <h1 class="screen-title">
         {{ template "v2-oob-otp-page-title" }}
-      </h1>
-      <h2 class="screen-description">
+    </h1>
+    <h2 class="screen-description">
         {{ if eq $.Channel "whatsapp" }}
           {{ template "v2-oob-otp-page-subtitle--whatsapp" . }}
-        {{ else }}
+            {{ else }}
           {{ template "v2-oob-otp-page-subtitle" . }}
         {{ end }}
-      </h2>
+    </h2>
 
       {{ if $.Error }}
         {{ if not $display_otp_input_error }}
@@ -36,8 +36,8 @@
           }}
         {{ end }}
       {{ end }}
-    </div>
-    <div>
+  </div>
+  <div>
       {{ $otp_error_message := "" }}
       {{ if $.Error  }}
         {{ if $display_otp_input_error }}
@@ -45,9 +45,9 @@
         {{ end }}
       {{ end }}
 
-      <form id="main-form" method="post" novalidate data-restore-form="false">
+    <form id="main-form" method="post" novalidate data-restore-form="false">
         {{ $.CSRFField }}
-      </form>
+    </form>
 
       {{ template "authflowv2/__otp_input.html"
         (dict
@@ -66,18 +66,24 @@
       }}
 
       {{ if $.CanRequestDeviceToken }}
-      <div class="mt-4 flex flex-row items-center gap-x-2.5">
-        <div class="checkbox">
-          <input form="main-form" id="device-token" type="checkbox" name="x_device_token" value="true">
-          <label class="checkbox__label" for="device-token">
-            <span class="checkbox__icon material-icons">check</span>
-          </label>
-        </div>
-        <label class="text-sm primary-txt" for="device-token">{{ template "create-device-token-label" }}</label>
+    <div class="mt-4 flex flex-row items-center gap-x-2.5">
+      <div class="checkbox">
+        <input form="main-form"
+               id="device-token"
+               type="checkbox"
+               name="x_device_token"
+               value="true">
+        <label class="checkbox__label" for="device-token">
+          <span class="checkbox__icon material-icons">check</span>
+        </label>
       </div>
-      {{ end }}
+      <label class="text-sm primary-txt" for="device-token">
+{{ template "create-device-token-label" }}
+      </label>
     </div>
+      {{ end }}
+  </div>
 
     {{ template "authflowv2/__authflow_branch.html" $ }}
-  </div>
+</div>
 {{ end }}
