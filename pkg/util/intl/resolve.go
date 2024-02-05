@@ -29,12 +29,12 @@ func Resolve(preferred []string, fallback string, supported []string) (int, lang
 
 // ResolveUnicodeCldr resolves language tag to Unicode CLDR language tag.
 func ResolveUnicodeCldr(lang language.Tag, fallback language.Tag) string {
-	var clrdTags []language.Tag
+	var cldrTags []language.Tag
 	for _, cldr := range CldrLanguages {
-		clrdTags = append(clrdTags, language.MustParse(cldr))
+		cldrTags = append(cldrTags, language.MustParse(cldr))
 	}
 
-	var matcher = language.NewMatcher(clrdTags)
+	matcher := GetMatcher(cldrTags)
 	_, idx, confidence := matcher.Match(lang)
 	if confidence == language.No {
 		return fallback.String()
