@@ -179,7 +179,7 @@ func (m *BaseViewModeler) ViewModel(r *http.Request, rw http.ResponseWriter) Bas
 	_, resolvedLanguageTagTag := intl.Resolve(preferredLanguageTags, string(m.DefaultLanguageTag), []string(m.SupportedLanguageTags))
 	resolvedLanguageTag := resolvedLanguageTagTag.String()
 
-	localeCode := intl.ResolveLocaleCode(resolvedLanguageTag, string(m.DefaultLanguageTag), []string(m.SupportedLanguageTags))
+	normalizedTag := intl.Normalize(resolvedLanguageTagTag)
 
 	htmlDir := intl.HTMLDir(resolvedLanguageTag)
 
@@ -251,7 +251,7 @@ func (m *BaseViewModeler) ViewModel(r *http.Request, rw http.ResponseWriter) Bas
 		PageLoadedAt:                int(now),
 		FlashMessageType:            m.FlashMessage.Pop(r, rw),
 		ResolvedLanguageTag:         resolvedLanguageTag,
-		ResolvedLocale:              localeCode,
+		ResolvedLocale:              normalizedTag.String(),
 		HTMLDir:                     htmlDir,
 		GoogleTagManagerContainerID: m.GoogleTagManager.ContainerID,
 		HasThirdPartyClient:         hasThirdPartyApp,
