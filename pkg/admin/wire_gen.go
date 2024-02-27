@@ -60,6 +60,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/nonce"
 	oauth2 "github.com/authgear/authgear-server/pkg/lib/oauth"
 	"github.com/authgear/authgear-server/pkg/lib/oauth/handler"
+	"github.com/authgear/authgear-server/pkg/lib/oauth/oauthsession"
 	"github.com/authgear/authgear-server/pkg/lib/oauth/oidc"
 	"github.com/authgear/authgear-server/pkg/lib/oauth/pq"
 	"github.com/authgear/authgear-server/pkg/lib/oauth/redis"
@@ -871,6 +872,11 @@ func newGraphQLHandler(p *deps.RequestProvider) http.Handler {
 		AccessTokenSessions: sessionManager,
 		Events:              eventService,
 	}
+	oauthsessionStoreRedis := &oauthsession.StoreRedis{
+		Context: contextContext,
+		Redis:   appredisHandle,
+		AppID:   appID,
+	}
 	mfaCookieDef := mfa.NewDeviceTokenCookieDef(authenticationConfig)
 	interactionContext := &interaction.Context{
 		Request:                         request,
@@ -906,6 +912,7 @@ func newGraphQLHandler(p *deps.RequestProvider) http.Handler {
 		Sessions:                        idpsessionProvider,
 		SessionManager:                  manager2,
 		SessionCookie:                   cookieDef,
+		OAuthSessions:                   oauthsessionStoreRedis,
 		MFADeviceTokenCookie:            mfaCookieDef,
 	}
 	interactionStoreRedis := &interaction.StoreRedis{
