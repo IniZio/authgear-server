@@ -25,7 +25,16 @@ import (
 
 //go:generate mockgen -source=handler_authz.go -destination=handler_authz_mock_test.go -package handler_test
 
+type ResponseType string
+
+const (
+	CodeResponseType          ResponseType = "code"
+	NoneResponseType          ResponseType = "none"
+	SettingsActonResponseType ResponseType = "settings_action"
+)
+
 const CodeGrantValidDuration = duration.Short
+const SettingsActionGrantValidDuration = duration.Short
 
 type UIInfoResolver interface {
 	ResolveForAuthorizationEndpoint(client *config.OAuthClientConfig, req protocol.AuthorizationRequest) (*oidc.UIInfo, *oidc.UIInfoByProduct, error)
@@ -33,7 +42,8 @@ type UIInfoResolver interface {
 }
 
 type UIURLBuilder interface {
-	Build(client *config.OAuthClientConfig, r protocol.AuthorizationRequest, e *oauthsession.Entry) (*url.URL, error)
+	BuildAuthenticationURL(client *config.OAuthClientConfig, r protocol.AuthorizationRequest, e *oauthsession.Entry) (*url.URL, error)
+	BuildSettingsActionURL(client *config.OAuthClientConfig, r protocol.AuthorizationRequest, code string, redirectURI *url.URL) (*url.URL, error)
 }
 
 type AppSessionTokenService interface {
@@ -87,17 +97,18 @@ type AuthorizationHandler struct {
 	AppDomains config.AppDomains
 	Logger     AuthorizationHandlerLogger
 
-	UIURLBuilder              UIURLBuilder
-	UIInfoResolver            UIInfoResolver
-	Authorizations            AuthorizationService
-	ValidateScopes            ScopesValidator
-	AppSessionTokenService    AppSessionTokenService
-	AuthenticationInfoService AuthenticationInfoService
-	Clock                     clock.Clock
-	Cookies                   CookieManager
-	OAuthSessionService       OAuthSessionService
-	CodeGrantService          CodeGrantService
-	ClientResolver            OAuthClientResolver
+	UIURLBuilder               UIURLBuilder
+	UIInfoResolver             UIInfoResolver
+	Authorizations             AuthorizationService
+	ValidateScopes             ScopesValidator
+	AppSessionTokenService     AppSessionTokenService
+	AuthenticationInfoService  AuthenticationInfoService
+	Clock                      clock.Clock
+	Cookies                    CookieManager
+	OAuthSessionService        OAuthSessionService
+	CodeGrantService           CodeGrantService
+	SettingsActionGrantService SettingsActionGrantService
+	ClientResolver             OAuthClientResolver
 }
 
 func (h *AuthorizationHandler) Handle(r protocol.AuthorizationRequest) httputil.Result {
@@ -108,7 +119,16 @@ func (h *AuthorizationHandler) Handle(r protocol.AuthorizationRequest) httputil.
 			Response:     protocol.NewErrorResponse("unauthorized_client", "invalid client ID"),
 		}
 	}
-	redirectURI, errResp := parseRedirectURI(client, h.HTTPProto, h.HTTPOrigin, h.AppDomains, r)
+
+	settingsActionCode, errResp := h.generateSettingsActionGrant(client, r)
+	if errResp != nil {
+		return authorizationResultError{
+			ResponseMode: r.ResponseMode(),
+			Response:     errResp,
+		}
+	}
+
+	redirectURI, errResp := parseAuthzRedirectURI(client, h.UIURLBuilder, h.HTTPProto, h.HTTPOrigin, h.AppDomains, settingsActionCode, r)
 	if errResp != nil {
 		return authorizationResultError{
 			ResponseMode: r.ResponseMode(),
@@ -398,7 +418,7 @@ func (h *AuthorizationHandler) doHandle(
 	// Handle prompt!=none
 	// We must return here.
 	if !slice.ContainsString(uiInfo.Prompt, "none") {
-		endpoint, err := h.UIURLBuilder.Build(client, r, oauthSessionEntry)
+		endpoint, err := h.UIURLBuilder.BuildAuthenticationURL(client, r, oauthSessionEntry)
 		if apierrors.IsKind(err, oidc.ErrInvalidCustomURI) {
 			return nil, protocol.NewError("invalid_request", err.Error())
 		} else if err != nil {
@@ -605,4 +625,72 @@ func (h *AuthorizationHandler) generateCodeResponse(
 
 	resp.Code(code)
 	return nil
+}
+
+func (h *AuthorizationHandler) generateSettingsActionGrant(
+	client *config.OAuthClientConfig,
+	r protocol.AuthorizationRequest,
+) (string, protocol.ErrorResponse) {
+	if r.ResponseType() != string(SettingsActonResponseType) {
+		return "", nil
+	}
+
+	var err error
+
+	// Require login_hint for settings action
+	_, loginHintOk := r.LoginHint()
+	if !loginHintOk {
+		return "", protocol.NewErrorResponse("login_required", "authentication required")
+	}
+
+	// Assume prompt=none for settings action
+	_, uiInfoByProduct, err := h.UIInfoResolver.ResolveForAuthorizationEndpoint(client, r)
+	if err != nil {
+		return "", protocol.NewErrorResponse("server_error", err.Error())
+	}
+	idToken := uiInfoByProduct.IDToken
+	idTokenHintSID := uiInfoByProduct.IDTokenHintSID
+
+	var idpSession session.Session
+	if s := session.GetSession(h.Context); s != nil && s.SessionType() == session.TypeIdentityProvider {
+		idpSession = s
+	}
+	if idpSession == nil || (idToken != nil && idpSession.GetAuthenticationInfo().UserID != idToken.Subject()) {
+		return "", protocol.NewErrorResponse("login_required", "authentication required")
+	}
+
+	authenticationInfo := idpSession.GetAuthenticationInfo()
+	autoGrantAuthz := client.IsFirstParty()
+
+	var authz *oauth.Authorization
+	if autoGrantAuthz {
+		authz, err = h.Authorizations.CheckAndGrant(
+			r.ClientID(),
+			authenticationInfo.UserID,
+			r.Scope(),
+		)
+	} else {
+		authz, err = h.Authorizations.Check(
+			r.ClientID(),
+			authenticationInfo.UserID,
+			r.Scope(),
+		)
+	}
+	if err != nil {
+		return "", protocol.NewErrorResponse("server_error", err.Error())
+	}
+
+	code, _, err := h.SettingsActionGrantService.CreateSettingsActionGrant(&CreateSettingsActionGrantOptions{
+		Authorization:        authz,
+		IDPSessionID:         idpSession.SessionID(),
+		AuthenticationInfo:   authenticationInfo,
+		IDTokenHintSID:       idTokenHintSID,
+		RedirectURI:          r.RedirectURI(),
+		AuthorizationRequest: r,
+	})
+	if err != nil {
+		return "", protocol.NewErrorResponse("server_error", err.Error())
+	}
+
+	return code, nil
 }

@@ -251,13 +251,14 @@ func (r *UIInfoResolver) ResolveForAuthorizationEndpoint(
 
 type UIURLBuilderAuthUIEndpointsProvider interface {
 	OAuthEntrypointURL() *url.URL
+	SettingsChangePasswordURL() *url.URL
 }
 
 type UIURLBuilder struct {
 	Endpoints UIURLBuilderAuthUIEndpointsProvider
 }
 
-func (b *UIURLBuilder) Build(client *config.OAuthClientConfig, r protocol.AuthorizationRequest, e *oauthsession.Entry) (*url.URL, error) {
+func (b *UIURLBuilder) BuildAuthenticationURL(client *config.OAuthClientConfig, r protocol.AuthorizationRequest, e *oauthsession.Entry) (*url.URL, error) {
 	var endpoint *url.URL
 	if client != nil && client.CustomUIURI != "" {
 		var err error
@@ -297,4 +298,23 @@ func BuildCustomUIEndpoint(base string) (*url.URL, error) {
 	}
 
 	return customUIURL, nil
+}
+
+func (b *UIURLBuilder) BuildSettingsActionURL(client *config.OAuthClientConfig, r protocol.AuthorizationRequest, code string, redirectURI *url.URL) (*url.URL, error) {
+	queryItems := redirectURI.Query()
+	queryItems.Set("code", code)
+	redirectURI.RawQuery = queryItems.Encode()
+
+	switch r.SettingsAction() {
+	case "change_password":
+		endpoint := b.Endpoints.SettingsChangePasswordURL()
+		queryItems := endpoint.Query()
+		queryItems.Set("redirect_uri", redirectURI.String())
+		queryItems.Set("client_id", r.ClientID())
+
+		endpoint.RawQuery = queryItems.Encode()
+		return endpoint, nil
+	default:
+		return nil, ErrInvalidSettingsAction.New("invalid settings action")
+	}
 }

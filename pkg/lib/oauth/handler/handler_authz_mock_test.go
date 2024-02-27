@@ -96,19 +96,19 @@ func (m *MockUIURLBuilder) EXPECT() *MockUIURLBuilderMockRecorder {
 	return m.recorder
 }
 
-// Build mocks base method.
-func (m *MockUIURLBuilder) Build(client *config.OAuthClientConfig, r protocol.AuthorizationRequest, e *oauthsession.Entry) (*url.URL, error) {
+// BuildAuthenticationURL mocks base method.
+func (m *MockUIURLBuilder) BuildAuthenticationURL(client *config.OAuthClientConfig, r protocol.AuthorizationRequest, e *oauthsession.Entry) (*url.URL, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Build", client, r, e)
+	ret := m.ctrl.Call(m, "BuildAuthenticationURL", client, r, e)
 	ret0, _ := ret[0].(*url.URL)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Build indicates an expected call of Build.
-func (mr *MockUIURLBuilderMockRecorder) Build(client, r, e interface{}) *gomock.Call {
+// BuildAuthenticationURL indicates an expected call of BuildAuthenticationURL.
+func (mr *MockUIURLBuilderMockRecorder) BuildAuthenticationURL(client, r, e interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Build", reflect.TypeOf((*MockUIURLBuilder)(nil).Build), client, r, e)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildAuthenticationURL", reflect.TypeOf((*MockUIURLBuilder)(nil).BuildAuthenticationURL), client, r, e)
 }
 
 // MockAppSessionTokenService is a mock of AppSessionTokenService interface.
