@@ -40,6 +40,7 @@ import { init as SentryInit } from "@sentry/browser";
 import { BrowserTracing } from "@sentry/tracing";
 import { LockoutController } from "./lockout";
 import { MirrorButtonController } from "./mirrorbutton";
+import { HistoryController } from "./history";
 // FIXME(css): Build CSS files one by one with another tool
 // webpack bundles all CSS files into one bundle.
 
@@ -118,3 +119,4 @@ Stimulus.register("web3-wallet-icon", WalletIconController);
 Stimulus.register("lockout", LockoutController);
 
 Stimulus.register("mirror-button", MirrorButtonController);
+Stimulus.register("history", HistoryController);

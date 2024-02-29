@@ -23,8 +23,7 @@
     url.searchParams.delete('redirect_uri');
     redirectURI = url.toString();
 
-    history.pushState({}, '', location.href);
-    location.href = redirectURI;
+    window.postMessage({ type: "authgear:close", redirectURI }, "*");
   };
 
   authgear.close();

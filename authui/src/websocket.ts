@@ -71,12 +71,12 @@ export class WebSocketController extends Controller {
     this.ws = new WebSocket(url);
 
     this.ws.onopen = (e) => {
-      console.log("ws onopen", e);
+      // console.log("ws onopen", e);
       this.retryEventTarget?.markSuccess();
     };
 
     this.ws.onclose = (e) => {
-      console.log("ws onclose", e);
+      // console.log("ws onclose", e);
       // Close code 1000 means we do not need to reconnect.
       if (e.code === 1000) {
         return;
@@ -85,11 +85,11 @@ export class WebSocketController extends Controller {
     };
 
     this.ws.onerror = (e) => {
-      console.error("ws onerror", e);
+      // console.error("ws onerror", e);
     };
 
     this.ws.onmessage = (e) => {
-      console.log("ws onmessage", e);
+      // console.log("ws onmessage", e);
       const message = JSON.parse(e.data);
       switch (message.kind) {
         case "refresh":
