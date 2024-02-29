@@ -444,6 +444,10 @@
   "hide-password-label": "Hide password",
   "return-page-title": "Return to where you were",
   "return-page-description": "Please return to where you were to continue. If you were interacting with an mobile app, please switch back to the app. If you were interacting with a website, please switch back to that tab.",
+
+  "settings-close-page-title": "Return to where you were",
+  "settings-close-page-description": "Please return to where you were to continue. If you were interacting with an mobile app, please switch back to the app. If you were interacting with a website, please switch back to that tab.",
+
   "require-oauth-page-title": "Direct access to this page is disallowed",
   "require-oauth-page-description": "This page can only be accessed via the authorization endpoint.",
   "wechat-auth-title": "Login with WeChat",

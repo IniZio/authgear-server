@@ -75,6 +75,7 @@ var DependencySet = wire.NewSet(
 	wire.Struct(new(SettingsChangeSecondaryPasswordHandler), "*"),
 	wire.Struct(new(SettingsDeleteAccountHandler), "*"),
 	wire.Struct(new(SettingsDeleteAccountSuccessHandler), "*"),
+	wire.Struct(new(SettingsCloseHandler), "*"),
 	wire.Struct(new(SettingsPasskeyHandler), "*"),
 	wire.Struct(new(AccountStatusHandler), "*"),
 	wire.Struct(new(LogoutHandler), "*"),

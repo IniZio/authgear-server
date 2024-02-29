@@ -252,6 +252,7 @@ func (r *UIInfoResolver) ResolveForAuthorizationEndpoint(
 type UIURLBuilderAuthUIEndpointsProvider interface {
 	OAuthEntrypointURL() *url.URL
 	SettingsChangePasswordURL() *url.URL
+	SettingsCloseURL(redirectURI *url.URL) *url.URL
 }
 
 type UIURLBuilder struct {
@@ -307,7 +308,7 @@ func (b *UIURLBuilder) BuildSettingsActionURL(client *config.OAuthClientConfig, 
 		q := endpoint.Query()
 		q.Set(queryNameOAuthSessionID, e.ID)
 		q.Set("client_id", r.ClientID())
-		q.Set("redirect_uri", r.RedirectURI())
+		q.Set("redirect_uri", redirectURI.String())
 		if r.ColorScheme() != "" {
 			q.Set("x_color_scheme", r.ColorScheme())
 		}

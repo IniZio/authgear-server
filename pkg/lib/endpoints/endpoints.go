@@ -120,6 +120,12 @@ func (e *Endpoints) SettingsURL() *url.URL {
 func (e *Endpoints) SettingsChangePasswordURL() *url.URL {
 	return e.urlOf("settings/change_password")
 }
+func (e *Endpoints) SettingsCloseURL(redirectURI *url.URL) *url.URL {
+	return urlutil.WithQueryParamsAdded(
+		e.urlOf("settings/close"),
+		map[string]string{"redirect_uri": redirectURI.String()},
+	)
+}
 
 func (e *Endpoints) SSOCallbackURL(alias string) *url.URL {
 	u := e.SSOCallbackEndpointURL()

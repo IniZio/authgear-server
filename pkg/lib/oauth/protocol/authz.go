@@ -87,6 +87,9 @@ func (r AuthorizationRequest) SSOEnabled() bool {
 func (r AuthorizationRequest) ColorScheme() string        { return r["x_color_scheme"] }
 func (r AuthorizationRequest) OAuthProviderAlias() string { return r["x_oauth_provider_alias"] }
 func (r AuthorizationRequest) SettingsAction() string     { return r["x_settings_action"] }
+func (r AuthorizationRequest) WebSDKOnFinish() string {
+	return r["x_authgear_sdk_web_on_finish"]
+}
 
 type AuthorizationResponse map[string]string
 

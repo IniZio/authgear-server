@@ -1,0 +1,34 @@
+{{ template "__page_frame.html" . }}
+
+{{ define "page-content" }}
+<div class="pane twc-container-vertical pt-8 pb-5 px-6 tablet:px-8 desktop:px-8">
+
+<h1 class="primary-txt m-0 text-center text-xl font-bold">{{ template "settings-close-page-title" }}</h1>
+
+<p class="text-sm break-words primary-txt m-0 text-center">{{ template "settings-close-page-description" }}</p>
+
+{{ template "__watermark.html" . }}
+</div>
+
+
+<script nonce="{{ $.CSPNonce }}">
+(function() {
+  var authgear = window.authgear || {};
+  authgear.close = function() {
+    var params = new URLSearchParams(window.location.search)
+    var redirectURI = params.get("redirect_uri");
+
+    var url = new URL(redirectURI);
+    params.forEach((value, key) => url.searchParams.set(key, value));
+    url.searchParams.delete('redirect_uri');
+    redirectURI = url.toString();
+
+    history.pushState({}, '', location.href);
+    location.href = redirectURI;
+  };
+
+  authgear.close();
+})();
+</script>
+
+{{ end }}

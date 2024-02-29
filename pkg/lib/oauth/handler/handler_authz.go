@@ -521,6 +521,13 @@ func (h *AuthorizationHandler) finish(
 		resp.State(r.State())
 	}
 
+	if r.WebSDKOnFinish() == "replace" {
+		q := redirectURI.Query()
+		q.Set("redirect_uri", r.RedirectURI())
+		redirectURI = &url.URL{Path: "/settings/close"}
+		redirectURI.RawQuery = q.Encode()
+	}
+
 	return authorizationResultCode{
 		RedirectURI:  redirectURI,
 		ResponseMode: r.ResponseMode(),
