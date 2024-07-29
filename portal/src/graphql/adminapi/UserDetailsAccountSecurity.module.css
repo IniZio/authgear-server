@@ -74,7 +74,7 @@
   grid-area: pdesc;
 }
 
-.resetPasswordButton {
+.changePasswordButton {
   grid-area: preset;
   white-space: nowrap;
 }

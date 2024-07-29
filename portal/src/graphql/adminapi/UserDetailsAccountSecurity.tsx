@@ -499,7 +499,7 @@ const PasswordAuthenticatorCell: React.VFC<PasswordAuthenticatorCellProps> =
     );
 
     const onResetPasswordClicked = useCallback(() => {
-      navigate("./reset-password");
+      navigate("./change-password");
     }, [navigate]);
 
     const onRemoveClicked = useCallback(() => {
@@ -529,10 +529,10 @@ const PasswordAuthenticatorCell: React.VFC<PasswordAuthenticatorCellProps> =
         </Text>
         {kind === "PRIMARY" ? (
           <PrimaryButton
-            className={cn(styles.button, styles.resetPasswordButton)}
+            className={cn(styles.button, styles.changePasswordButton)}
             onClick={onResetPasswordClicked}
             text={
-              <FormattedMessage id="UserDetails.account-security.reset-password" />
+              <FormattedMessage id="UserDetails.account-security.change-password" />
             }
           />
         ) : null}
