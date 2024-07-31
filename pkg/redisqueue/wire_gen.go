@@ -655,6 +655,7 @@ func newUserImportService(ctx context.Context, p *deps.AppProvider) *userimport.
 		IdentityConfig:             identityConfig,
 		AccountDeletionConfig:      accountDeletionConfig,
 		AccountAnonymizationConfig: accountAnonymizationConfig,
+		AuthenticationConfig:       authenticationConfig,
 		Clock:                      clock,
 	}
 	identityFacade := &facade.IdentityFacade{
