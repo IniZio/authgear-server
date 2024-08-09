@@ -81,7 +81,7 @@ func (e *End2EndCmd) execCmd(cmd string) (string, error) {
 	execCmd.Dir = "../../"
 	output, err := execCmd.Output()
 	if err != nil {
-		e.Test.Errorf(errb.String())
+		e.Test.Errorf("failed to execute command: %s %v, output: %s", cmd, err, output)
 		return "", err
 	}
 

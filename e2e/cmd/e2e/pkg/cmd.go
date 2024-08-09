@@ -1,8 +1,8 @@
 package e2e
 
 import (
+	"bytes"
 	"fmt"
-	"os"
 	"os/exec"
 )
 
@@ -27,8 +27,20 @@ func CreatePortalDefaultDomain(dbURL string, dbSchema string, defaultDomainSuffi
 }
 
 func ExecCmd(cmd string) error {
+	var errb bytes.Buffer
 	execCmd := exec.Command("sh", "-c", cmd)
+	execCmd.Stderr = &errb
 	execCmd.Dir = "."
-	execCmd.Stdout = os.Stdout
-	return execCmd.Run()
+	output, err := execCmd.Output()
+	if err != nil {
+		return fmt.Errorf("failed to execute command: %s, %w, output: %s", cmd, err, output)
+	}
+	return nil
 }
+
+// func ExecCmd(cmd string) error {
+// 	execCmd := exec.Command("sh", "-c", cmd)
+// 	execCmd.Dir = "."
+// 	execCmd.Stdout = os.Stdout
+// 	return execCmd.Run()
+// }

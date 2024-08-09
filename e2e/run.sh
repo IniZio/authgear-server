@@ -2,7 +2,7 @@
 
 function setup {( set -e
     echo "[ ] Starting services..."
-    docker compose up -d
+    docker compose up -d --build
     sleep 3
 
     echo "[ ] Building authgear..."
@@ -16,7 +16,7 @@ function setup {( set -e
     export PATH=$PATH:./dist
 
     echo "[ ] Starting authgear..."
-    authgear start > ./logs/authgear.log 2>&1 &
+    # authgear start > ./logs/authgear.log 2>&1 &
     success=false
     for i in $(seq 10); do \
         if [ "$(curl -sL -w '%{http_code}' -o /dev/null http://localhost:4000/healthz)" = "200" ]; then
@@ -48,10 +48,19 @@ function setup {( set -e
     fi
 
     echo "[ ] DB migration..."
-    authgear database migrate up
-    authgear audit database migrate up
-    authgear images database migrate up
-    authgear-portal database migrate up
+    docker-compose exec authgear bash -c "
+      authgear database migrate up
+      authgear audit database migrate up
+      authgear images database migrate up
+    "
+    docker-compose exec portal bash -c "
+      authgear-portal database migrate up
+    "
+
+    # authgear database migrate up
+    # authgear audit database migrate up
+    # authgear images database migrate up
+    # authgear-portal database migrate up
 )}
 
 function teardown {( set -e
@@ -63,6 +72,7 @@ function teardown {( set -e
 
 function tests {( set -e
     echo "[ ] Run tests..."
+    # go build -o dist/e2e ./cmd/e2e
     # Use -count 1 to disable cache. We want to run the tests without caching.
     go test ./... -count 1 -v -timeout 10m -parallel 5
 )}
@@ -70,7 +80,7 @@ function tests {( set -e
 function main {( set -e
     teardown || true
     setup
-    trap "teardown || true" EXIT
+    # trap "teardown || true" EXIT
     tests
 )}
 

@@ -46,14 +46,12 @@ func (tr *TestRunner) Run() {
 
 	for _, testCase := range testCases {
 		tc := testCase
+		if hasFocus && !tc.Focus {
+			continue
+		}
+
 		t.Run(tc.FullName(), func(t *testing.T) {
 			t.Parallel()
-
-			if hasFocus && !tc.Focus {
-				t.SkipNow()
-				return
-			}
-
 			tc.Run(t)
 		})
 	}
@@ -67,7 +65,7 @@ func (tr *TestRunner) loadFromPath(path string) ([]TestCase, error) {
 			return err
 		}
 
-		if strings.HasSuffix(path, "test.yaml") == false {
+		if !strings.HasSuffix(path, "test.yaml") {
 			return nil
 		}
 

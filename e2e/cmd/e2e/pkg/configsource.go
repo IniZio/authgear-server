@@ -16,7 +16,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/config/configsource"
 )
 
-var BuiltInConfigSourceDir = "./var"
+var BuiltInConfigSourceDir = "./docker-var"
 
 func (c *End2End) CreateApp(appID string, baseConfigSourceDir string, override string) error {
 	cfg, err := LoadConfigFromEnv()

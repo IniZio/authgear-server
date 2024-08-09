@@ -1,6 +1,45 @@
 version: "3"
 
 services:
+  authgear:
+    build:
+      context: ../
+      dockerfile: ./cmd/authgear/Dockerfile
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+      - AUDIT_DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+      - REDIS_URL=redis://redis:6379/0
+      - ANALYTIC_REDIS_URL=redis://redis:6379/1
+      - E2E_BOT_PROTECTION_CLOUDFLARE_ENDPOINT=http://host.docker.internal:8082/cloudflare/verify
+      - E2E_BOT_PROTECTION_RECAPTCHAV2_ENDPOINT=http://host.docker.internal:8082/recaptchav2/verify
+      - HTTP_PROXY=somewhere:3000
+      - HTTPS_PROXY=somewhere:3000
+    volumes:
+      - ./ssl/ca.crt:/usr/local/share/ca-certificates/e2e-proxy-ca.crt
+      - ./docker-var/authgear.yaml:/app/authgear.yaml
+      - ./docker-var/authgear.secrets.docker.yaml:/app/authgear.secrets.yaml
+      - ./tests:/app/tests
+      - ./ssl:/app/ssl
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "4000:4000"
+
+  portal:
+    build:
+      context: ../
+      dockerfile: ./cmd/portal/Dockerfile
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+      - AUDIT_DATABASE_URL=postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+      - REDIS_URL=redis://redis:6379/0
+      - ANALYTIC_REDIS_URL=redis://redis:6379/1
+    volumes:
+      - ./docker-var/authgear.yaml:/app/authgear.yaml
+      - ./docker-var/authgear.secrets.docker.yaml:/app/authgear.secrets.yaml
+
   db:
     image: postgres-pg-partman:latest
     build:

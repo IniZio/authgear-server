@@ -149,7 +149,7 @@ func (h *HookHandle) beginTx() (*sqlx.Tx, error) {
 	var txOptions *sql.TxOptions
 	tx, err := db.BeginTxx(h.Context, txOptions)
 	if err != nil {
-		return nil, fmt.Errorf("hook-handle: failed to begin transaction: %w", err)
+		return nil, fmt.Errorf("hook-handle: failed to begin transaction: %s", h.ConnectionOptions.DatabaseURL)
 	}
 
 	return tx, nil
