@@ -1,4 +1,5 @@
 name: Email Login
+focus: true
 authgear.yaml:
   override: |
     authentication:
