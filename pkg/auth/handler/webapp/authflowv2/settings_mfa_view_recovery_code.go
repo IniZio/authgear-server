@@ -98,14 +98,23 @@ func (h *AuthflowV2SettingsMFAViewRecoveryCodeHandler) ServeHTTP(w http.Response
 		s := session.GetSession(r.Context())
 
 		tokenString := r.Form.Get("q_token")
-		_, err := h.AccountManagement.GetToken(s, tokenString)
+		token, err := h.AccountManagement.GetToken(s, tokenString)
 		if err != nil {
 			return err
 		}
 
-		_, err = h.AccountManagement.FinishAddTOTPAuthenticator(s, tokenString, &accountmanagement.FinishAddTOTPAuthenticatorInput{})
-		if err != nil {
-			return err
+		if token.Authenticator.TOTPVerified {
+			_, err = h.AccountManagement.FinishAddTOTPAuthenticator(s, tokenString, &accountmanagement.FinishAddTOTPAuthenticatorInput{})
+			if err != nil {
+				return err
+			}
+		} else if token.Authenticator.OOBOTPVerified {
+			_, err = h.AccountManagement.FinishAddOOBOTPAuthenticator(s, tokenString, &accountmanagement.FinishAddOOBOTPAuthenticatorInput{})
+			if err != nil {
+				return err
+			}
+		} else {
+			panic("authflowv2: unexpected authenticator type")
 		}
 
 		result := webapp.Result{RedirectURI: AuthflowV2RouteSettingsMFA}

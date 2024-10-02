@@ -27,10 +27,9 @@ type ChangePrimaryPasswordOutput struct {
 func (s *Service) ChangePrimaryPassword(resolvedSession session.ResolvedSession, input *ChangePrimaryPasswordInput) (*ChangePrimaryPasswordOutput, error) {
 	redirectURI := input.RedirectURI
 
-	var output *changePasswordOutput
 	var err error
 	err = s.Database.WithTx(func() error {
-		output, err = s.changePassword(resolvedSession, &changePasswordInput{
+		_, err = s.changePassword(resolvedSession, &changePasswordInput{
 			Kind:        authenticator.KindPrimary,
 			OldPassword: input.OldPassword,
 			NewPassword: input.NewPassword,
