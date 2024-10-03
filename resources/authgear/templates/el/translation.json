@@ -1272,6 +1272,8 @@
   "v2.page.settings-totp.default.added-at-label": "Προστέθηκε στις <span data-date=\"{rfc3339}\" data-date-type=absolute data-date-date-style=long>{time, datetime, short} UTC</span>",
   "v2.page.settings-totp.default.button-add-authenticator-label": "+ Προσθήκη εφαρμογής/συσκευής ελέγχου ταυτότητας",
   "v2.page.settings-totp.default.title": "Εφαρμογή/συσκευή ελέγχου ταυτότητας",
+  "v2.page.settings-totp.default.remove-totp-dialog-description": "Είστε σίγουροι ότι θέλετε να αφαιρέσετε την εφαρμογή/συσκευή αυθεντικοποίησης;",
+  "v2.page.settings-totp.default.remove-totp-dialog-title": "Αφαίρεση εφαρμογής/συσκευής αυθεντικοποίησης",
   "v2.page.settings.default.button-label-account-deletion": "Διαγραφή Λογαριασμού",
   "v2.page.settings.default.button-label-advanced-settings": "Προχωρημένες Ρυθμίσεις",
   "v2.page.settings.default.button-label-and-more": "{item} και περισσότερα",

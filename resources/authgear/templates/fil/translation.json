@@ -1272,6 +1272,8 @@
   "v2.page.settings-totp.default.added-at-label": "Naidagdag sa <span data-date=\"{rfc3339}\" data-date-type=absolute data-date-date-style=long>{time, datetime, short} UTC</span>",
   "v2.page.settings-totp.default.button-add-authenticator-label": "+ Magdagdag ng authenticator app/device",
   "v2.page.settings-totp.default.title": "Authenticator app/device",
+  "v2.page.settings-totp.default.remove-totp-dialog-description": "Sigurado ka bang gusto mong alisin ang authenticator app/device?",
+  "v2.page.settings-totp.default.remove-totp-dialog-title": "Alisin ang authenticator app/device",
   "v2.page.settings.default.button-label-account-deletion": "I-delete ang Account",
   "v2.page.settings.default.button-label-advanced-settings": "Mga Advanced na Setting",
   "v2.page.settings.default.button-label-and-more": "{item} at higit pa",

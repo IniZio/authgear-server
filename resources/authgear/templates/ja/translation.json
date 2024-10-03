@@ -1272,6 +1272,8 @@
   "v2.page.settings-totp.default.added-at-label": "追加日時 <span data-date=\"{rfc3339}\" data-date-type=absolute data-date-date-style=long>{time, datetime, short} UTC</span>",
   "v2.page.settings-totp.default.button-add-authenticator-label": "+ 認証アプリ/デバイスを追加",
   "v2.page.settings-totp.default.title": "認証アプリ/デバイス",
+  "v2.page.settings-totp.default.remove-totp-dialog-description": "認証アプリ/デバイスを削除してもよろしいですか?",
+  "v2.page.settings-totp.default.remove-totp-dialog-title": "認証アプリ/デバイスの削除",
   "v2.page.settings.default.button-label-account-deletion": "アカウントを削除",
   "v2.page.settings.default.button-label-advanced-settings": "高度な設定",
   "v2.page.settings.default.button-label-and-more": "{item} 他",

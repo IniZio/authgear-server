@@ -1272,6 +1272,8 @@
   "v2.page.settings-totp.default.added-at-label": "Dodano o <span data-date=\"{rfc3339}\" data-date-type=absolute data-date-date-style=long>{time, datetime, short} UTC</span>",
   "v2.page.settings-totp.default.button-add-authenticator-label": "+ Dodaj aplikację/urządzenie uwierzytelniające",
   "v2.page.settings-totp.default.title": "Aplikacja/urządzenie uwierzytelniające",
+  "v2.page.settings-totp.default.remove-totp-dialog-description": "Czy na pewno chcesz usunąć aplikację/urządzenie uwierzytelniające?",
+  "v2.page.settings-totp.default.remove-totp-dialog-title": "Usuń aplikację/urządzenie uwierzytelniające",
   "v2.page.settings.default.button-label-account-deletion": "Usuń konto",
   "v2.page.settings.default.button-label-advanced-settings": "Zaawansowane ustawienia",
   "v2.page.settings.default.button-label-and-more": "{item} i więcej",

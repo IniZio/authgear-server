@@ -61,8 +61,9 @@ resources/authgear/templates/en/web/authflowv2/settings_mfa.html:52:16: template
 resources/authgear/templates/en/web/authflowv2/settings_mfa.html:67:16: template translation is forbidden: `__settings_mfa_item`
 resources/authgear/templates/en/web/authflowv2/settings_mfa.html:136:23: translation key not defined: "__settings_mfa_item_status"
 resources/authgear/templates/en/web/authflowv2/settings_mfa_password.html:25:31: translation key not defined: "__settings_mfa_password_description"
-resources/authgear/templates/en/web/authflowv2/settings_mfa_totp.html:22:31: translation key not defined: "__settings_totp_item_added_at"
-resources/authgear/templates/en/web/authflowv2/settings_mfa_totp.html:23:32: translation key not defined: "__settings_totp_item_delete_button"
+resources/authgear/templates/en/web/authflowv2/settings_mfa_totp.html:23:31: translation key not defined: "__settings_totp_item_added_at"
+resources/authgear/templates/en/web/authflowv2/settings_mfa_totp.html:24:32: translation key not defined: "__settings_totp_item_delete_button"
+resources/authgear/templates/en/web/authflowv2/settings_mfa_totp.html:34:29: translation key not defined: "__settings_totp_dialog_remove_input"
 resources/authgear/templates/en/web/authflowv2/settings_oob_otp.html:30:31: translation key not defined: "__settings_oob_otp_item_added_at"
 resources/authgear/templates/en/web/authflowv2/settings_oob_otp.html:31:32: translation key not defined: "__settings_oob_otp_item_delete_button"
 resources/authgear/templates/en/web/authflowv2/settings_oob_otp.html:39:31: translation key not defined: "/settings/mfa/create_oob_otp_%s"
@@ -98,5 +99,5 @@ resources/authgear/templates/en/web/authflowv2/settings_sessions.html:45:23: tra
 resources/authgear/templates/en/web/authflowv2/settings_sessions.html:66:21: translation key not defined: "__settings_session_dialog_remove_all_input"
 resources/authgear/templates/en/web/authflowv2/signup.html:91:26: translation key not defined: "v2.page.signup.continue.subtitle-%v"
 resources/authgear/templates/en/web/authflowv2/signup.html:264:35: translation key not defined: "%s-icon"
-100 errors found
+101 errors found
 exit status 1

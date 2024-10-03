@@ -1272,6 +1272,8 @@
   "v2.page.settings-totp.default.added-at-label": "<span data-date=\"{rfc3339}\" data-date-type=absolute data-date-date-style=long>{time, datetime, short} UTC</span>에 추가됨",
   "v2.page.settings-totp.default.button-add-authenticator-label": "+ 인증 앱/기기 추가",
   "v2.page.settings-totp.default.title": "인증 앱/기기",
+  "v2.page.settings-totp.default.remove-totp-dialog-description": "인증 앱/기기를 제거하시겠습니까?",
+  "v2.page.settings-totp.default.remove-totp-dialog-title": "인증 앱/기기 제거",
   "v2.page.settings.default.button-label-account-deletion": "계정 삭제",
   "v2.page.settings.default.button-label-advanced-settings": "고급 설정",
   "v2.page.settings.default.button-label-and-more": "{item} 및 기타",

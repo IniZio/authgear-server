@@ -1272,6 +1272,8 @@
   "v2.page.settings-totp.default.added-at-label": "Hinzugefügt um <span data-date=\"{rfc3339}\" data-date-type=absolute data-date-date-style=long>{time, datetime, short} UTC</span>",
   "v2.page.settings-totp.default.button-add-authenticator-label": "+ Authenticator-App/Gerät hinzufügen",
   "v2.page.settings-totp.default.title": "Authenticator-App/Gerät",
+  "v2.page.settings-totp.default.remove-totp-dialog-description": "Sind Sie sicher, dass Sie die Authenticator-App/das Gerät entfernen möchten?",
+  "v2.page.settings-totp.default.remove-totp-dialog-title": "Authenticator-App/Gerät entfernen",
   "v2.page.settings.default.button-label-account-deletion": "Konto löschen",
   "v2.page.settings.default.button-label-advanced-settings": "Erweiterte Einstellungen",
   "v2.page.settings.default.button-label-and-more": "{item} und mehr",

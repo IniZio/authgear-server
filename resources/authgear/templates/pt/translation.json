@@ -1272,6 +1272,8 @@
   "v2.page.settings-totp.default.added-at-label": "Adicionado em <span data-date=\"{rfc3339}\" data-date-type=absolute data-date-date-style=long>{time, datetime, short} UTC</span>",
   "v2.page.settings-totp.default.button-add-authenticator-label": "+ Adicionar aplicativo/dispositivo autenticador",
   "v2.page.settings-totp.default.title": "Aplicativo/dispositivo autenticador",
+  "v2.page.settings-totp.default.remove-totp-dialog-description": "Tem certeza de que deseja remover o aplicativo/dispositivo autenticador?",
+  "v2.page.settings-totp.default.remove-totp-dialog-title": "Remover aplicativo/dispositivo autenticador",
   "v2.page.settings.default.button-label-account-deletion": "Excluir Conta",
   "v2.page.settings.default.button-label-advanced-settings": "Configurações Avançadas",
   "v2.page.settings.default.button-label-and-more": "{item} e mais",
