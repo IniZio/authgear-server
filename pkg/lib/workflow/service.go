@@ -182,10 +182,10 @@ func (s *Service) Get(ctx context.Context, workflowID string, instanceID string,
 		return
 	}
 
-	if session.UserAgentID != "" && session.UserAgentID != userAgentID {
-		err = ErrUserAgentUnmatched
-		return
-	}
+	// if session.UserAgentID != "" && session.UserAgentID != userAgentID {
+	// 	err = ErrUserAgentUnmatched
+	// 	return
+	// }
 
 	ctx = session.Context(ctx)
 
@@ -242,10 +242,10 @@ func (s *Service) FeedInput(ctx context.Context, workflowID string, instanceID s
 	}
 	ctx = session.Context(ctx)
 
-	if session.UserAgentID != "" && session.UserAgentID != userAgentID {
-		err = ErrUserAgentUnmatched
-		return
-	}
+	// if session.UserAgentID != "" && session.UserAgentID != userAgentID {
+	// 	err = ErrUserAgentUnmatched
+	// 	return
+	// }
 
 	var workflowOutput *WorkflowOutput
 	var action *WorkflowAction

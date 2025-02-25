@@ -29,8 +29,10 @@ func (m *CORSMiddleware) Handle(next http.Handler) http.Handler {
 
 		w.Header().Add("Vary", "Origin")
 
+		skip := true
+
 		origin := r.Header.Get("Origin")
-		if origin != "" && err == nil && matcher.MatchOrigin(origin) {
+		if skip || (origin != "" && err == nil && matcher.MatchOrigin(origin)) {
 			corsMethod := r.Header.Get("Access-Control-Request-Method")
 			corsHeaders := r.Header.Get("Access-Control-Request-Headers")
 

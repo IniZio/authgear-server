@@ -3,6 +3,7 @@ package oauth
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -91,6 +92,7 @@ func (re *Resolver) resolveAccessToken(ctx context.Context, token string) (sessi
 	}
 
 	grant, err := re.AccessGrants.GetAccessGrant(ctx, tokenHash)
+	log.Println("grant", tokenHash, grant, err)
 	if errors.Is(err, ErrGrantNotFound) {
 		return nil, session.ErrInvalidSession
 	} else if err != nil {

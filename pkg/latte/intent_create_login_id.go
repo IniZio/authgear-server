@@ -22,9 +22,10 @@ var IntentCreateLoginIDSchema = validation.NewSimpleSchema(`{}`)
 
 type IntentCreateLoginID struct {
 	CaptchaProtectedIntent
-	UserID      string               `json:"user_id"`
-	LoginIDType model.LoginIDKeyType `json:"login_id_type"`
-	LoginIDKey  string               `json:"login_id_key"`
+	UserID          string               `json:"user_id"`
+	LoginIDType     model.LoginIDKeyType `json:"login_id_type"`
+	LoginIDKey      string               `json:"login_id_key"`
+	PhoneNumberHint string               `json:"login_id_value"`
 }
 
 var _ NewIdentityGetter = &IntentCreateLoginID{}
@@ -43,6 +44,7 @@ func (*IntentCreateLoginID) CanReactTo(ctx context.Context, deps *workflow.Depen
 	case 0:
 		return []workflow.Input{
 			&InputTakeLoginID{},
+			&InputTakeProofOfPhoneNumberVerification{},
 		}, nil
 	case 1:
 		return nil, nil
@@ -57,6 +59,7 @@ func (*IntentCreateLoginID) CanReactTo(ctx context.Context, deps *workflow.Depen
 
 func (i *IntentCreateLoginID) ReactTo(ctx context.Context, deps *workflow.Dependencies, workflows workflow.Workflows, input workflow.Input) (*workflow.Node, error) {
 	var inputTakeLoginID inputTakeLoginID
+	var inputTakeProofOfPhoneNumberVerification inputTakeProofOfPhoneNumberVerification
 
 	switch len(workflows.Nearest.Nodes) {
 	case 0:
@@ -68,6 +71,31 @@ func (i *IntentCreateLoginID) ReactTo(ctx context.Context, deps *workflow.Depend
 					Type:  i.LoginIDType,
 					Key:   i.LoginIDKey,
 					Value: stringutil.NewUserInputString(loginID),
+				},
+			}
+
+			info, err := deps.Identities.New(ctx, i.UserID, spec, identity.NewIdentityOptions{
+				LoginIDEmailByPassBlocklistAllowlist: false,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			_, err = deps.Identities.CheckDuplicated(ctx, info)
+			if err != nil {
+				return nil, err
+			}
+
+			return workflow.NewNodeSimple(&NodeDoCreateIdentity{
+				Identity: info,
+			}), nil
+		} else if workflow.AsInput(input, &inputTakeProofOfPhoneNumberVerification) && i.LoginIDType == model.LoginIDKeyTypePhone {
+			spec := &identity.Spec{
+				Type: model.IdentityTypeLoginID,
+				LoginID: &identity.LoginIDSpec{
+					Type:  i.LoginIDType,
+					Key:   i.LoginIDKey,
+					Value: stringutil.NewUserInputString(i.PhoneNumberHint),
 				},
 			}
 
@@ -123,8 +151,14 @@ func (*IntentCreateLoginID) GetEffects(ctx context.Context, deps *workflow.Depen
 	return nil, nil
 }
 
-func (*IntentCreateLoginID) OutputData(ctx context.Context, deps *workflow.Dependencies, workflows workflow.Workflows) (interface{}, error) {
-	return nil, nil
+func (i *IntentCreateLoginID) OutputData(ctx context.Context, deps *workflow.Dependencies, workflows workflow.Workflows) (interface{}, error) {
+	type IntentCreateLoginIDOutput struct {
+		PhoneNumberHint string `json:"phone_number_hint"`
+	}
+
+	return &IntentCreateLoginIDOutput{
+		PhoneNumberHint: i.PhoneNumberHint,
+	}, nil
 }
 
 func (*IntentCreateLoginID) GetNewIdentities(w *workflow.Workflow) ([]*identity.Info, bool) {

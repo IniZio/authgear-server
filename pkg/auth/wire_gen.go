@@ -83,6 +83,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/oauth/redis"
 	"github.com/authgear/authgear-server/pkg/lib/oauthclient"
 	"github.com/authgear/authgear-server/pkg/lib/presign"
+	"github.com/authgear/authgear-server/pkg/lib/proofofphonenumberverification"
 	"github.com/authgear/authgear-server/pkg/lib/ratelimit"
 	"github.com/authgear/authgear-server/pkg/lib/rolesgroups"
 	"github.com/authgear/authgear-server/pkg/lib/saml"
@@ -95970,6 +95971,19 @@ func newAPIWorkflowNewHandler(p *deps.RequestProvider) http.Handler {
 		DenoHook: accountMigrationDenoHook,
 		WebHook:  accountMigrationWebHook,
 	}
+	proofOfPhoneNumberVerificationConfig := appConfig.ProofOfPhoneNumberVerification
+	proofOfPhoneNumberVerificationHookConfig := proofOfPhoneNumberVerificationConfig.Hook
+	proofofphonenumberverificationHookHTTPClient := proofofphonenumberverification.NewHookHTTPClient(proofOfPhoneNumberVerificationHookConfig)
+	proofofphonenumberverificationWebhookMiddlewareLogger := proofofphonenumberverification.NewWebhookMiddlewareLogger(factory)
+	proofOfPhoneNumberVerificationWebHook := &proofofphonenumberverification.ProofOfPhoneNumberVerificationWebHook{
+		WebHook: hookWebHookImpl,
+		Client:  proofofphonenumberverificationHookHTTPClient,
+		Logger:  proofofphonenumberverificationWebhookMiddlewareLogger,
+	}
+	proofofphonenumberverificationService := &proofofphonenumberverification.Service{
+		Config:  proofOfPhoneNumberVerificationHookConfig,
+		WebHook: proofOfPhoneNumberVerificationWebHook,
+	}
 	captchaConfig := appConfig.Captcha
 	providerLogger := captcha.NewProviderLogger(factory)
 	deprecated_CaptchaCloudflareCredentials := deps.ProvideCaptchaCloudflareCredentials(secretConfig)
@@ -95997,34 +96011,35 @@ func newAPIWorkflowNewHandler(p *deps.RequestProvider) http.Handler {
 	}
 	eventStoreImpl := workflow.NewEventStore(appID, appredisHandle, workflowStoreImpl)
 	dependencies := &workflow.Dependencies{
-		Config:               appConfig,
-		FeatureConfig:        featureConfig,
-		Clock:                clockClock,
-		RemoteIP:             remoteIP,
-		HTTPRequest:          request,
-		Users:                userProvider,
-		Identities:           identityFacade,
-		Authenticators:       authenticatorFacade,
-		MFA:                  mfaFacade,
-		StdAttrsService:      stdattrsService,
-		CustomAttrsService:   customattrsService,
-		OTPCodes:             otpService,
-		OTPSender:            messageSender,
-		Verification:         workflowVerificationFacade,
-		ForgotPassword:       forgotpasswordService,
-		ResetPassword:        forgotpasswordService,
-		AccountMigrations:    accountmigrationService,
-		Captcha:              captchaProvider,
-		IDPSessions:          idpsessionProvider,
-		Sessions:             manager2,
-		AuthenticationInfos:  authenticationinfoStoreRedis,
-		SessionCookie:        cookieDef,
-		MFADeviceTokenCookie: mfaCookieDef,
-		Cookies:              cookieManager,
-		Events:               eventService,
-		RateLimiter:          limiter,
-		WorkflowEvents:       eventStoreImpl,
-		OfflineGrants:        redisStore,
+		Config:                         appConfig,
+		FeatureConfig:                  featureConfig,
+		Clock:                          clockClock,
+		RemoteIP:                       remoteIP,
+		HTTPRequest:                    request,
+		Users:                          userProvider,
+		Identities:                     identityFacade,
+		Authenticators:                 authenticatorFacade,
+		MFA:                            mfaFacade,
+		StdAttrsService:                stdattrsService,
+		CustomAttrsService:             customattrsService,
+		OTPCodes:                       otpService,
+		OTPSender:                      messageSender,
+		Verification:                   workflowVerificationFacade,
+		ForgotPassword:                 forgotpasswordService,
+		ResetPassword:                  forgotpasswordService,
+		AccountMigrations:              accountmigrationService,
+		ProofOfPhoneNumberVerification: proofofphonenumberverificationService,
+		Captcha:                        captchaProvider,
+		IDPSessions:                    idpsessionProvider,
+		Sessions:                       manager2,
+		AuthenticationInfos:            authenticationinfoStoreRedis,
+		SessionCookie:                  cookieDef,
+		MFADeviceTokenCookie:           mfaCookieDef,
+		Cookies:                        cookieManager,
+		Events:                         eventService,
+		RateLimiter:                    limiter,
+		WorkflowEvents:                 eventStoreImpl,
+		OfflineGrants:                  redisStore,
 	}
 	workflowServiceLogger := workflow.NewServiceLogger(factory)
 	uiService := &authenticationinfo.UIService{
@@ -96914,6 +96929,19 @@ func newAPIWorkflowGetHandler(p *deps.RequestProvider) http.Handler {
 		DenoHook: accountMigrationDenoHook,
 		WebHook:  accountMigrationWebHook,
 	}
+	proofOfPhoneNumberVerificationConfig := appConfig.ProofOfPhoneNumberVerification
+	proofOfPhoneNumberVerificationHookConfig := proofOfPhoneNumberVerificationConfig.Hook
+	proofofphonenumberverificationHookHTTPClient := proofofphonenumberverification.NewHookHTTPClient(proofOfPhoneNumberVerificationHookConfig)
+	proofofphonenumberverificationWebhookMiddlewareLogger := proofofphonenumberverification.NewWebhookMiddlewareLogger(factory)
+	proofOfPhoneNumberVerificationWebHook := &proofofphonenumberverification.ProofOfPhoneNumberVerificationWebHook{
+		WebHook: hookWebHookImpl,
+		Client:  proofofphonenumberverificationHookHTTPClient,
+		Logger:  proofofphonenumberverificationWebhookMiddlewareLogger,
+	}
+	proofofphonenumberverificationService := &proofofphonenumberverification.Service{
+		Config:  proofOfPhoneNumberVerificationHookConfig,
+		WebHook: proofOfPhoneNumberVerificationWebHook,
+	}
 	captchaConfig := appConfig.Captcha
 	providerLogger := captcha.NewProviderLogger(factory)
 	deprecated_CaptchaCloudflareCredentials := deps.ProvideCaptchaCloudflareCredentials(secretConfig)
@@ -96941,34 +96969,35 @@ func newAPIWorkflowGetHandler(p *deps.RequestProvider) http.Handler {
 	}
 	eventStoreImpl := workflow.NewEventStore(appID, appredisHandle, workflowStoreImpl)
 	dependencies := &workflow.Dependencies{
-		Config:               appConfig,
-		FeatureConfig:        featureConfig,
-		Clock:                clockClock,
-		RemoteIP:             remoteIP,
-		HTTPRequest:          request,
-		Users:                userProvider,
-		Identities:           identityFacade,
-		Authenticators:       authenticatorFacade,
-		MFA:                  mfaFacade,
-		StdAttrsService:      stdattrsService,
-		CustomAttrsService:   customattrsService,
-		OTPCodes:             otpService,
-		OTPSender:            messageSender,
-		Verification:         workflowVerificationFacade,
-		ForgotPassword:       forgotpasswordService,
-		ResetPassword:        forgotpasswordService,
-		AccountMigrations:    accountmigrationService,
-		Captcha:              captchaProvider,
-		IDPSessions:          idpsessionProvider,
-		Sessions:             manager2,
-		AuthenticationInfos:  authenticationinfoStoreRedis,
-		SessionCookie:        cookieDef,
-		MFADeviceTokenCookie: mfaCookieDef,
-		Cookies:              cookieManager,
-		Events:               eventService,
-		RateLimiter:          limiter,
-		WorkflowEvents:       eventStoreImpl,
-		OfflineGrants:        redisStore,
+		Config:                         appConfig,
+		FeatureConfig:                  featureConfig,
+		Clock:                          clockClock,
+		RemoteIP:                       remoteIP,
+		HTTPRequest:                    request,
+		Users:                          userProvider,
+		Identities:                     identityFacade,
+		Authenticators:                 authenticatorFacade,
+		MFA:                            mfaFacade,
+		StdAttrsService:                stdattrsService,
+		CustomAttrsService:             customattrsService,
+		OTPCodes:                       otpService,
+		OTPSender:                      messageSender,
+		Verification:                   workflowVerificationFacade,
+		ForgotPassword:                 forgotpasswordService,
+		ResetPassword:                  forgotpasswordService,
+		AccountMigrations:              accountmigrationService,
+		ProofOfPhoneNumberVerification: proofofphonenumberverificationService,
+		Captcha:                        captchaProvider,
+		IDPSessions:                    idpsessionProvider,
+		Sessions:                       manager2,
+		AuthenticationInfos:            authenticationinfoStoreRedis,
+		SessionCookie:                  cookieDef,
+		MFADeviceTokenCookie:           mfaCookieDef,
+		Cookies:                        cookieManager,
+		Events:                         eventService,
+		RateLimiter:                    limiter,
+		WorkflowEvents:                 eventStoreImpl,
+		OfflineGrants:                  redisStore,
 	}
 	workflowServiceLogger := workflow.NewServiceLogger(factory)
 	uiService := &authenticationinfo.UIService{
@@ -97818,6 +97847,19 @@ func newAPIWorkflowInputHandler(p *deps.RequestProvider) http.Handler {
 		DenoHook: accountMigrationDenoHook,
 		WebHook:  accountMigrationWebHook,
 	}
+	proofOfPhoneNumberVerificationConfig := appConfig.ProofOfPhoneNumberVerification
+	proofOfPhoneNumberVerificationHookConfig := proofOfPhoneNumberVerificationConfig.Hook
+	proofofphonenumberverificationHookHTTPClient := proofofphonenumberverification.NewHookHTTPClient(proofOfPhoneNumberVerificationHookConfig)
+	proofofphonenumberverificationWebhookMiddlewareLogger := proofofphonenumberverification.NewWebhookMiddlewareLogger(factory)
+	proofOfPhoneNumberVerificationWebHook := &proofofphonenumberverification.ProofOfPhoneNumberVerificationWebHook{
+		WebHook: hookWebHookImpl,
+		Client:  proofofphonenumberverificationHookHTTPClient,
+		Logger:  proofofphonenumberverificationWebhookMiddlewareLogger,
+	}
+	proofofphonenumberverificationService := &proofofphonenumberverification.Service{
+		Config:  proofOfPhoneNumberVerificationHookConfig,
+		WebHook: proofOfPhoneNumberVerificationWebHook,
+	}
 	captchaConfig := appConfig.Captcha
 	providerLogger := captcha.NewProviderLogger(factory)
 	deprecated_CaptchaCloudflareCredentials := deps.ProvideCaptchaCloudflareCredentials(secretConfig)
@@ -97845,34 +97887,35 @@ func newAPIWorkflowInputHandler(p *deps.RequestProvider) http.Handler {
 	}
 	eventStoreImpl := workflow.NewEventStore(appID, appredisHandle, workflowStoreImpl)
 	dependencies := &workflow.Dependencies{
-		Config:               appConfig,
-		FeatureConfig:        featureConfig,
-		Clock:                clockClock,
-		RemoteIP:             remoteIP,
-		HTTPRequest:          request,
-		Users:                userProvider,
-		Identities:           identityFacade,
-		Authenticators:       authenticatorFacade,
-		MFA:                  mfaFacade,
-		StdAttrsService:      stdattrsService,
-		CustomAttrsService:   customattrsService,
-		OTPCodes:             otpService,
-		OTPSender:            messageSender,
-		Verification:         workflowVerificationFacade,
-		ForgotPassword:       forgotpasswordService,
-		ResetPassword:        forgotpasswordService,
-		AccountMigrations:    accountmigrationService,
-		Captcha:              captchaProvider,
-		IDPSessions:          idpsessionProvider,
-		Sessions:             manager2,
-		AuthenticationInfos:  authenticationinfoStoreRedis,
-		SessionCookie:        cookieDef,
-		MFADeviceTokenCookie: mfaCookieDef,
-		Cookies:              cookieManager,
-		Events:               eventService,
-		RateLimiter:          limiter,
-		WorkflowEvents:       eventStoreImpl,
-		OfflineGrants:        redisStore,
+		Config:                         appConfig,
+		FeatureConfig:                  featureConfig,
+		Clock:                          clockClock,
+		RemoteIP:                       remoteIP,
+		HTTPRequest:                    request,
+		Users:                          userProvider,
+		Identities:                     identityFacade,
+		Authenticators:                 authenticatorFacade,
+		MFA:                            mfaFacade,
+		StdAttrsService:                stdattrsService,
+		CustomAttrsService:             customattrsService,
+		OTPCodes:                       otpService,
+		OTPSender:                      messageSender,
+		Verification:                   workflowVerificationFacade,
+		ForgotPassword:                 forgotpasswordService,
+		ResetPassword:                  forgotpasswordService,
+		AccountMigrations:              accountmigrationService,
+		ProofOfPhoneNumberVerification: proofofphonenumberverificationService,
+		Captcha:                        captchaProvider,
+		IDPSessions:                    idpsessionProvider,
+		Sessions:                       manager2,
+		AuthenticationInfos:            authenticationinfoStoreRedis,
+		SessionCookie:                  cookieDef,
+		MFADeviceTokenCookie:           mfaCookieDef,
+		Cookies:                        cookieManager,
+		Events:                         eventService,
+		RateLimiter:                    limiter,
+		WorkflowEvents:                 eventStoreImpl,
+		OfflineGrants:                  redisStore,
 	}
 	workflowServiceLogger := workflow.NewServiceLogger(factory)
 	uiService := &authenticationinfo.UIService{
@@ -98756,6 +98799,19 @@ func newAPIWorkflowV2Handler(p *deps.RequestProvider) http.Handler {
 		DenoHook: accountMigrationDenoHook,
 		WebHook:  accountMigrationWebHook,
 	}
+	proofOfPhoneNumberVerificationConfig := appConfig.ProofOfPhoneNumberVerification
+	proofOfPhoneNumberVerificationHookConfig := proofOfPhoneNumberVerificationConfig.Hook
+	proofofphonenumberverificationHookHTTPClient := proofofphonenumberverification.NewHookHTTPClient(proofOfPhoneNumberVerificationHookConfig)
+	proofofphonenumberverificationWebhookMiddlewareLogger := proofofphonenumberverification.NewWebhookMiddlewareLogger(factory)
+	proofOfPhoneNumberVerificationWebHook := &proofofphonenumberverification.ProofOfPhoneNumberVerificationWebHook{
+		WebHook: hookWebHookImpl,
+		Client:  proofofphonenumberverificationHookHTTPClient,
+		Logger:  proofofphonenumberverificationWebhookMiddlewareLogger,
+	}
+	proofofphonenumberverificationService := &proofofphonenumberverification.Service{
+		Config:  proofOfPhoneNumberVerificationHookConfig,
+		WebHook: proofOfPhoneNumberVerificationWebHook,
+	}
 	captchaConfig := appConfig.Captcha
 	providerLogger := captcha.NewProviderLogger(factory)
 	deprecated_CaptchaCloudflareCredentials := deps.ProvideCaptchaCloudflareCredentials(secretConfig)
@@ -98783,34 +98839,35 @@ func newAPIWorkflowV2Handler(p *deps.RequestProvider) http.Handler {
 	}
 	eventStoreImpl := workflow.NewEventStore(appID, appredisHandle, workflowStoreImpl)
 	dependencies := &workflow.Dependencies{
-		Config:               appConfig,
-		FeatureConfig:        featureConfig,
-		Clock:                clockClock,
-		RemoteIP:             remoteIP,
-		HTTPRequest:          request,
-		Users:                userProvider,
-		Identities:           identityFacade,
-		Authenticators:       authenticatorFacade,
-		MFA:                  mfaFacade,
-		StdAttrsService:      stdattrsService,
-		CustomAttrsService:   customattrsService,
-		OTPCodes:             otpService,
-		OTPSender:            messageSender,
-		Verification:         workflowVerificationFacade,
-		ForgotPassword:       forgotpasswordService,
-		ResetPassword:        forgotpasswordService,
-		AccountMigrations:    accountmigrationService,
-		Captcha:              captchaProvider,
-		IDPSessions:          idpsessionProvider,
-		Sessions:             manager2,
-		AuthenticationInfos:  authenticationinfoStoreRedis,
-		SessionCookie:        cookieDef,
-		MFADeviceTokenCookie: mfaCookieDef,
-		Cookies:              cookieManager,
-		Events:               eventService,
-		RateLimiter:          limiter,
-		WorkflowEvents:       eventStoreImpl,
-		OfflineGrants:        redisStore,
+		Config:                         appConfig,
+		FeatureConfig:                  featureConfig,
+		Clock:                          clockClock,
+		RemoteIP:                       remoteIP,
+		HTTPRequest:                    request,
+		Users:                          userProvider,
+		Identities:                     identityFacade,
+		Authenticators:                 authenticatorFacade,
+		MFA:                            mfaFacade,
+		StdAttrsService:                stdattrsService,
+		CustomAttrsService:             customattrsService,
+		OTPCodes:                       otpService,
+		OTPSender:                      messageSender,
+		Verification:                   workflowVerificationFacade,
+		ForgotPassword:                 forgotpasswordService,
+		ResetPassword:                  forgotpasswordService,
+		AccountMigrations:              accountmigrationService,
+		ProofOfPhoneNumberVerification: proofofphonenumberverificationService,
+		Captcha:                        captchaProvider,
+		IDPSessions:                    idpsessionProvider,
+		Sessions:                       manager2,
+		AuthenticationInfos:            authenticationinfoStoreRedis,
+		SessionCookie:                  cookieDef,
+		MFADeviceTokenCookie:           mfaCookieDef,
+		Cookies:                        cookieManager,
+		Events:                         eventService,
+		RateLimiter:                    limiter,
+		WorkflowEvents:                 eventStoreImpl,
+		OfflineGrants:                  redisStore,
 	}
 	workflowServiceLogger := workflow.NewServiceLogger(factory)
 	uiService := &authenticationinfo.UIService{

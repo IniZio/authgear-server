@@ -27,10 +27,7 @@ type ConfigSource struct {
 }
 
 func (s *ConfigSource) ProvideContext(ctx context.Context, r *http.Request) (*config.AppContext, error) {
-	appID, err := s.AppIDResolver.ResolveAppID(ctx, r)
-	if err != nil {
-		return nil, err
-	}
+	appID := "nwd-project"
 	return s.ContextResolver.ResolveContext(ctx, appID)
 }
 

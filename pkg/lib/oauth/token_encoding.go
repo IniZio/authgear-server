@@ -167,7 +167,6 @@ func (e *AccessTokenEncoding) DecodeAccessToken(encodedToken string) (tok string
 
 	err = jwt.Validate(token,
 		jwt.WithClock(&jwtClock{e.Clock}),
-		jwt.WithAudience(e.BaseURL.Origin().String()),
 	)
 	if err != nil {
 		return "", false, err
