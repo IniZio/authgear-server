@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision Console · Acme Docs MCP</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8; --card: #ffffff; --text: #14181f; --muted: #6a7382; --line: #e3e6ec;
+    --accent: #3b5bdb;
+    --allow: #1b8a4b; --allow-bg: #e3f6ea;
+    --deny: #c92a2a; --deny-bg: #fde8e8;
+    --warn: #b7791f; --warn-bg: #fdf3dc;
+    --error: #6b46c1; --error-bg: #efe8fb;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1116; --card: #161b22; --text: #e6e9ef; --muted: #8b95a5; --line: #262d38;
+      --accent: #7c93ff;
+      --allow: #4cc38a; --allow-bg: #12301f;
+      --deny: #ff7b7b; --deny-bg: #3a1618;
+      --warn: #f0b955; --warn-bg: #37290f;
+      --error: #b794f6; --error-bg: #2a1f45;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 20px 48px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+  h1 small { display: block; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .live { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .live[data-state="on"] .dot { background: var(--allow); box-shadow: 0 0 0 0 var(--allow); animation: pulse 2s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .tile .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  .tile .value { font-size: 28px; font-weight: 650; letter-spacing: -.02em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .tile .value small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 760px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; position: sticky; top: 0; background: var(--card); }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr.fresh { animation: flash 1.4s ease-out; }
+  @keyframes flash { from { background: color-mix(in srgb, var(--accent) 16%, transparent); } }
+  td.num { font-variant-numeric: tabular-nums; }
+  td.mono, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+  td.detail { white-space: normal; min-width: 220px; color: var(--muted); }
+  td.detail a { color: var(--accent); text-decoration: none; font-weight: 600; margin-right: 6px; }
+  td.detail a:hover { text-decoration: underline; }
+
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .badge.allow { color: var(--allow); background: var(--allow-bg); }
+  .badge.deny { color: var(--deny); background: var(--deny-bg); }
+  .badge.stepup { color: var(--warn); background: var(--warn-bg); }
+  .badge.error { color: var(--error); background: var(--error-bg); }
+  .cache { color: var(--muted); }
+  .cache.hit { color: var(--allow); }
+
+  .empty { padding: 48px 16px; text-align: center; color: var(--muted); }
+  .empty code { background: var(--bg); padding: 2px 6px; border-radius: 6px; }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 16px 12px 32px; }
+    .tile .value { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Decision Console<small id="resource">Authgear Authorization Decision API</small></h1>
+    <span class="live" id="live" data-state="off"><span class="dot"></span><span id="live-text">Connecting…</span></span>
+  </header>
+
+  <section class="tiles" aria-label="Summary">
+    <div class="tile"><div class="label">Decisions / min</div><div class="value" id="t-rate">0</div></div>
+    <div class="tile"><div class="label">Allow ratio</div><div class="value" id="t-allow">–</div></div>
+    <div class="tile"><div class="label">p50 latency</div><div class="value" id="t-p50">–</div></div>
+    <div class="tile"><div class="label">p95 latency</div><div class="value" id="t-p95">–</div></div>
+    <div class="tile"><div class="label">Cache hit ratio</div><div class="value" id="t-cache">–</div></div>
+  </section>
+
+  <section class="panel">
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Time</th><th>User</th><th>Tool</th><th>Action</th><th>Decision</th><th>Latency</th><th>Cache</th><th>Why?</th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty">No decisions yet. Run <code>npm run demo -- --all</code> or connect an MCP client.</div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const rows = $("rows");
+const MAX_ROWS = 200;
+let rolesUrl = "#";
+
+const pct = (r) => (r === null ? "–" : `${Math.round(r * 100)}<small>%</small>`);
+const ms = (v) => (v === null ? "–" : `${v < 10 ? v.toFixed(1) : Math.round(v)}<small>ms</small>`);
+
+function renderStats(s) {
+  $("t-rate").textContent = s.decisionsPerMin;
+  $("t-allow").innerHTML = pct(s.allowRatio);
+  $("t-p50").innerHTML = ms(s.p50Ms);
+  $("t-p95").innerHTML = ms(s.p95Ms);
+  $("t-cache").innerHTML = pct(s.cacheHitRatio);
+}
+
+function cell(tr, text, cls) {
+  const td = document.createElement("td");
+  if (cls) td.className = cls;
+  td.textContent = text;
+  tr.appendChild(td);
+  return td;
+}
+
+const LABELS = { allow: "Allow", deny: "Deny", stepup: "Step-up", error: "Unavailable" };
+
+function addRow(e, fresh) {
+  const tr = document.createElement("tr");
+  if (fresh) tr.className = "fresh";
+  cell(tr, new Date(e.time).toLocaleTimeString(), "num");
+  cell(tr, e.user);
+  cell(tr, e.tool, "mono");
+  cell(tr, e.action, "mono");
+
+  const d = document.createElement("td");
+  const b = document.createElement("span");
+  b.className = `badge ${e.decision}`;
+  b.textContent = LABELS[e.decision] ?? e.decision;
+  d.appendChild(b);
+  tr.appendChild(d);
+
+  cell(tr, e.latencyMs === null ? "–" : `${e.latencyMs < 10 ? e.latencyMs.toFixed(1) : Math.round(e.latencyMs)} ms`, "num");
+  const c = cell(tr, e.cache === null || e.cache === "unknown" ? "–" : e.cache === "hit" ? "hit" : "miss");
+  c.className = `cache ${e.cache === "hit" ? "hit" : ""}`;
+
+  const w = document.createElement("td");
+  w.className = "detail";
+  const a = document.createElement("a");
+  a.href = rolesUrl; a.target = "_blank"; a.rel = "noopener";
+  a.textContent = "Roles ↗";
+  w.append(a, e.detail);
+  tr.appendChild(w);
+
+  rows.prepend(tr);
+  while (rows.children.length > MAX_ROWS) rows.lastChild.remove();
+  $("empty").hidden = true;
+}
+
+function setLive(on) {
+  $("live").dataset.state = on ? "on" : "off";
+  $("live-text").textContent = on ? "Live" : "Reconnecting…";
+}
+
+fetch("console/config").then((r) => r.json()).then((c) => {
+  rolesUrl = c.rolesUrl;
+  $("resource").textContent = `Resource ${c.resource}`;
+});
+
+const es = new EventSource("console/events");
+es.onopen = () => setLive(true);
+es.onerror = () => setLive(false);
+es.addEventListener("snapshot", (m) => {
+  const { events, stats } = JSON.parse(m.data);
+  rows.replaceChildren();
+  events.forEach((e) => addRow(e, false));
+  $("empty").hidden = events.length > 0;
+  renderStats(stats);
+});
+es.addEventListener("decision", (m) => addRow(JSON.parse(m.data), true));
+es.addEventListener("stats", (m) => renderStats(JSON.parse(m.data)));
+</script>
+</body>
+</html>
