@@ -10,6 +10,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/api"
 	"github.com/authgear/authgear-server/pkg/api/apierrors"
 	"github.com/authgear/authgear-server/pkg/lib/authz"
+	"github.com/authgear/authgear-server/pkg/lib/config"
 	"github.com/authgear/authgear-server/pkg/util/httproute"
 	"github.com/authgear/authgear-server/pkg/util/httputil"
 )
@@ -18,6 +19,15 @@ func ConfigureEvaluationRoute(route httproute.Route) httproute.Route {
 	return route.
 		WithMethods("POST", "OPTIONS").
 		WithPathPattern("/access/v1/evaluation")
+}
+
+const maxSubjectIDLength = 400
+
+func validateSubjectID(id string) error {
+	if len(id) > maxSubjectIDLength {
+		return apierrors.NewBadRequest(fmt.Sprintf("subject.id must be at most %d characters", maxSubjectIDLength))
+	}
+	return nil
 }
 
 // Unknown JSON fields are accepted, as AuthZEN allows.
@@ -40,6 +50,9 @@ type evaluationItem struct {
 func (i *evaluationItem) toRequest() (authz.EvaluationRequest, error) {
 	if i.Subject == nil || i.Subject.Type == "" || i.Subject.ID == "" {
 		return authz.EvaluationRequest{}, apierrors.NewBadRequest("subject.type and subject.id are required")
+	}
+	if err := validateSubjectID(i.Subject.ID); err != nil {
+		return authz.EvaluationRequest{}, err
 	}
 	if i.Resource == nil || i.Resource.Type == "" || i.Resource.ID == "" {
 		return authz.EvaluationRequest{}, apierrors.NewBadRequest("resource.type and resource.id are required")
@@ -68,16 +81,21 @@ func decodeBody(w http.ResponseWriter, r *http.Request, payload any) error {
 	}, payload)
 }
 
-// writeDecisionHeaders echoes X-Request-ID and sets Server-Timing.
-func writeDecisionHeaders(w http.ResponseWriter, r *http.Request, info authz.EvaluationInfo) {
+// writeDecisionHeaders echoes X-Request-ID and sets Server-Timing; it adds the cache state only in dev mode,
+// as it would leak cache state across clients otherwise.
+func writeDecisionHeaders(w http.ResponseWriter, r *http.Request, info authz.EvaluationInfo, devMode config.DevMode) {
 	if id := r.Header.Get("X-Request-ID"); id != "" {
 		w.Header().Set("X-Request-ID", id)
 	}
-	desc := "cache-miss"
-	if info.CacheHit {
-		desc = "cache-hit"
+	timing := fmt.Sprintf("pdp;dur=%d", info.Elapsed.Milliseconds())
+	if devMode {
+		desc := "cache-miss"
+		if info.CacheHit {
+			desc = "cache-hit"
+		}
+		timing += fmt.Sprintf(";desc=\"%s\"", desc)
 	}
-	w.Header().Set("Server-Timing", fmt.Sprintf("pdp;dur=%d;desc=\"%s\"", info.Elapsed.Milliseconds(), desc))
+	w.Header().Set("Server-Timing", timing)
 }
 
 func writeJSON(w http.ResponseWriter, body any) {
@@ -100,8 +118,9 @@ func writeError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 type EvaluationHandler struct {
-	Caller *CallerResolver
-	Authz  *authz.Service
+	Caller  *CallerResolver
+	Authz   *authz.Service
+	DevMode config.DevMode
 }
 
 func (h *EvaluationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -138,7 +157,7 @@ func (h *EvaluationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeDecisionHeaders(w, r, info)
+	writeDecisionHeaders(w, r, info, h.DevMode)
 	writeJSON(w, struct {
 		Decision bool `json:"decision"`
 	}{Decision: decisions[0]})

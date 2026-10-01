@@ -102,29 +102,50 @@ func (r *CallerResolver) resolveSelf(ctx context.Context, s session.ResolvedSess
 }
 
 func (r *CallerResolver) AuthorizeRequest(ctx context.Context, caller *Caller, er authz.EvaluationRequest) error {
-	if er.Subject.Type != SubjectTypeUser {
-		return apierrors.NewBadRequest("unsupported subject.type")
-	}
-	if er.Resource.Type != ResourceTypeAuthgear {
-		return apierrors.NewBadRequest("unsupported resource.type")
+	return r.AuthorizeRequests(ctx, caller, []authz.EvaluationRequest{er})
+}
+
+// AuthorizeRequests checks every request. Client associations are looked up
+// once per distinct resource URI, in a single read-only transaction.
+func (r *CallerResolver) AuthorizeRequests(ctx context.Context, caller *Caller, ers []authz.EvaluationRequest) error {
+	var uris []string
+	seen := map[string]struct{}{}
+	for _, er := range ers {
+		if er.Subject.Type != SubjectTypeUser {
+			return apierrors.NewBadRequest("unsupported subject.type")
+		}
+		if er.Resource.Type != ResourceTypeAuthgear {
+			return apierrors.NewBadRequest("unsupported resource.type")
+		}
+
+		switch caller.Mode {
+		case CallerModeClient:
+			if _, ok := seen[er.Resource.ID]; !ok {
+				seen[er.Resource.ID] = struct{}{}
+				uris = append(uris, er.Resource.ID)
+			}
+		case CallerModeSelf:
+			if er.Subject.ID != caller.UserID {
+				return apierrors.NewForbidden("subject must be the token subject")
+			}
+		default:
+			return apierrors.NewUnauthorized("unknown caller mode")
+		}
 	}
 
-	switch caller.Mode {
-	case CallerModeClient:
-		err := r.Database.ReadOnly(ctx, func(ctx context.Context) error {
-			_, err := r.ClientResources.GetClientResourceByURI(ctx, caller.ClientID, er.Resource.ID)
-			return err
-		})
-		if errors.Is(err, resourcescope.ErrResourceNotFound) || errors.Is(err, resourcescope.ErrResourceNotAssociatedWithClient) {
-			return apierrors.NewForbidden("resource is not associated with the client")
-		}
-		return err
-	case CallerModeSelf:
-		if er.Subject.ID != caller.UserID {
-			return apierrors.NewForbidden("subject must be the token subject")
+	if len(uris) == 0 {
+		return nil
+	}
+	err := r.Database.ReadOnly(ctx, func(ctx context.Context) error {
+		for _, uri := range uris {
+			if _, err := r.ClientResources.GetClientResourceByURI(ctx, caller.ClientID, uri); err != nil {
+				return err
+			}
 		}
 		return nil
-	default:
-		return apierrors.NewUnauthorized("unknown caller mode")
+	})
+	if errors.Is(err, resourcescope.ErrResourceNotFound) || errors.Is(err, resourcescope.ErrResourceNotAssociatedWithClient) {
+		return apierrors.NewForbidden("resource is not associated with the client")
 	}
+	return err
 }

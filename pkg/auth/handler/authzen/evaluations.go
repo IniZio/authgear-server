@@ -6,6 +6,7 @@ import (
 
 	"github.com/authgear/authgear-server/pkg/api/apierrors"
 	"github.com/authgear/authgear-server/pkg/lib/authz"
+	"github.com/authgear/authgear-server/pkg/lib/config"
 	"github.com/authgear/authgear-server/pkg/util/httproute"
 )
 
@@ -56,14 +57,18 @@ func (b *evaluationsRequest) toRequests() ([]authz.EvaluationRequest, authz.Eval
 		if err != nil {
 			return nil, "", err
 		}
+		if err := validateSubjectID(er.Subject.ID); err != nil {
+			return nil, "", err
+		}
 		reqs = append(reqs, er)
 	}
 	return reqs, semantic, nil
 }
 
 type EvaluationsHandler struct {
-	Caller *CallerResolver
-	Authz  *authz.Service
+	Caller  *CallerResolver
+	Authz   *authz.Service
+	DevMode config.DevMode
 }
 
 func (h *EvaluationsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -86,11 +91,9 @@ func (h *EvaluationsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Every item must pass before any is evaluated.
-	for _, er := range reqs {
-		if err := h.Caller.AuthorizeRequest(ctx, caller, er); err != nil {
-			writeError(w, r, err)
-			return
-		}
+	if err := h.Caller.AuthorizeRequests(ctx, caller, reqs); err != nil {
+		writeError(w, r, err)
+		return
 	}
 
 	decisions, info, err := h.Authz.Evaluate(ctx, reqs, semantic)
@@ -107,7 +110,7 @@ func (h *EvaluationsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		out[i] = decision{Decision: d}
 	}
 
-	writeDecisionHeaders(w, r, info)
+	writeDecisionHeaders(w, r, info, h.DevMode)
 	writeJSON(w, struct {
 		Evaluations []decision `json:"evaluations"`
 	}{Evaluations: out})

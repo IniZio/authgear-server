@@ -181,3 +181,37 @@ func TestCallerResolverAuthorizeRequest(t *testing.T) {
 		})
 	})
 }
+
+type countingClientResources struct{ calls map[string]int }
+
+func (f *countingClientResources) GetClientResourceByURI(ctx context.Context, clientID string, uri string) (*resourcescope.Resource, error) {
+	f.calls[uri]++
+	if uri == "https://bad.example.com" {
+		return nil, resourcescope.ErrResourceNotAssociatedWithClient
+	}
+	return &resourcescope.Resource{}, nil
+}
+
+func TestCallerResolverAuthorizeRequestsDedupe(t *testing.T) {
+	Convey("CallerResolver.AuthorizeRequests dedupes resource lookups", t, func() {
+		ctx := context.Background()
+		counter := &countingClientResources{calls: map[string]int{}}
+		r := newResolver()
+		r.ClientResources = counter
+		client := &Caller{Mode: CallerModeClient, ClientID: "m2m"}
+		req := func(uri string) authz.EvaluationRequest {
+			return authz.EvaluationRequest{
+				Subject:  authz.Subject{Type: "user", ID: "u"},
+				Resource: authz.Resource{Type: "authgear:resource", ID: uri},
+				Action:   authz.Action{Name: "read"},
+			}
+		}
+
+		err := r.AuthorizeRequests(ctx, client, []authz.EvaluationRequest{req("https://a"), req("https://a"), req("https://b"), req("https://a")})
+		So(err, ShouldBeNil)
+		So(counter.calls, ShouldResemble, map[string]int{"https://a": 1, "https://b": 1})
+
+		err = r.AuthorizeRequests(ctx, client, []authz.EvaluationRequest{req("https://a"), req("https://bad.example.com")})
+		So(err, shouldBeKind(apierrors.Forbidden))
+	})
+}

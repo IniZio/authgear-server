@@ -5291,10 +5291,13 @@ func newAuthZENEvaluationHandler(p *deps.RequestProvider) http.Handler {
 		Resources: resourcescopeStore,
 		Versions:  versionStore,
 		Cache:     permissionCache,
+		Clock:     clockClock,
 	}
+	devMode := environmentConfig.DevMode
 	evaluationHandler := &authzen.EvaluationHandler{
-		Caller: callerResolver,
-		Authz:  authzService,
+		Caller:  callerResolver,
+		Authz:   authzService,
+		DevMode: devMode,
 	}
 	return evaluationHandler
 }
@@ -5661,10 +5664,13 @@ func newAuthZENEvaluationsHandler(p *deps.RequestProvider) http.Handler {
 		Resources: resourcescopeStore,
 		Versions:  versionStore,
 		Cache:     permissionCache,
+		Clock:     clockClock,
 	}
+	devMode := environmentConfig.DevMode
 	evaluationsHandler := &authzen.EvaluationsHandler{
-		Caller: callerResolver,
-		Authz:  authzService,
+		Caller:  callerResolver,
+		Authz:   authzService,
+		DevMode: devMode,
 	}
 	return evaluationsHandler
 }

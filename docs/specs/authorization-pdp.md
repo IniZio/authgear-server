@@ -69,7 +69,7 @@ Request:
 | Field | Requirement |
 |---|---|
 | `subject.type` | Must be `user`. |
-| `subject.id` | The user ID, as in the `sub` claim. |
+| `subject.id` | The user ID, as in the `sub` claim. At most 400 characters. |
 | `resource.type` | Must be `authgear:resource`. The `authgear:` prefix is reserved for Authgear-defined types. |
 | `resource.id` | A Resource URI. |
 | `action.name` | A Scope of that Resource. |
@@ -88,11 +88,13 @@ Response `200`:
 
 The success body is the bare AuthZEN response, not wrapped in `result`, because AuthZEN PEPs expect that shape. The response carries the request's `X-Request-ID` header back unchanged, when present, as AuthZEN requires.
 
+The response also carries a `Server-Timing: pdp;dur=<ms>` header; in development mode it adds `desc="cache-hit"` or `desc="cache-miss"`.
+
 Errors use the standard [error envelope](./api.md):
 
 | Status | When |
 |---|---|
-| `400` | Malformed body, unsupported `subject.type` or `resource.type`. |
+| `400` | Malformed body, over-long `subject.id`, unsupported `subject.type` or `resource.type`. |
 | `401` | Missing, invalid, or doubled credentials. |
 | `403` | Client mode: no association with the Resource. Self mode: Subject is not the token's `sub`. |
 | `5xx` | The PDP could not reach a decision. See [Failure Behavior](#failure-behavior). |
