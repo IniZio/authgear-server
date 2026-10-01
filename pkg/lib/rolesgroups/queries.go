@@ -39,8 +39,18 @@ func (q *Queries) ListScopesByRoleID(ctx context.Context, roleID string, resourc
 		resourceID = &resource.ID
 	}
 
-	models := make([]*model.Scope, 0, len(scopes))
+	// GetManyScopes does not preserve the deterministic order of scopeIDs.
+	scopeByID := make(map[string]*resourcescope.Scope, len(scopes))
 	for _, sc := range scopes {
+		scopeByID[sc.ID] = sc
+	}
+
+	models := make([]*model.Scope, 0, len(scopes))
+	for _, id := range scopeIDs {
+		sc, ok := scopeByID[id]
+		if !ok {
+			continue
+		}
 		if resourceID != nil && sc.ResourceID != *resourceID {
 			continue
 		}
@@ -54,7 +64,22 @@ func (q *Queries) ListRolesByScopeID(ctx context.Context, scopeID string) ([]*mo
 	if err != nil {
 		return nil, err
 	}
-	return q.GetManyRoles(ctx, roleIDs)
+	roles, err := q.GetManyRoles(ctx, roleIDs)
+	if err != nil {
+		return nil, err
+	}
+	// GetManyRoles does not preserve the deterministic order of roleIDs.
+	roleByID := make(map[string]*model.Role, len(roles))
+	for _, r := range roles {
+		roleByID[r.ID] = r
+	}
+	ordered := make([]*model.Role, 0, len(roles))
+	for _, id := range roleIDs {
+		if r, ok := roleByID[id]; ok {
+			ordered = append(ordered, r)
+		}
+	}
+	return ordered, nil
 }
 
 func (q *Queries) GetRole(ctx context.Context, id string) (*model.Role, error) {
