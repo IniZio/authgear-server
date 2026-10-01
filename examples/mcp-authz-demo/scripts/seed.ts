@@ -3,7 +3,7 @@
 import { createPrivateKey } from "node:crypto";
 import http from "node:http";
 import https from "node:https";
-import { SignJWT } from "jose";
+import { importJWK, SignJWT } from "jose";
 import { config, env } from "../src/config.ts";
 import { allScopes } from "../src/tools.ts";
 
@@ -13,7 +13,9 @@ const adminHost = env("ADMIN_API_HOST", new URL(config.authgearEndpoint).host);
 const pdpClientId = env("PDP_CLIENT_ID", "acme-docs-pdp");
 const DEMO_PASSWORD = "Demo1234!";
 
-const PEM = env("ADMIN_API_PRIVATE_KEY_PEM").replace(/\\n/g, "\n");
+// Either a JWK (JSON, as in authgear.secrets.yaml; set by `npm run setup`) or a PEM.
+const JWK = process.env.ADMIN_API_PRIVATE_KEY_JWK;
+const PEM = JWK ? "" : env("ADMIN_API_PRIVATE_KEY_PEM").replace(/\\n/g, "\n");
 const KEY_ID = env("ADMIN_API_KEY_ID");
 
 const scopeDescriptions: Record<string, string> = {
@@ -47,7 +49,7 @@ async function mintAdminToken(): Promise<string> {
     .setAudience(config.appId)
     .setIssuedAt(now)
     .setExpirationTime(now + 300)
-    .sign(createPrivateKey(PEM));
+    .sign(JWK ? await importJWK(JSON.parse(JWK), "RS256") : createPrivateKey(PEM));
 }
 
 // fetch cannot override Host, which the Admin API needs for project resolution.
@@ -84,6 +86,9 @@ async function gql<T>(query: string, variables: Record<string, unknown> = {}): P
 
 type Conn<T> = { edges: { node: T }[] } | null;
 const nodes = <T>(c: Conn<T>) => c?.edges.map((e) => e.node) ?? [];
+
+// Admin API node IDs are base64url("User:<uuid>"); the uuid is the token `sub` the PDP expects.
+const subjectOf = (nodeId: string) => Buffer.from(nodeId, "base64url").toString().replace(/^User:/, "");
 
 const log = (verb: string, what: string) => console.log(`  ${verb.padEnd(8)} ${what}`);
 
@@ -176,14 +181,14 @@ async function ensureUsers(): Promise<void> {
     );
     let id = found.getUserByLoginID?.id;
     if (id) {
-      log("ok", `user ${u.username}`);
+      log("ok", `user ${u.username} (id ${subjectOf(id)})`);
     } else {
       const created = await gql<{ createUser: { user: { id: string } } }>(
         `mutation($i: CreateUserInput!) { createUser(input: $i) { user { id } } }`,
         { i: { definition: { loginID: { key: "username", value: u.username } }, password: DEMO_PASSWORD } },
       );
       id = created.createUser.user.id;
-      log("created", `user ${u.username} (password ${DEMO_PASSWORD})`);
+      log("created", `user ${u.username} (id ${subjectOf(id)}, password ${DEMO_PASSWORD})`);
     }
     if (u.roles.length) {
       await gql(`mutation($i: AddUserToRolesInput!) { addUserToRoles(input: $i) { user { id } } }`, {

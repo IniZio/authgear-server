@@ -70,7 +70,7 @@ Notes:
 
 - Node.js 20.12 or later
 - A local Authgear (see "Start local development environment" in the repo [`CLAUDE.md`](../../CLAUDE.md)) running a build that includes the Authorization Decision API
-- An Admin API key for the project (portal: **Advanced → Admin API**)
+- A local project created with `authgear init` (its Admin API key is read from `authgear.secrets.yaml`)
 
 ## Walkthrough (about 5 minutes)
 
@@ -85,21 +85,16 @@ make start-portal   # portal backend
 
 ### 2. Configure the project and seed it
 
-Merge [`authgear.yaml.snippet`](./authgear.yaml.snippet) into your local project config. It adds the `m2m` client for the PDP, a first-party native client for the demo, and the `username` login ID key. The snippet holds no real secret. Generate one with `openssl rand -hex 24`, then use the same value in both places:
-
-- `.env`: `PDP_CLIENT_SECRET`, the plain value.
-- Authgear: add an `oauth.client_secrets` item for `acme-docs-pdp` to `authgear.secrets.yaml`, where `k` is the value base64url-encoded without padding (the exact YAML is in the snippet).
-
-Alternatively, generate the secret in the portal and copy it into `PDP_CLIENT_SECRET`.
-
 ```sh
 cd examples/mcp-authz-demo
-npm install
-cp .env.example .env     # fill in PDP_CLIENT_SECRET and the ADMIN_API_* values
-npm run seed
+npm install && npm run setup && npm run seed
 ```
 
-`npm run seed` is idempotent. It creates the Resource and its Scopes, the three roles with their permissions, the `writers` group, the three users (password `Demo1234!`), and associates the `m2m` client with the Resource. The Resource and Scopes allow first-party clients (static and dynamic), so a client such as Claude Code, which registers itself with CIMD or DCR, can request them.
+`npm run setup` edits the files `authgear init` created (`AUTHGEAR_CONFIG`, default `../../var/authgear.yaml`; `AUTHGEAR_SECRETS`, default `../../var/authgear.secrets.yaml`; or `--config` / `--secrets`). It merges [`authgear.yaml.snippet`](./authgear.yaml.snippet) (the `m2m` PDP client, a first-party native demo client, the `username` login ID key), generates the PDP client secret, and writes `.env`. It skips what already exists, keeps a `.bak` of any file it changes, and is safe to re-run. **Restart the Authgear server afterwards** so it reloads the config.
+
+Manual fallback: merge the snippet yourself, generate a secret with `openssl rand -hex 24`, put it in `.env` as `PDP_CLIENT_SECRET` and in `authgear.secrets.yaml` as the `oauth.client_secrets` item from the snippet (`k` is base64url, no padding), then `cp .env.example .env`, fill in `ADMIN_API_KEY_ID` and `ADMIN_API_PRIVATE_KEY_JWK` (or `_PEM`) from the Admin API key, and run `npm run seed`.
+
+`npm run seed` is idempotent and prints each user's ID (the token `sub`). It creates the Resource and its Scopes, the three roles with their permissions, the `writers` group, the three users (password `Demo1234!`), and associates the `m2m` client with the Resource. The Resource and Scopes allow first-party clients (static and dynamic), so a client such as Claude Code, which registers itself with CIMD or DCR, can request them.
 
 ### 3. Start the server and open the console
 
@@ -164,6 +159,7 @@ Run `/mcp` in Claude Code and authenticate. The server advertises only `docs:rea
 |---|---|
 | `npm start` | Run the MCP server and the console. |
 | `npm run dev` | Same, restarting on file changes. |
+| `npm run setup` | Merge the demo config into your local Authgear files and write `.env`. |
 | `npm run seed` | Create the demo Resource, Scopes, roles, group, users and grants. |
 | `npm run demo -- --all` | Sign in as each user and print the tools and call results. |
 | `npm run typecheck` | Type-check the TypeScript. |
@@ -181,6 +177,7 @@ Settings are in [`.env.example`](./.env.example).
 | `src/tools.ts` | Tool table: name, Scope, input schema, handler. |
 | `src/store.ts` | In-memory documents with sample content. |
 | `src/console/` | Decision Console: event bus and statistics, SSE route, static page. |
+| `scripts/setup-local.ts` | Merge the snippet into local config, generate the PDP secret, write `.env`. |
 | `scripts/seed.ts` | Provision Authgear through the Admin API. |
 | `scripts/demo-client.ts` | Scripted MCP client (authorization code with PKCE). |
 
