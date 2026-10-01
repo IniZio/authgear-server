@@ -243,7 +243,7 @@
   "RoleDetailsScreen.button.deleteRole": "Delete Role",
   "RoleDetailsScreen.groups.add": "Add to Group",
   "RoleDetailsScreen.tabs.permissions": "Permissions",
-  "RolePermissionsTab.description": "Choose which scopes of your API resources this role grants. When your API asks Authgear's Authorization Decision API whether a user may use a scope, the answer is yes if the user has this role, directly or through a group. Access tokens are not affected.",
+  "RolePermissionsTab.description": "Choose which scopes of your API resources this role grants. When your API asks Authgear's Authorization Decision API whether a user may use a scope, the answer is yes only if the user has this role, directly or through a group, and their account is active. Access tokens are not affected.",
   "RolePermissionsTab.search": "Search API resources",
   "RolePermissionsTab.no-results": "No API resources match your search.",
   "RolePermissionsTab.empty.title": "No API resources yet",
