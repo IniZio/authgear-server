@@ -29,7 +29,9 @@ export function createPdp(auth: GrantAuth) {
   const searches = new Map<string, Promise<string[]>>();
 
   async function evaluate(r: AuthzenRequest): Promise<boolean> {
-    const json = (await post("evaluation", { subject, resource: r.resource, action: { name: r.action }, context })) as {
+    // AuthZEN requires resource.id; a create has none yet.
+    const resource = { ...r.resource, id: r.resource.id ?? "new" };
+    const json = (await post("evaluation", { subject, resource, action: { name: r.action }, context })) as {
       decision?: unknown;
     };
     if (typeof json.decision !== "boolean") throw new PdpUnavailableError("PDP returned a malformed decision");
