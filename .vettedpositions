@@ -10,6 +10,8 @@
 /pkg/admin/transport/presign_images_upload.go:41:9: requestcontext
 /pkg/admin/transport/ui_param.go:35:10: requestcontext
 /pkg/auth/api/require_authenticated_middleware.go:16:10: requestcontext
+/pkg/auth/handler/agentgrant/revoke.go:40:9: requestcontext
+/pkg/auth/handler/agentgrant/revoke.go:97:29: requestcontext
 /pkg/auth/handler/api/accountmanagement_v1_identification.go:64:9: requestcontext
 /pkg/auth/handler/api/accountmanagement_v1_identification_oauth.go:55:9: requestcontext
 /pkg/auth/handler/api/anonymous_user_promotion_code.go:78:9: requestcontext
@@ -23,9 +25,10 @@
 /pkg/auth/handler/api/workflow_new.go:83:9: requestcontext
 /pkg/auth/handler/api/workflow_v2.go:205:9: requestcontext
 /pkg/auth/handler/api/workflow_websocket.go:52:9: requestcontext
-/pkg/auth/handler/authzen/evaluation.go:99:29: requestcontext
-/pkg/auth/handler/authzen/evaluation.go:108:9: requestcontext
-/pkg/auth/handler/authzen/evaluations.go:70:9: requestcontext
+/pkg/auth/handler/authzen/evaluation.go:119:29: requestcontext
+/pkg/auth/handler/authzen/evaluation.go:129:9: requestcontext
+/pkg/auth/handler/authzen/evaluations.go:72:9: requestcontext
+/pkg/auth/handler/authzen/search.go:75:9: requestcontext
 /pkg/auth/handler/oauth/app_session_token.go:68:9: requestcontext
 /pkg/auth/handler/oauth/authorize.go:46:68: requestcontext
 /pkg/auth/handler/oauth/authorize.go:60:46: requestcontext
