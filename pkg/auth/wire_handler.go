@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/wire"
 
+	handleragentgrant "github.com/authgear/authgear-server/pkg/auth/handler/agentgrant"
 	handlerapi "github.com/authgear/authgear-server/pkg/auth/handler/api"
 	handlerauthzen "github.com/authgear/authgear-server/pkg/auth/handler/authzen"
 	handleroauth "github.com/authgear/authgear-server/pkg/auth/handler/oauth"
@@ -120,6 +121,13 @@ func newAuthZENEvaluationsHandler(p *deps.RequestProvider) http.Handler {
 	panic(wire.Build(
 		DependencySet,
 		wire.Bind(new(http.Handler), new(*handlerauthzen.EvaluationsHandler)),
+	))
+}
+
+func newAgentGrantRevokeHandler(p *deps.RequestProvider) http.Handler {
+	panic(wire.Build(
+		DependencySet,
+		wire.Bind(new(http.Handler), new(*handleragentgrant.RevokeHandler)),
 	))
 }
 

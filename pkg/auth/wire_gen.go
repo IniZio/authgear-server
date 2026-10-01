@@ -9,6 +9,7 @@ package auth
 import (
 	"context"
 	api2 "github.com/authgear/authgear-server/pkg/auth/api"
+	"github.com/authgear/authgear-server/pkg/auth/handler/agentgrant"
 	"github.com/authgear/authgear-server/pkg/auth/handler/api"
 	"github.com/authgear/authgear-server/pkg/auth/handler/authzen"
 	oauth3 "github.com/authgear/authgear-server/pkg/auth/handler/oauth"
@@ -5698,6 +5699,83 @@ func newAuthZENEvaluationsHandler(p *deps.RequestProvider) http.Handler {
 		DevMode: devMode,
 	}
 	return evaluationsHandler
+}
+
+func newAgentGrantRevokeHandler(p *deps.RequestProvider) http.Handler {
+	appProvider := p.AppProvider
+	appContext := appProvider.AppContext
+	config := appContext.Config
+	appConfig := config.AppConfig
+	oAuthConfig := appConfig.OAuth
+	request := p.Request
+	rootProvider := appProvider.RootProvider
+	environmentConfig := rootProvider.EnvironmentConfig
+	trustProxy := environmentConfig.TrustProxy
+	httpHost := deps.ProvideHTTPHost(request, trustProxy)
+	httpProto := deps.ProvideHTTPProto(request, trustProxy)
+	sharedAuthgearEndpoint := environmentConfig.SharedAuthgearEndpoint
+	oAuthEndpoints := &endpoints.OAuthEndpoints{
+		HTTPHost:               httpHost,
+		HTTPProto:              httpProto,
+		SharedAuthgearEndpoint: sharedAuthgearEndpoint,
+	}
+	uiConfig := appConfig.UI
+	globalUIImplementation := environmentConfig.UIImplementation
+	globalUISettingsImplementation := environmentConfig.UISettingsImplementation
+	uiImplementationService := &web.UIImplementationService{
+		UIConfig:                       uiConfig,
+		GlobalUIImplementation:         globalUIImplementation,
+		GlobalUISettingsImplementation: globalUISettingsImplementation,
+	}
+	endpointsEndpoints := &endpoints.Endpoints{
+		OAuthEndpoints:          oAuthEndpoints,
+		UIImplementationService: uiImplementationService,
+	}
+	secretConfig := config.SecretConfig
+	databaseCredentials := deps.ProvideDatabaseCredentials(secretConfig)
+	appID := appConfig.ID
+	sqlBuilderApp := appdb.NewSQLBuilderApp(databaseCredentials, appID)
+	handle := appProvider.AppDatabase
+	sqlExecutor := appdb.NewSQLExecutor(handle)
+	clockClock := _wireSystemClockValue
+	store := &oauthclient.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+		AppID:       appID,
+	}
+	appredisHandle := appProvider.Redis
+	clientCache := &oauthclient.ClientCache{
+		Redis: appredisHandle,
+		AppID: appID,
+		Clock: clockClock,
+	}
+	queries := &oauthclient.Queries{
+		Store:       store,
+		OAuthConfig: oAuthConfig,
+		Database:    handle,
+		Cache:       clientCache,
+	}
+	resolver := &oauthclient.Resolver{
+		OAuthConfig:     oAuthConfig,
+		TesterEndpoints: endpointsEndpoints,
+		Queries:         queries,
+	}
+	oAuthClientCredentials := deps.ProvideOAuthClientCredentials(secretConfig)
+	redisStore := &redis.Store{
+		Redis:       appredisHandle,
+		AppID:       appID,
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
+	revokeHandler := &agentgrant.RevokeHandler{
+		Clients:     resolver,
+		Credentials: oAuthClientCredentials,
+		Store:       redisStore,
+		Clock:       clockClock,
+	}
+	return revokeHandler
 }
 
 func newOAuthJWKSHandler(p *deps.RequestProvider) http.Handler {

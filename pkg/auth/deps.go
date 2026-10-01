@@ -7,6 +7,7 @@ import (
 	"github.com/google/wire"
 
 	"github.com/authgear/authgear-server/pkg/auth/api"
+	handleragentgrant "github.com/authgear/authgear-server/pkg/auth/handler/agentgrant"
 	handlerapi "github.com/authgear/authgear-server/pkg/auth/handler/api"
 	handlerauthzen "github.com/authgear/authgear-server/pkg/auth/handler/authzen"
 	handleroauth "github.com/authgear/authgear-server/pkg/auth/handler/oauth"
@@ -46,6 +47,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/oauth/oauthsession"
 	"github.com/authgear/authgear-server/pkg/lib/oauth/oidc"
 	oidchandler "github.com/authgear/authgear-server/pkg/lib/oauth/oidc/handler"
+	oauthredis "github.com/authgear/authgear-server/pkg/lib/oauth/redis"
 	"github.com/authgear/authgear-server/pkg/lib/oauthclient"
 	"github.com/authgear/authgear-server/pkg/lib/presign"
 	"github.com/authgear/authgear-server/pkg/lib/ratelimit"
@@ -176,6 +178,8 @@ var DependencySet = wire.NewSet(
 	handlersaml.DependencySet,
 
 	handlerapi.DependencySet,
+	handleragentgrant.DependencySet,
+	wire.Bind(new(handleragentgrant.RevokeStore), new(*oauthredis.Store)),
 	handlerauthzen.DependencySet,
 	wire.Bind(new(handlerauthzen.MetadataEndpointsProvider), new(*endpoints.Endpoints)),
 	wire.Bind(new(handlerauthzen.ClientResourceQueries), new(*resourcescope.ClientResourceScopeService)),

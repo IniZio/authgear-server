@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	agentgranthandler "github.com/authgear/authgear-server/pkg/auth/handler/agentgrant"
 	apihandler "github.com/authgear/authgear-server/pkg/auth/handler/api"
 	authzenhandler "github.com/authgear/authgear-server/pkg/auth/handler/authzen"
 	oauthhandler "github.com/authgear/authgear-server/pkg/auth/handler/oauth"
@@ -473,6 +474,7 @@ func NewRouter(ctx context.Context, p *deps.RootProvider, configSource *configso
 	router.Add(oauthhandler.ConfigureAuthorizeRoute(oauthAuthzAPIRoute), p.Handler(newOAuthAuthorizeHandler))
 	router.Add(oauthhandler.ConfigureTokenRoute(dpopOauthAPIRoute), p.Handler(newOAuthTokenHandler))
 	router.Add(oauthhandler.ConfigureRevokeRoute(dpopOauthAPIRoute), p.Handler(newOAuthRevokeHandler))
+	router.Add(agentgranthandler.ConfigureRevokeRoute(oauthAPIRoute), p.Handler(newAgentGrantRevokeHandler))
 	router.Add(oauthhandler.ConfigureEndSessionRoute(oauthAPIRoute), p.Handler(newOAuthEndSessionHandler))
 	router.Add(oauthhandler.ConfigureRegisterRoute(oauthAPIRoute), p.Handler(newOAuthRegisterHandler))
 
