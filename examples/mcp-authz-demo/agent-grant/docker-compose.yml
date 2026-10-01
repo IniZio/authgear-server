@@ -1,0 +1,66 @@
+# Sandbox demo: the agent can reach only the gateway; the gateway is the only path to Linear and Authgear.
+# Started by orchestrator.ts, which supplies the ${...} values. Do not run it by hand.
+name: agent-grant-demo
+
+x-node: &node
+  image: node:20-alpine
+  working_dir: /app
+  read_only: true
+  tmpfs: [/tmp]
+  volumes:
+    - ./:/app/agent-grant:ro
+    - ../src:/app/src:ro
+    - ../node_modules:/app/node_modules:ro
+    - ../package.json:/app/package.json:ro
+
+services:
+  linear:
+    <<: *node
+    command: ["node", "--import", "tsx", "agent-grant/linear/server.ts"]
+    environment:
+      LINEAR_PORT: "4300"
+      LINEAR_API_KEY: ${LINEAR_API_KEY}
+    networks: [upstream]
+
+  gateway:
+    <<: *node
+    command: ["node", "--import", "tsx", "agent-grant/gateway/server.ts"]
+    environment:
+      GATEWAY_PORT: "4200"
+      GATEWAY_HOST: 0.0.0.0
+      GATEWAY_PUBLIC_URL: http://gateway:4200
+      GATEWAY_RESOURCE_URI: ${GATEWAY_RESOURCE_URI:-https://linear-gateway.localhost}
+      GATEWAY_PDP_CLIENT_ID: ${GATEWAY_PDP_CLIENT_ID:-linear-gateway-pdp}
+      GATEWAY_PDP_CLIENT_SECRET: ${GATEWAY_PDP_CLIENT_SECRET}
+      AUTHGEAR_ENDPOINT: ${GATEWAY_AUTHGEAR_ENDPOINT:-http://localhost:3100}
+      AUTHGEAR_ISSUER: ${GATEWAY_AUTHGEAR_ISSUER:-http://localhost:3100}
+      LINEAR_URL: http://linear:4300/mcp
+      LINEAR_API_KEY: ${LINEAR_API_KEY}
+    ports:
+      - "127.0.0.1:4200:4200"
+    # Authgear redirects any Host other than the project's public origin, so the gateway must use that
+    # exact host name (localhost by default). Map it to the Docker host, where the proxy listens.
+    extra_hosts:
+      - "${GATEWAY_AUTHGEAR_HOST:-localhost}:host-gateway"
+    networks: [sandbox, upstream, egress]
+
+  agent:
+    <<: *node
+    command: ["node", "--import", "tsx", "agent-grant/agent/agent.ts"]
+    environment:
+      GATEWAY_URL: http://gateway:4200/mcp
+      LINEAR_PROBE_URL: http://linear:4300
+      EXTERNAL_PROBE_URL: https://example.com
+      PHASE: ${PHASE:-granted}
+      GRANT_TOKEN: ${GRANT_TOKEN:-}
+      DPOP_PRIVATE_JWK: ${DPOP_PRIVATE_JWK:-}
+    networks: [sandbox]
+
+networks:
+  # internal: no route out of the network, so the agent reaches only the gateway.
+  sandbox:
+    internal: true
+  upstream:
+    internal: true
+  egress:
+    driver: bridge
