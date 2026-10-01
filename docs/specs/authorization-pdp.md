@@ -212,7 +212,7 @@ CREATE INDEX _auth_role_resource_scope_scope ON _auth_role_resource_scope USING 
 
 ## Admin API
 
-Granting and removing Permissions does not generate events, consistent with [CRUD of Roles and Groups](./roles-groups.md#crud-of-roles-and-groups).
+Each mutation records an audit log entry, `admin_api.mutation.add_scopes_to_role.executed` or `admin_api.mutation.remove_scopes_from_role.executed`, with payload `{role_key, resource_uri, scopes}`, like the other Admin API mutations that change role assignments.
 
 ```graphql
 type Mutation {
