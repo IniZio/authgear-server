@@ -5,6 +5,7 @@ import (
 
 	"github.com/lib/pq"
 
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/infra/db"
 	"github.com/authgear/authgear-server/pkg/util/uuid"
 )
@@ -65,7 +66,7 @@ func (s *Store) ListRoleIDsByScopeID(ctx context.Context, scopeID string) ([]str
 }
 
 // ListEffectivePermissionsByUserID returns permissions of roles held directly or via groups.
-func (s *Store) ListEffectivePermissionsByUserID(ctx context.Context, userID string) ([]Permission, error) {
+func (s *Store) ListEffectivePermissionsByUserID(ctx context.Context, userID string) ([]authz.Permission, error) {
 	q := s.SQLBuilder.Select("rs.resource_id", "rs.scope").
 		From(s.SQLBuilder.TableName("_auth_role_resource_scope"), "rrs").
 		Join(s.SQLBuilder.TableName("_auth_resource_scope"), "rs", "rrs.scope_id = rs.id").
@@ -86,9 +87,9 @@ func (s *Store) ListEffectivePermissionsByUserID(ctx context.Context, userID str
 	}
 	defer rows.Close()
 
-	var perms []Permission
+	var perms []authz.Permission
 	for rows.Next() {
-		var p Permission
+		var p authz.Permission
 		if err := rows.Scan(&p.ResourceID, &p.Scope); err != nil {
 			return nil, err
 		}

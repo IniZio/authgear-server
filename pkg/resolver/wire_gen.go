@@ -27,6 +27,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/authn/otp"
 	"github.com/authgear/authgear-server/pkg/lib/authn/stdattrs"
 	"github.com/authgear/authgear-server/pkg/lib/authn/user"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/deps"
 	"github.com/authgear/authgear-server/pkg/lib/elasticsearch"
 	"github.com/authgear/authgear-server/pkg/lib/endpoints"
@@ -580,9 +581,18 @@ func newSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -954,8 +964,9 @@ func newSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clock,
+		Store:            userStore,
+		Clock:            clock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,

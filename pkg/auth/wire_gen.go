@@ -43,6 +43,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/authn/sso"
 	"github.com/authgear/authgear-server/pkg/lib/authn/stdattrs"
 	"github.com/authgear/authgear-server/pkg/lib/authn/user"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/botprotection"
 	"github.com/authgear/authgear-server/pkg/lib/cimd"
 	"github.com/authgear/authgear-server/pkg/lib/config/configsource"
@@ -682,9 +683,18 @@ func newOAuthAuthorizeHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -1057,8 +1067,9 @@ func newOAuthAuthorizeHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -1761,9 +1772,18 @@ func newOAuthConsentHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -2136,8 +2156,9 @@ func newOAuthConsentHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -2955,9 +2976,18 @@ func newOAuthTokenHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -3329,8 +3359,9 @@ func newOAuthTokenHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -4102,9 +4133,18 @@ func newOAuthRevokeHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -4636,9 +4676,18 @@ func newOAuthRegisterHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rolesgroupsCommands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -5232,9 +5281,18 @@ func newOAuthJWKSHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -5607,8 +5665,9 @@ func newOAuthJWKSHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -6140,9 +6199,18 @@ func newOAuthUserInfoHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -6515,8 +6583,9 @@ func newOAuthUserInfoHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -7100,9 +7169,18 @@ func newOAuthEndSessionHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -7498,8 +7576,9 @@ func newOAuthEndSessionHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -8099,9 +8178,18 @@ func newOAuthAppSessionTokenHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -8473,8 +8561,9 @@ func newOAuthAppSessionTokenHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -9212,9 +9301,18 @@ func newAPIAnonymousUserSignupHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -9604,8 +9702,9 @@ func newAPIAnonymousUserSignupHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -10332,9 +10431,18 @@ func newAPIAnonymousUserPromotionCodeHandler(p *deps.RequestProvider) http.Handl
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -10724,8 +10832,9 @@ func newAPIAnonymousUserPromotionCodeHandler(p *deps.RequestProvider) http.Handl
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -11451,9 +11560,18 @@ func newAPIPresignImagesUploadHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -11704,9 +11822,18 @@ func newWebAppAuthflowV2VerifyBotProtectionHandler(p *deps.RequestProvider) http
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -12033,6 +12160,7 @@ func newWebAppAuthflowV2VerifyBotProtectionHandler(p *deps.RequestProvider) http
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -12940,9 +13068,18 @@ func newWebAppAuthflowV2SelectAccountHandler(p *deps.RequestProvider) http.Handl
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -13269,6 +13406,7 @@ func newWebAppAuthflowV2SelectAccountHandler(p *deps.RequestProvider) http.Handl
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -14183,9 +14321,18 @@ func newWebAppAuthflowV2SSOCallbackHandler(p *deps.RequestProvider) http.Handler
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -14512,6 +14659,7 @@ func newWebAppAuthflowV2SSOCallbackHandler(p *deps.RequestProvider) http.Handler
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -15783,9 +15931,18 @@ func newWechatCallbackHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -16175,8 +16332,9 @@ func newWechatCallbackHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -16902,9 +17060,18 @@ func newWebAppAuthflowV2VerifyLoginLinkOTPHandler(p *deps.RequestProvider) http.
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -17306,8 +17473,9 @@ func newWebAppAuthflowV2VerifyLoginLinkOTPHandler(p *deps.RequestProvider) http.
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -18055,9 +18223,18 @@ func newWebAppAuthflowV2SettingsHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -18447,8 +18624,9 @@ func newWebAppAuthflowV2SettingsHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -19212,9 +19390,18 @@ func newWebAppAuthflowV2SettingsProfileEditHandler(p *deps.RequestProvider) http
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -19604,8 +19791,9 @@ func newWebAppAuthflowV2SettingsProfileEditHandler(p *deps.RequestProvider) http
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -20365,9 +20553,18 @@ func newWebAppAuthflowV2SettingsBiometricHandler(p *deps.RequestProvider) http.H
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -20757,8 +20954,9 @@ func newWebAppAuthflowV2SettingsBiometricHandler(p *deps.RequestProvider) http.H
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -21533,9 +21731,18 @@ func newWebAppAuthflowV2SettingsMFAHandler(p *deps.RequestProvider) http.Handler
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -21925,8 +22132,9 @@ func newWebAppAuthflowV2SettingsMFAHandler(p *deps.RequestProvider) http.Handler
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -22673,9 +22881,18 @@ func newWebAppAuthflowV2SettingsMFAViewRecoveryCodeHandler(p *deps.RequestProvid
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -23065,8 +23282,9 @@ func newWebAppAuthflowV2SettingsMFAViewRecoveryCodeHandler(p *deps.RequestProvid
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -23840,9 +24058,18 @@ func newWebAppAuthflowV2SettingsMFACreatePasswordHandler(p *deps.RequestProvider
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -24232,8 +24459,9 @@ func newWebAppAuthflowV2SettingsMFACreatePasswordHandler(p *deps.RequestProvider
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -25006,9 +25234,18 @@ func newWebAppAuthflowV2SettingsMFAPasswordHandler(p *deps.RequestProvider) http
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -25398,8 +25635,9 @@ func newWebAppAuthflowV2SettingsMFAPasswordHandler(p *deps.RequestProvider) http
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -26172,9 +26410,18 @@ func newWebAppAuthflowV2SettingsMFAChangePasswordHandler(p *deps.RequestProvider
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -26564,8 +26811,9 @@ func newWebAppAuthflowV2SettingsMFAChangePasswordHandler(p *deps.RequestProvider
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -27327,9 +27575,18 @@ func newWebAppAuthflowV2SettingsTOTPHandler(p *deps.RequestProvider) http.Handle
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -27719,8 +27976,9 @@ func newWebAppAuthflowV2SettingsTOTPHandler(p *deps.RequestProvider) http.Handle
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -28502,9 +28760,18 @@ func newWebAppAuthflowV2SettingsMFACreateTOTPHandler(p *deps.RequestProvider) ht
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -28894,8 +29161,9 @@ func newWebAppAuthflowV2SettingsMFACreateTOTPHandler(p *deps.RequestProvider) ht
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -29668,9 +29936,18 @@ func newWebAppAuthflowV2SettingsMFAEnterTOTPHandler(p *deps.RequestProvider) htt
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -30060,8 +30337,9 @@ func newWebAppAuthflowV2SettingsMFAEnterTOTPHandler(p *deps.RequestProvider) htt
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -30835,9 +31113,18 @@ func newWebAppAuthflowV2SettingsOOBOTPHandler(p *deps.RequestProvider) http.Hand
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -31227,8 +31514,9 @@ func newWebAppAuthflowV2SettingsOOBOTPHandler(p *deps.RequestProvider) http.Hand
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -32011,9 +32299,18 @@ func newWebAppAuthflowV2SettingsMFACreateOOBOTPHandler(p *deps.RequestProvider) 
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -32403,8 +32700,9 @@ func newWebAppAuthflowV2SettingsMFACreateOOBOTPHandler(p *deps.RequestProvider) 
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -33177,9 +33475,18 @@ func newWebAppAuthflowV2SettingsMFAEnterOOBOTPHandler(p *deps.RequestProvider) h
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -33569,8 +33876,9 @@ func newWebAppAuthflowV2SettingsMFAEnterOOBOTPHandler(p *deps.RequestProvider) h
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -34335,9 +34643,18 @@ func newWebAppAuthflowV2SettingsChangePasskeyHandler(p *deps.RequestProvider) ht
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -34727,8 +35044,9 @@ func newWebAppAuthflowV2SettingsChangePasskeyHandler(p *deps.RequestProvider) ht
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -35523,9 +35841,18 @@ func newWebAppAuthflowV2SettingsSessionsHandler(p *deps.RequestProvider) http.Ha
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -35915,8 +36242,9 @@ func newWebAppAuthflowV2SettingsSessionsHandler(p *deps.RequestProvider) http.Ha
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -36680,9 +37008,18 @@ func newWebAppAuthflowV2SettingsAuthorizedAppsHandler(p *deps.RequestProvider) h
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -37072,8 +37409,9 @@ func newWebAppAuthflowV2SettingsAuthorizedAppsHandler(p *deps.RequestProvider) h
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -37843,9 +38181,18 @@ func newWebAppAuthflowV2SettingsAuthorizedAppHandler(p *deps.RequestProvider) ht
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -38235,8 +38582,9 @@ func newWebAppAuthflowV2SettingsAuthorizedAppHandler(p *deps.RequestProvider) ht
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -39009,9 +39357,18 @@ func newWebAppAuthflowV2SettingsChangePasswordHandler(p *deps.RequestProvider) h
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -39401,8 +39758,9 @@ func newWebAppAuthflowV2SettingsChangePasswordHandler(p *deps.RequestProvider) h
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -40164,9 +40522,18 @@ func newWebAppAuthflowV2SettingsDeleteAccountHandler(p *deps.RequestProvider) ht
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -40556,8 +40923,9 @@ func newWebAppAuthflowV2SettingsDeleteAccountHandler(p *deps.RequestProvider) ht
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -41315,9 +41683,18 @@ func newWebAppAuthflowV2SettingsDeleteAccountSuccessHandler(p *deps.RequestProvi
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -41707,8 +42084,9 @@ func newWebAppAuthflowV2SettingsDeleteAccountSuccessHandler(p *deps.RequestProvi
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -42446,9 +42824,18 @@ func newWebAppAuthflowV2SettingsAdvancedSettingsHandler(p *deps.RequestProvider)
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -42838,8 +43225,9 @@ func newWebAppAuthflowV2SettingsAdvancedSettingsHandler(p *deps.RequestProvider)
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -43573,9 +43961,18 @@ func newWebAppLogoutHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -43965,8 +44362,9 @@ func newWebAppLogoutHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -44805,9 +45203,18 @@ func newWebAppReturnHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -45197,8 +45604,9 @@ func newWebAppReturnHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -45592,9 +46000,18 @@ func newWebAppAuthflowV2ErrorHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -45921,6 +46338,7 @@ func newWebAppAuthflowV2ErrorHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -46828,9 +47246,18 @@ func newWebAppCSRFErrorInstructionHandler(p *deps.RequestProvider) http.Handler 
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -47157,6 +47584,7 @@ func newWebAppCSRFErrorInstructionHandler(p *deps.RequestProvider) http.Handler 
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -48404,9 +48832,18 @@ func newWebAppAuthflowV2NotFoundHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -48796,8 +49233,9 @@ func newWebAppAuthflowV2NotFoundHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -49547,9 +49985,18 @@ func newWebAppPasskeyCreationOptionsHandler(p *deps.RequestProvider) http.Handle
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -49939,8 +50386,9 @@ func newWebAppPasskeyCreationOptionsHandler(p *deps.RequestProvider) http.Handle
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -50615,9 +51063,18 @@ func newWebAppPasskeyRequestOptionsHandler(p *deps.RequestProvider) http.Handler
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -51007,8 +51464,9 @@ func newWebAppPasskeyRequestOptionsHandler(p *deps.RequestProvider) http.Handler
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -51669,9 +52127,18 @@ func newWebAppClientLogoHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -52204,9 +52671,18 @@ func newWebAppFeatureDisabledHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -52596,8 +53072,9 @@ func newWebAppFeatureDisabledHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -53331,9 +53808,18 @@ func newWebAppTesterHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -53723,8 +54209,9 @@ func newWebAppTesterHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -54263,9 +54750,19 @@ func newAPIWorkflowNewHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	appredisHandle := appProvider.Redis
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -54340,7 +54837,6 @@ func newAPIWorkflowNewHandler(p *deps.RequestProvider) http.Handler {
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	appredisHandle := appProvider.Redis
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: appID,
@@ -54615,6 +55111,7 @@ func newAPIWorkflowNewHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -55342,9 +55839,19 @@ func newAPIWorkflowGetHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	appredisHandle := appProvider.Redis
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -55419,7 +55926,6 @@ func newAPIWorkflowGetHandler(p *deps.RequestProvider) http.Handler {
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	appredisHandle := appProvider.Redis
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: appID,
@@ -55694,6 +56200,7 @@ func newAPIWorkflowGetHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -56373,9 +56880,19 @@ func newAPIWorkflowInputHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	appredisHandle := appProvider.Redis
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -56450,7 +56967,6 @@ func newAPIWorkflowInputHandler(p *deps.RequestProvider) http.Handler {
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	appredisHandle := appProvider.Redis
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: appID,
@@ -56725,6 +57241,7 @@ func newAPIWorkflowInputHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -57438,9 +57955,19 @@ func newAPIWorkflowV2Handler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	appredisHandle := appProvider.Redis
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -57515,7 +58042,6 @@ func newAPIWorkflowV2Handler(p *deps.RequestProvider) http.Handler {
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	appredisHandle := appProvider.Redis
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: appID,
@@ -57790,6 +58316,7 @@ func newAPIWorkflowV2Handler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -58524,9 +59051,18 @@ func newAPIAuthenticationFlowV1CreateHandler(p *deps.RequestProvider) http.Handl
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -58871,6 +59407,7 @@ func newAPIAuthenticationFlowV1CreateHandler(p *deps.RequestProvider) http.Handl
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -59681,9 +60218,18 @@ func newAPIAuthenticationFlowV1InputHandler(p *deps.RequestProvider) http.Handle
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -60028,6 +60574,7 @@ func newAPIAuthenticationFlowV1InputHandler(p *deps.RequestProvider) http.Handle
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -60806,9 +61353,18 @@ func newAPIAuthenticationFlowV1GetHandler(p *deps.RequestProvider) http.Handler 
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -61153,6 +61709,7 @@ func newAPIAuthenticationFlowV1GetHandler(p *deps.RequestProvider) http.Handler 
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -61959,9 +62516,19 @@ func newAPIAccountManagementV1IdentificationHandler(p *deps.RequestProvider) htt
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	appredisHandle := appProvider.Redis
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -62036,7 +62603,6 @@ func newAPIAccountManagementV1IdentificationHandler(p *deps.RequestProvider) htt
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	appredisHandle := appProvider.Redis
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: appID,
@@ -62310,6 +62876,7 @@ func newAPIAccountManagementV1IdentificationHandler(p *deps.RequestProvider) htt
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -62917,9 +63484,19 @@ func newAPIAccountManagementV1IdentificationOAuthHandler(p *deps.RequestProvider
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	appredisHandle := appProvider.Redis
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -62994,7 +63571,6 @@ func newAPIAccountManagementV1IdentificationOAuthHandler(p *deps.RequestProvider
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	appredisHandle := appProvider.Redis
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: appID,
@@ -63268,6 +63844,7 @@ func newAPIAccountManagementV1IdentificationOAuthHandler(p *deps.RequestProvider
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -63906,9 +64483,18 @@ func newWebAppAuthflowV2LoginHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -64235,6 +64821,7 @@ func newWebAppAuthflowV2LoginHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -65166,9 +65753,18 @@ func newWebAppAuthflowV2SignupHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -65495,6 +66091,7 @@ func newWebAppAuthflowV2SignupHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -66419,9 +67016,18 @@ func newWebAppAuthflowV2PromoteHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -66748,6 +67354,7 @@ func newWebAppAuthflowV2PromoteHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -67662,9 +68269,18 @@ func newWebAppAuthflowV2EnterPasswordHandler(p *deps.RequestProvider) http.Handl
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -67991,6 +68607,7 @@ func newWebAppAuthflowV2EnterPasswordHandler(p *deps.RequestProvider) http.Handl
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -68902,9 +69519,18 @@ func newWebAppAuthflowV2EnterOOBOTPHandler(p *deps.RequestProvider) http.Handler
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -69231,6 +69857,7 @@ func newWebAppAuthflowV2EnterOOBOTPHandler(p *deps.RequestProvider) http.Handler
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -70146,9 +70773,18 @@ func newWebAppAuthflowV2CreatePasswordHandler(p *deps.RequestProvider) http.Hand
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -70475,6 +71111,7 @@ func newWebAppAuthflowV2CreatePasswordHandler(p *deps.RequestProvider) http.Hand
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -71388,9 +72025,18 @@ func newWebAppAuthflowV2EnterTOTPHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -71717,6 +72363,7 @@ func newWebAppAuthflowV2EnterTOTPHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -72628,9 +73275,18 @@ func newWebAppAuthflowV2SetupTOTPHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -72957,6 +73613,7 @@ func newWebAppAuthflowV2SetupTOTPHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -73864,9 +74521,18 @@ func newWebAppAuthflowV2ViewRecoveryCodeHandler(p *deps.RequestProvider) http.Ha
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -74193,6 +74859,7 @@ func newWebAppAuthflowV2ViewRecoveryCodeHandler(p *deps.RequestProvider) http.Ha
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -75100,9 +75767,18 @@ func newWebAppAuthflowV2OOBOTPLinkHandler(p *deps.RequestProvider) http.Handler 
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -75429,6 +76105,7 @@ func newWebAppAuthflowV2OOBOTPLinkHandler(p *deps.RequestProvider) http.Handler 
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -76341,9 +77018,18 @@ func newWebAppAuthflowV2ChangePasswordHandler(p *deps.RequestProvider) http.Hand
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -76670,6 +77356,7 @@ func newWebAppAuthflowV2ChangePasswordHandler(p *deps.RequestProvider) http.Hand
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -77583,9 +78270,18 @@ func newWebAppAuthflowV2ChangePasswordSuccessHandler(p *deps.RequestProvider) ht
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -77912,6 +78608,7 @@ func newWebAppAuthflowV2ChangePasswordSuccessHandler(p *deps.RequestProvider) ht
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -78819,9 +79516,18 @@ func newWebAppAuthflowV2UsePasskeyHandler(p *deps.RequestProvider) http.Handler 
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -79148,6 +79854,7 @@ func newWebAppAuthflowV2UsePasskeyHandler(p *deps.RequestProvider) http.Handler 
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -80059,9 +80766,18 @@ func newWebAppAuthflowV2PromptCreatePasskeyHandler(p *deps.RequestProvider) http
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -80388,6 +81104,7 @@ func newWebAppAuthflowV2PromptCreatePasskeyHandler(p *deps.RequestProvider) http
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -81295,9 +82012,18 @@ func newWebAppAuthflowV2EnterRecoveryCodeHandler(p *deps.RequestProvider) http.H
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -81624,6 +82350,7 @@ func newWebAppAuthflowV2EnterRecoveryCodeHandler(p *deps.RequestProvider) http.H
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -82531,9 +83258,18 @@ func newWebAppAuthflowV2SetupOOBOTPHandler(p *deps.RequestProvider) http.Handler
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -82860,6 +83596,7 @@ func newWebAppAuthflowV2SetupOOBOTPHandler(p *deps.RequestProvider) http.Handler
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -83767,9 +84504,18 @@ func newWebAppAuthflowV2TerminateOtherSessionsHandler(p *deps.RequestProvider) h
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -84096,6 +84842,7 @@ func newWebAppAuthflowV2TerminateOtherSessionsHandler(p *deps.RequestProvider) h
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -85003,9 +85750,18 @@ func newWebAppAuthflowV2ForgotPasswordHandler(p *deps.RequestProvider) http.Hand
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -85332,6 +86088,7 @@ func newWebAppAuthflowV2ForgotPasswordHandler(p *deps.RequestProvider) http.Hand
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -86246,9 +87003,18 @@ func newWebAppAuthflowV2ForgotPasswordOTPHandler(p *deps.RequestProvider) http.H
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -86575,6 +87341,7 @@ func newWebAppAuthflowV2ForgotPasswordOTPHandler(p *deps.RequestProvider) http.H
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -87484,9 +88251,18 @@ func newWebAppAuthflowV2ForgotPasswordLinkSentHandler(p *deps.RequestProvider) h
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -87813,6 +88589,7 @@ func newWebAppAuthflowV2ForgotPasswordLinkSentHandler(p *deps.RequestProvider) h
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -88721,9 +89498,18 @@ func newWebAppAuthflowV2ReauthHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -89050,6 +89836,7 @@ func newWebAppAuthflowV2ReauthHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -90296,9 +91083,18 @@ func newWebAppAuthflowV2ResetPasswordHandler(p *deps.RequestProvider) http.Handl
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -90688,8 +91484,9 @@ func newWebAppAuthflowV2ResetPasswordHandler(p *deps.RequestProvider) http.Handl
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -91286,9 +92083,18 @@ func newWebAppAuthflowV2ResetPasswordSuccessHandler(p *deps.RequestProvider) htt
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -91615,6 +92421,7 @@ func newWebAppAuthflowV2ResetPasswordSuccessHandler(p *deps.RequestProvider) htt
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -93082,9 +93889,18 @@ func newWebAppAuthflowV2OAuthProviderDemoCredentialHandler(p *deps.RequestProvid
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -93411,6 +94227,7 @@ func newWebAppAuthflowV2OAuthProviderDemoCredentialHandler(p *deps.RequestProvid
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -94318,9 +95135,18 @@ func newWebAppAuthflowV2FinishFlowHandler(p *deps.RequestProvider) http.Handler 
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -94647,6 +95473,7 @@ func newWebAppAuthflowV2FinishFlowHandler(p *deps.RequestProvider) http.Handler 
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -95554,9 +96381,18 @@ func newWebAppAuthflowV2AccountLinkingHandler(p *deps.RequestProvider) http.Hand
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -95883,6 +96719,7 @@ func newWebAppAuthflowV2AccountLinkingHandler(p *deps.RequestProvider) http.Hand
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -96930,9 +97767,18 @@ func newWebAppAuthflowV2WechatHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -97259,6 +98105,7 @@ func newWebAppAuthflowV2WechatHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -98168,9 +99015,18 @@ func newWebAppAuthflowV2LDAPLoginHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -98497,6 +99353,7 @@ func newWebAppAuthflowV2LDAPLoginHandler(p *deps.RequestProvider) http.Handler {
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -99740,9 +100597,18 @@ func newSAMLMetadataHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -100115,8 +100981,9 @@ func newSAMLMetadataHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -100677,9 +101544,18 @@ func newSAMLLoginHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -101052,8 +101928,9 @@ func newSAMLLoginHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -101644,9 +102521,18 @@ func newSAMLLoginFinishHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -102019,8 +102905,9 @@ func newSAMLLoginFinishHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -102604,9 +103491,18 @@ func newSAMLLogoutHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -102979,8 +103875,9 @@ func newSAMLLogoutHandler(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -103572,9 +104469,18 @@ func newWebAppAuthflowV2SettingsProfile(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -103964,8 +104870,9 @@ func newWebAppAuthflowV2SettingsProfile(p *deps.RequestProvider) http.Handler {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -104711,9 +105618,18 @@ func newWebAppAuthflowV2SettingsIdentityAddEmailHandler(p *deps.RequestProvider)
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -105103,8 +106019,9 @@ func newWebAppAuthflowV2SettingsIdentityAddEmailHandler(p *deps.RequestProvider)
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -105865,9 +106782,18 @@ func newWebAppAuthflowV2SettingsIdentityEditEmailHandler(p *deps.RequestProvider
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -106257,8 +107183,9 @@ func newWebAppAuthflowV2SettingsIdentityEditEmailHandler(p *deps.RequestProvider
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -107021,9 +107948,18 @@ func newWebAppAuthflowV2SettingsIdentityListEmailHandler(p *deps.RequestProvider
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -107413,8 +108349,9 @@ func newWebAppAuthflowV2SettingsIdentityListEmailHandler(p *deps.RequestProvider
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -108163,9 +109100,18 @@ func newWebAppAuthflowV2SettingsIdentityVerifyEmailHandler(p *deps.RequestProvid
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -108555,8 +109501,9 @@ func newWebAppAuthflowV2SettingsIdentityVerifyEmailHandler(p *deps.RequestProvid
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -109322,9 +110269,18 @@ func newWebAppAuthflowV2SettingsIdentityViewEmailHandler(p *deps.RequestProvider
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -109714,8 +110670,9 @@ func newWebAppAuthflowV2SettingsIdentityViewEmailHandler(p *deps.RequestProvider
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -110487,9 +111444,18 @@ func newWebAppAuthflowV2SettingsIdentityChangePrimaryEmailHandler(p *deps.Reques
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -110879,8 +111845,9 @@ func newWebAppAuthflowV2SettingsIdentityChangePrimaryEmailHandler(p *deps.Reques
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -111634,9 +112601,18 @@ func newWebAppAuthflowV2SettingsIdentityAddPhoneHandler(p *deps.RequestProvider)
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -112026,8 +113002,9 @@ func newWebAppAuthflowV2SettingsIdentityAddPhoneHandler(p *deps.RequestProvider)
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -112789,9 +113766,18 @@ func newWebAppAuthflowV2SettingsIdentityEditPhoneHandler(p *deps.RequestProvider
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -113181,8 +114167,9 @@ func newWebAppAuthflowV2SettingsIdentityEditPhoneHandler(p *deps.RequestProvider
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -113946,9 +114933,18 @@ func newWebAppAuthflowV2SettingsIdentityListPhoneHandler(p *deps.RequestProvider
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -114338,8 +115334,9 @@ func newWebAppAuthflowV2SettingsIdentityListPhoneHandler(p *deps.RequestProvider
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -115088,9 +116085,18 @@ func newWebAppAuthflowV2SettingsIdentityViewPhoneHandler(p *deps.RequestProvider
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -115480,8 +116486,9 @@ func newWebAppAuthflowV2SettingsIdentityViewPhoneHandler(p *deps.RequestProvider
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -116248,9 +117255,18 @@ func newWebAppAuthflowV2SettingsIdentityChangePrimaryPhoneHandler(p *deps.Reques
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -116640,8 +117656,9 @@ func newWebAppAuthflowV2SettingsIdentityChangePrimaryPhoneHandler(p *deps.Reques
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -117395,9 +118412,18 @@ func newWebAppAuthflowV2SettingsIdentityVerifyPhoneHandler(p *deps.RequestProvid
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -117787,8 +118813,9 @@ func newWebAppAuthflowV2SettingsIdentityVerifyPhoneHandler(p *deps.RequestProvid
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -118554,9 +119581,18 @@ func newWebAppAuthflowV2SettingsIdentityListUsernameHandler(p *deps.RequestProvi
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -118946,8 +119982,9 @@ func newWebAppAuthflowV2SettingsIdentityListUsernameHandler(p *deps.RequestProvi
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -119313,9 +120350,19 @@ func newWebAppAuthflowV2SettingsIdentityNewUsernameHandler(p *deps.RequestProvid
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	appredisHandle := appProvider.Redis
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -119390,7 +120437,6 @@ func newWebAppAuthflowV2SettingsIdentityNewUsernameHandler(p *deps.RequestProvid
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	appredisHandle := appProvider.Redis
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: appID,
@@ -119664,6 +120710,7 @@ func newWebAppAuthflowV2SettingsIdentityNewUsernameHandler(p *deps.RequestProvid
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -120468,9 +121515,19 @@ func newWebAppAuthflowV2SettingsIdentityViewUsernameHandler(p *deps.RequestProvi
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	appredisHandle := appProvider.Redis
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -120545,7 +121602,6 @@ func newWebAppAuthflowV2SettingsIdentityViewUsernameHandler(p *deps.RequestProvi
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	appredisHandle := appProvider.Redis
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: appID,
@@ -120819,6 +121875,7 @@ func newWebAppAuthflowV2SettingsIdentityViewUsernameHandler(p *deps.RequestProvi
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -121626,9 +122683,19 @@ func newWebAppAuthflowV2SettingsIdentityEditUsernameHandler(p *deps.RequestProvi
 		Clock:       clockClock,
 		AppID:       appID,
 	}
+	appredisHandle := appProvider.Redis
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -121703,7 +122770,6 @@ func newWebAppAuthflowV2SettingsIdentityEditUsernameHandler(p *deps.RequestProvi
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	appredisHandle := appProvider.Redis
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: appID,
@@ -121977,6 +123043,7 @@ func newWebAppAuthflowV2SettingsIdentityEditUsernameHandler(p *deps.RequestProvi
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -123153,9 +124220,18 @@ func newWebAppAuthflowV2SettingsIdentityListOAuthHandler(p *deps.RequestProvider
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -123545,8 +124621,9 @@ func newWebAppAuthflowV2SettingsIdentityListOAuthHandler(p *deps.RequestProvider
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -124997,9 +126074,18 @@ func newSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -125371,8 +126457,9 @@ func newSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -125903,9 +126990,18 @@ func newWebAppSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -126295,8 +127391,9 @@ func newWebAppSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -127033,9 +128130,18 @@ func newWebAppUIParamMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -127408,8 +128514,9 @@ func newWebAppUIParamMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -128018,9 +129125,18 @@ func newSettingsSubRoutesMiddleware(p *deps.RequestProvider) httproute.Middlewar
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -128411,8 +129527,9 @@ func newSettingsSubRoutesMiddleware(p *deps.RequestProvider) httproute.Middlewar
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -129000,9 +130117,18 @@ func newAuthenticationFlowRateLimitMiddleware(p *deps.RequestProvider) httproute
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -129503,9 +130629,18 @@ func newAccountManagementRateLimitMiddleware(p *deps.RequestProvider) httproute.
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,

@@ -36,6 +36,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/authn/sso"
 	"github.com/authgear/authgear-server/pkg/lib/authn/stdattrs"
 	"github.com/authgear/authgear-server/pkg/lib/authn/user"
+	authz2 "github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/config"
 	"github.com/authgear/authgear-server/pkg/lib/dcr"
 	"github.com/authgear/authgear-server/pkg/lib/deps"
@@ -578,9 +579,18 @@ func newGraphQLHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz2.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz2.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -845,8 +855,9 @@ func newGraphQLHandler(p *deps.RequestProvider) http.Handler {
 		GlobalSearchImplementation: globalSearchImplementation,
 	}
 	rawCommands := &user.RawCommands{
-		Store: userStore,
-		Clock: clockClock,
+		Store:            userStore,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,
@@ -1391,8 +1402,9 @@ func newGraphQLHandler(p *deps.RequestProvider) http.Handler {
 		OfflineGrants: oauthOfflineGrantService,
 	}
 	resourcescopeCommands := &resourcescope.Commands{
-		Store:       resourcescopeStore,
-		OAuthConfig: oAuthConfig,
+		Store:            resourcescopeStore,
+		OAuthConfig:      oAuthConfig,
+		AuthzInvalidator: invalidator,
 	}
 	resourceScopeFacade := &facade2.ResourceScopeFacade{
 		ResourceScopeCommands: resourcescopeCommands,
@@ -1866,9 +1878,18 @@ func newUserImportCreateHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz2.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz2.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -2393,9 +2414,18 @@ func newUserImportGetHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz2.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz2.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -2921,9 +2951,18 @@ func newUserExportCreateHandler(p *deps.RequestProvider) http.Handler {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz2.VersionStore{
+		Redis: handle,
+		AppID: appID,
+	}
+	invalidator := &authz2.Invalidator{
+		Database: appdbHandle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,

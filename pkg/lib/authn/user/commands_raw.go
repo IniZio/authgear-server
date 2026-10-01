@@ -6,12 +6,14 @@ import (
 
 	"github.com/authgear/authgear-server/pkg/api/model"
 	"github.com/authgear/authgear-server/pkg/lib/authn/identity"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/util/clock"
 )
 
 type RawCommands struct {
-	Store store
-	Clock clock.Clock
+	Store            store
+	Clock            clock.Clock
+	AuthzInvalidator *authz.Invalidator
 }
 
 func (c *RawCommands) New(userID string) *User {
@@ -67,6 +69,7 @@ func (c *RawCommands) UpdateMFAEnrollment(ctx context.Context, userID string, en
 }
 
 func (c *RawCommands) UpdateAccountStatus(ctx context.Context, userID string, accountStatus AccountStatusWithRefTime) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	return c.Store.UpdateAccountStatus(ctx, userID, accountStatus)
 }
 
@@ -75,10 +78,12 @@ func (c *RawCommands) UpdateOptOutPasskeyUpselling(ctx context.Context, userID s
 }
 
 func (c *RawCommands) Delete(ctx context.Context, userID string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	return c.Store.Delete(ctx, userID)
 }
 
 func (c *RawCommands) Anonymize(ctx context.Context, userID string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	u, err := c.Store.Get(ctx, userID)
 	if err != nil {
 		return err

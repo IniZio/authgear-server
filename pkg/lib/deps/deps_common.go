@@ -33,6 +33,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/authn/sso"
 	"github.com/authgear/authgear-server/pkg/lib/authn/stdattrs"
 	"github.com/authgear/authgear-server/pkg/lib/authn/user"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/botprotection"
 	"github.com/authgear/authgear-server/pkg/lib/dcr"
 	"github.com/authgear/authgear-server/pkg/lib/dpop"
@@ -379,6 +380,7 @@ var CommonDependencySet = wire.NewSet(
 
 	wire.NewSet(
 		user.DependencySet,
+		wire.Bind(new(authz.UserQueries), new(*user.Queries)),
 		wire.Bind(new(session.UserQuery), new(*user.Queries)),
 		wire.Bind(new(interaction.UserService), new(*user.Provider)),
 		wire.Bind(new(workflow.UserService), new(*user.Provider)),
@@ -406,6 +408,7 @@ var CommonDependencySet = wire.NewSet(
 
 	wire.NewSet(
 		rolesgroups.DependencySet,
+		wire.Bind(new(authz.PermissionQueries), new(*rolesgroups.Store)),
 		wire.Bind(new(facade.RolesGroupsCommands), new(*rolesgroups.Commands)),
 		wire.Bind(new(userinfo.RolesAndGroupsQueries), new(*rolesgroups.Queries)),
 		wire.Bind(new(hook.RolesAndGroupsServiceNoEvent), new(*rolesgroups.Commands)),
@@ -415,9 +418,14 @@ var CommonDependencySet = wire.NewSet(
 
 	wire.NewSet(
 		resourcescope.DependencySet,
+		wire.Bind(new(authz.ResourceQueries), new(*resourcescope.Store)),
 		wire.Bind(new(handler.TokenHandlerClientResourceScopeService), new(*resourcescope.ClientResourceScopeService)),
 		wire.Bind(new(handler.ResourceAccessPolicyService), new(*resourcescope.AccessPolicyService)),
 		wire.Bind(new(oauth.AuthorizationResourceStore), new(*resourcescope.Store)),
+	),
+
+	wire.NewSet(
+		authz.DependencySet,
 	),
 
 	wire.NewSet(

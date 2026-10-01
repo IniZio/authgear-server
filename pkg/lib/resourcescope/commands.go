@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/authgear/authgear-server/pkg/api/model"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/config"
 )
 
@@ -11,6 +12,8 @@ type Commands struct {
 	Store *Store
 
 	OAuthConfig *config.OAuthConfig
+
+	AuthzInvalidator *authz.Invalidator
 }
 
 func (c *Commands) CreateResource(ctx context.Context, options *NewResourceOptions) (*model.Resource, error) {
@@ -35,6 +38,7 @@ func (c *Commands) UpdateResource(ctx context.Context, options *UpdateResourceOp
 }
 
 func (c *Commands) DeleteResourceByURI(ctx context.Context, uri string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	resource, err := c.Store.GetResourceByURI(ctx, uri)
 	if err != nil {
 		return err
@@ -75,6 +79,7 @@ func (c *Commands) AddResourceToClientID(ctx context.Context, resourceURI, clien
 	if !client.ApplicationType.IsClientCredentialsFlowAllowed() {
 		return ErrClientCannotBeAssociatedWithResource
 	}
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	resource, err := c.Store.GetResourceByURI(ctx, resourceURI)
 	if err != nil {
 		return err
@@ -83,6 +88,7 @@ func (c *Commands) AddResourceToClientID(ctx context.Context, resourceURI, clien
 }
 
 func (c *Commands) RemoveResourceFromClientID(ctx context.Context, resourceURI, clientID string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	if _, found := c.OAuthConfig.GetClient(clientID); !found {
 		return ErrClientNotFound
 	}
@@ -124,6 +130,7 @@ func (c *Commands) UpdateScope(ctx context.Context, options *UpdateScopeOptions)
 }
 
 func (c *Commands) DeleteScope(ctx context.Context, resourceURI string, scope string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	resource, err := c.Store.GetResourceByURI(ctx, resourceURI)
 	if err != nil {
 		return err

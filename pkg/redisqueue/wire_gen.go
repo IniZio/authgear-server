@@ -27,6 +27,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/authn/otp"
 	"github.com/authgear/authgear-server/pkg/lib/authn/stdattrs"
 	"github.com/authgear/authgear-server/pkg/lib/authn/user"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/deps"
 	"github.com/authgear/authgear-server/pkg/lib/elasticsearch"
 	"github.com/authgear/authgear-server/pkg/lib/endpoints"
@@ -446,9 +447,18 @@ func newUserImportService(ctx context.Context, p *deps.AppProvider) *userimport.
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
 		Store:              rolesgroupsStore,
 		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -839,8 +849,9 @@ func newUserImportService(ctx context.Context, p *deps.AppProvider) *userimport.
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clock,
+		Store:            store,
+		Clock:            clock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,

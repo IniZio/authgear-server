@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"github.com/authgear/authgear-server/pkg/api/model"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/resourcescope"
 )
 
 type Commands struct {
 	Store              *Store
 	ResourceScopeStore *resourcescope.Store
+	AuthzInvalidator   *authz.Invalidator
 }
 
 type AddScopesToRoleOptions struct {
@@ -54,6 +56,7 @@ func (c *Commands) resolveRoleScopes(ctx context.Context, roleKey string, resour
 }
 
 func (c *Commands) AddScopesToRole(ctx context.Context, options *AddScopesToRoleOptions) (*model.Role, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	role, scopeIDs, err := c.resolveRoleScopes(ctx, options.RoleKey, options.ResourceURI, options.Scopes)
 	if err != nil {
 		return nil, err
@@ -66,6 +69,7 @@ func (c *Commands) AddScopesToRole(ctx context.Context, options *AddScopesToRole
 }
 
 func (c *Commands) RemoveScopesFromRole(ctx context.Context, options *RemoveScopesFromRoleOptions) (*model.Role, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	role, scopeIDs, err := c.resolveRoleScopes(ctx, options.RoleKey, options.ResourceURI, options.Scopes)
 	if err != nil {
 		return nil, err
@@ -78,6 +82,7 @@ func (c *Commands) RemoveScopesFromRole(ctx context.Context, options *RemoveScop
 }
 
 func (c *Commands) CreateRole(ctx context.Context, options *NewRoleOptions) (*model.Role, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := ValidateKey(ctx, options.Key)
 	if err != nil {
 		return nil, err
@@ -93,6 +98,7 @@ func (c *Commands) CreateRole(ctx context.Context, options *NewRoleOptions) (*mo
 }
 
 func (c *Commands) UpdateRole(ctx context.Context, options *UpdateRoleOptions) (*model.Role, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	if options.RequireUpdate() {
 		if options.NewKey != nil {
 			err := ValidateKey(ctx, *options.NewKey)
@@ -116,10 +122,12 @@ func (c *Commands) UpdateRole(ctx context.Context, options *UpdateRoleOptions) (
 }
 
 func (c *Commands) DeleteRole(ctx context.Context, id string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	return c.Store.DeleteRole(ctx, id)
 }
 
 func (c *Commands) CreateGroup(ctx context.Context, options *NewGroupOptions) (*model.Group, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := ValidateKey(ctx, options.Key)
 	if err != nil {
 		return nil, err
@@ -135,6 +143,7 @@ func (c *Commands) CreateGroup(ctx context.Context, options *NewGroupOptions) (*
 }
 
 func (c *Commands) UpdateGroup(ctx context.Context, options *UpdateGroupOptions) (*model.Group, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	if options.RequireUpdate() {
 		if options.NewKey != nil {
 			err := ValidateKey(ctx, *options.NewKey)
@@ -158,10 +167,12 @@ func (c *Commands) UpdateGroup(ctx context.Context, options *UpdateGroupOptions)
 }
 
 func (c *Commands) DeleteGroup(ctx context.Context, id string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	return c.Store.DeleteGroup(ctx, id)
 }
 
 func (c *Commands) AddRoleToGroups(ctx context.Context, options *AddRoleToGroupsOptions) (*model.Role, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	r, err := c.Store.AddRoleToGroups(ctx, options)
 	if err != nil {
 		return nil, err
@@ -171,6 +182,7 @@ func (c *Commands) AddRoleToGroups(ctx context.Context, options *AddRoleToGroups
 }
 
 func (c *Commands) RemoveRoleFromGroups(ctx context.Context, options *RemoveRoleFromGroupsOptions) (*model.Role, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	r, err := c.Store.RemoveRoleFromGroups(ctx, options)
 	if err != nil {
 		return nil, err
@@ -180,6 +192,7 @@ func (c *Commands) RemoveRoleFromGroups(ctx context.Context, options *RemoveRole
 }
 
 func (c *Commands) AddRoleToUsers(ctx context.Context, options *AddRoleToUsersOptions) (*model.Role, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	r, err := c.Store.AddRoleToUsers(ctx, options)
 	if err != nil {
 		return nil, err
@@ -189,6 +202,7 @@ func (c *Commands) AddRoleToUsers(ctx context.Context, options *AddRoleToUsersOp
 }
 
 func (c *Commands) RemoveRoleFromUsers(ctx context.Context, options *RemoveRoleFromUsersOptions) (*model.Role, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	r, err := c.Store.RemoveRoleFromUsers(ctx, options)
 	if err != nil {
 		return nil, err
@@ -198,6 +212,7 @@ func (c *Commands) RemoveRoleFromUsers(ctx context.Context, options *RemoveRoleF
 }
 
 func (c *Commands) AddGroupToUsers(ctx context.Context, options *AddGroupToUsersOptions) (*model.Group, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	r, err := c.Store.AddGroupToUsers(ctx, options)
 	if err != nil {
 		return nil, err
@@ -207,6 +222,7 @@ func (c *Commands) AddGroupToUsers(ctx context.Context, options *AddGroupToUsers
 }
 
 func (c *Commands) RemoveGroupFromUsers(ctx context.Context, options *RemoveGroupFromUsersOptions) (*model.Group, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	r, err := c.Store.RemoveGroupFromUsers(ctx, options)
 	if err != nil {
 		return nil, err
@@ -216,6 +232,7 @@ func (c *Commands) RemoveGroupFromUsers(ctx context.Context, options *RemoveGrou
 }
 
 func (c *Commands) AddGroupToRoles(ctx context.Context, options *AddGroupToRolesOptions) (*model.Group, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	r, err := c.Store.AddGroupToRoles(ctx, options)
 	if err != nil {
 		return nil, err
@@ -225,6 +242,7 @@ func (c *Commands) AddGroupToRoles(ctx context.Context, options *AddGroupToRoles
 }
 
 func (c *Commands) RemoveGroupFromRoles(ctx context.Context, options *RemoveGroupFromRolesOptions) (*model.Group, error) {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	r, err := c.Store.RemoveGroupFromRoles(ctx, options)
 	if err != nil {
 		return nil, err
@@ -234,6 +252,7 @@ func (c *Commands) RemoveGroupFromRoles(ctx context.Context, options *RemoveGrou
 }
 
 func (c *Commands) AddUserToRoles(ctx context.Context, options *AddUserToRolesOptions) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := c.Store.AddUserToRoles(ctx, options)
 	if err != nil {
 		return err
@@ -243,6 +262,7 @@ func (c *Commands) AddUserToRoles(ctx context.Context, options *AddUserToRolesOp
 }
 
 func (c *Commands) RemoveUserFromRoles(ctx context.Context, options *RemoveUserFromRolesOptions) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := c.Store.RemoveUserFromRoles(ctx, options)
 	if err != nil {
 		return err
@@ -252,6 +272,7 @@ func (c *Commands) RemoveUserFromRoles(ctx context.Context, options *RemoveUserF
 }
 
 func (c *Commands) AddUserToGroups(ctx context.Context, options *AddUserToGroupsOptions) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := c.Store.AddUserToGroups(ctx, options)
 	if err != nil {
 		return err
@@ -261,6 +282,7 @@ func (c *Commands) AddUserToGroups(ctx context.Context, options *AddUserToGroups
 }
 
 func (c *Commands) RemoveUserFromGroups(ctx context.Context, options *RemoveUserFromGroupsOptions) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := c.Store.RemoveUserFromGroups(ctx, options)
 	if err != nil {
 		return err
@@ -270,6 +292,7 @@ func (c *Commands) RemoveUserFromGroups(ctx context.Context, options *RemoveUser
 }
 
 func (c *Commands) DeleteUserGroup(ctx context.Context, userID string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := c.Store.DeleteUserGroup(ctx, userID)
 	if err != nil {
 		return err
@@ -279,6 +302,7 @@ func (c *Commands) DeleteUserGroup(ctx context.Context, userID string) error {
 }
 
 func (c *Commands) DeleteUserRole(ctx context.Context, userID string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := c.Store.DeleteUserRole(ctx, userID)
 	if err != nil {
 		return err
@@ -288,6 +312,7 @@ func (c *Commands) DeleteUserRole(ctx context.Context, userID string) error {
 }
 
 func (c *Commands) ResetUserGroup(ctx context.Context, options *ResetUserGroupOptions) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := c.Store.ResetUserGroup(ctx, options)
 	if err != nil {
 		return err
@@ -297,6 +322,7 @@ func (c *Commands) ResetUserGroup(ctx context.Context, options *ResetUserGroupOp
 }
 
 func (c *Commands) ResetUserRole(ctx context.Context, options *ResetUserRoleOptions) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := c.Store.ResetUserRole(ctx, options)
 	if err != nil {
 		return err
