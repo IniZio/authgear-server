@@ -42,10 +42,10 @@ func TestWriteDecisionHeaders(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		writeDecisionHeaders(w, r, info, false)
-		So(w.Header().Get("Server-Timing"), ShouldEqual, "pdp;dur=5")
+		So(w.Header().Get("Server-Timing"), ShouldEqual, "pdp;dur=5.00")
 
 		w = httptest.NewRecorder()
 		writeDecisionHeaders(w, r, info, true)
-		So(w.Header().Get("Server-Timing"), ShouldEqual, `pdp;dur=5;desc="cache-hit"`)
+		So(w.Header().Get("Server-Timing"), ShouldEqual, `pdp;dur=5.00;desc="cache-hit"`)
 	})
 }

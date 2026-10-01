@@ -57,9 +57,6 @@ func (b *evaluationsRequest) toRequests() ([]authz.EvaluationRequest, authz.Eval
 		if err != nil {
 			return nil, "", err
 		}
-		if err := validateSubjectID(er.Subject.ID); err != nil {
-			return nil, "", err
-		}
 		reqs = append(reqs, er)
 	}
 	return reqs, semantic, nil

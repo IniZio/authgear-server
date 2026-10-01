@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/authgear/authgear-server/pkg/api"
 	"github.com/authgear/authgear-server/pkg/api/apierrors"
@@ -87,7 +88,7 @@ func writeDecisionHeaders(w http.ResponseWriter, r *http.Request, info authz.Eva
 	if id := r.Header.Get("X-Request-ID"); id != "" {
 		w.Header().Set("X-Request-ID", id)
 	}
-	timing := fmt.Sprintf("pdp;dur=%d", info.Elapsed.Milliseconds())
+	timing := fmt.Sprintf("pdp;dur=%.2f", float64(info.Elapsed)/float64(time.Millisecond))
 	if devMode {
 		desc := "cache-miss"
 		if info.CacheHit {

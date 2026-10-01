@@ -29,6 +29,10 @@ type RemoveScopesFromRoleOptions struct {
 // resolveRoleScopes returns the role and the IDs of the scopes.
 // Any unknown scope fails with ErrScopeNotFound.
 func (c *Commands) resolveRoleScopes(ctx context.Context, roleKey string, resourceURI string, scopes []string) (*Role, []string, error) {
+	if len(scopes) == 0 {
+		return nil, nil, ErrEmptyScopes
+	}
+
 	role, err := c.Store.GetRoleByKey(ctx, roleKey)
 	if err != nil {
 		return nil, nil, err

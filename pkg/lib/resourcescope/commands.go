@@ -72,10 +72,10 @@ func (c *Commands) AddResourceToClientID(ctx context.Context, resourceURI, clien
 	if !found {
 		return ErrClientNotFound
 	}
+	// Only client_credentials clients use associations. See docs/specs/api-resource.md § Which clients may be associated.
 	if !client.ApplicationType.IsClientCredentialsFlowAllowed() {
 		return ErrClientCannotBeAssociatedWithResource
 	}
-	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	resource, err := c.Store.GetResourceByURI(ctx, resourceURI)
 	if err != nil {
 		return err
@@ -84,7 +84,6 @@ func (c *Commands) AddResourceToClientID(ctx context.Context, resourceURI, clien
 }
 
 func (c *Commands) RemoveResourceFromClientID(ctx context.Context, resourceURI, clientID string) error {
-	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	if _, found := c.OAuthConfig.GetClient(clientID); !found {
 		return ErrClientNotFound
 	}
