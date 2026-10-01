@@ -143,10 +143,14 @@ async function ensureGatewayResource(): Promise<void> {
     { q: gatewayResourceUri },
   );
   if (nodes(data.resources).some((r) => r.resourceURI === gatewayResourceUri)) {
+    // The orchestrator's token exchange resolves the Resource through its access policy.
+    await gql(`mutation($i: UpdateResourceInput!) { updateResource(input: $i) { resource { id } } }`, {
+      i: { resourceURI: gatewayResourceUri, accessPolicy },
+    });
     log("ok", `resource ${gatewayResourceUri}`);
   } else {
     await gql(`mutation($i: CreateResourceInput!) { createResource(input: $i) { resource { id } } }`, {
-      i: { resourceURI: gatewayResourceUri, name: "Linear Gateway" },
+      i: { resourceURI: gatewayResourceUri, name: "Linear Gateway", accessPolicy },
     });
     log("created", `resource ${gatewayResourceUri}`);
   }
