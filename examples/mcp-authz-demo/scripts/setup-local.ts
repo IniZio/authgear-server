@@ -1,6 +1,3 @@
-// Wires a local Authgear project for the demo: merges authgear.yaml.snippet into authgear.yaml,
-// adds the PDP client secret to authgear.secrets.yaml, and writes .env for `npm run seed`.
-// Idempotent. Usage: npm run setup [-- --config <path> --secrets <path> --env <path>]
 import { randomBytes } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
