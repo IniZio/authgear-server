@@ -21,8 +21,9 @@ type Subject struct {
 }
 
 type Resource struct {
-	Type string
-	ID   string
+	Type       string
+	ID         string
+	Properties map[string]any
 }
 
 type Action struct {
@@ -85,13 +86,14 @@ type SnapshotCache interface {
 }
 
 type Service struct {
-	Database  *appdb.Handle
-	Users     UserQueries
-	Roles     PermissionQueries
-	Resources ResourceQueries
-	Versions  VersionGetter
-	Cache     SnapshotCache
-	Clock     clock.Clock
+	Database    *appdb.Handle
+	Users       UserQueries
+	Roles       PermissionQueries
+	Resources   ResourceQueries
+	AgentGrants AgentGrantQueries
+	Versions    VersionGetter
+	Cache       SnapshotCache
+	Clock       clock.Clock
 }
 
 func (s *Service) Evaluate(ctx context.Context, reqs []EvaluationRequest, semantic EvaluationsSemantic) (decisions []bool, info EvaluationInfo, err error) {
@@ -109,26 +111,36 @@ func (s *Service) Evaluate(ctx context.Context, reqs []EvaluationRequest, semant
 
 	decisions = make([]bool, 0, len(reqs))
 	for _, req := range reqs {
-		snap, ok := snapshots[req.Subject.ID]
-		if !ok {
+		var decision bool
+		if req.IsGrantRequest() {
 			var hit bool
-			snap, hit, err = s.loadSnapshot(ctx, version, req.Subject.ID)
+			decision, hit, err = s.evaluateGrant(ctx, version, req)
 			if err != nil {
 				return nil, info, err
 			}
 			allHit = allHit && hit
-			snapshots[req.Subject.ID] = snap
-		}
-
-		if resources == nil {
-			resources, err = s.resolveResources(ctx, reqs)
-			if err != nil {
-				return nil, info, err
+		} else {
+			snap, ok := snapshots[req.Subject.ID]
+			if !ok {
+				var hit bool
+				snap, hit, err = s.loadSnapshot(ctx, version, req.Subject.ID)
+				if err != nil {
+					return nil, info, err
+				}
+				allHit = allHit && hit
+				snapshots[req.Subject.ID] = snap
 			}
-		}
-		exists := resources[req.Resource.ID]
 
-		decision := exists && !snap.Disabled && containsGrant(snap.Grants, req.Resource.ID, req.Action.Name)
+			if resources == nil {
+				resources, err = s.resolveResources(ctx, reqs)
+				if err != nil {
+					return nil, info, err
+				}
+			}
+			exists := resources[req.Resource.ID]
+
+			decision = exists && !snap.Disabled && containsGrant(snap.Grants, req.Resource.ID, req.Action.Name)
+		}
 		decisions = append(decisions, decision)
 
 		if semantic == EvaluationsSemanticDenyOnFirstDeny && !decision {
@@ -148,6 +160,9 @@ func (s *Service) resolveResources(ctx context.Context, reqs []EvaluationRequest
 	result := map[string]bool{}
 	err := s.Database.ReadOnly(ctx, func(ctx context.Context) error {
 		for _, req := range reqs {
+			if req.IsGrantRequest() {
+				continue
+			}
 			uri := req.Resource.ID // the Resource URI
 			if _, ok := result[uri]; ok {
 				continue

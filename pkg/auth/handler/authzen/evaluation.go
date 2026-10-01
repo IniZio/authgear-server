@@ -38,8 +38,9 @@ type evaluationItem struct {
 		ID   string `json:"id"`
 	} `json:"subject"`
 	Resource *struct {
-		Type string `json:"type"`
-		ID   string `json:"id"`
+		Type       string         `json:"type"`
+		ID         string         `json:"id"`
+		Properties map[string]any `json:"properties"`
 	} `json:"resource"`
 	Action *struct {
 		Name string `json:"name"`
@@ -63,7 +64,7 @@ func (i *evaluationItem) toRequest() (authz.EvaluationRequest, error) {
 	}
 	return authz.EvaluationRequest{
 		Subject:  authz.Subject{Type: i.Subject.Type, ID: i.Subject.ID},
-		Resource: authz.Resource{Type: i.Resource.Type, ID: i.Resource.ID},
+		Resource: authz.Resource{Type: i.Resource.Type, ID: i.Resource.ID, Properties: i.Resource.Properties},
 		Action:   authz.Action{Name: i.Action.Name},
 		Context:  i.Context,
 	}, nil

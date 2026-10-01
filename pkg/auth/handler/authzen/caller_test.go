@@ -182,6 +182,59 @@ func TestCallerResolverAuthorizeRequest(t *testing.T) {
 	})
 }
 
+type fakeAgentGrants map[string]*authz.AgentGrant
+
+func (f fakeAgentGrants) GetAgentGrant(ctx context.Context, id string) (*authz.AgentGrant, error) {
+	return f[id], nil
+}
+
+func TestCallerResolverAuthorizeGrantRequest(t *testing.T) {
+	Convey("CallerResolver.AuthorizeRequest grant requests", t, func() {
+		ctx := context.Background()
+		r := newResolver()
+		r.AgentGrants = fakeAgentGrants{
+			"g1": {Audience: "https://api.example.com"},
+			"g2": {Audience: "https://other.example.com"},
+		}
+		client := &Caller{Mode: CallerModeClient, ClientID: "m2m"}
+		self := &Caller{Mode: CallerModeSelf, ClientID: "spa", UserID: "u1"}
+		req := func(resourceType string, grantID string) authz.EvaluationRequest {
+			er := authz.EvaluationRequest{
+				Subject:  authz.Subject{Type: "user", ID: "u1"},
+				Resource: authz.Resource{Type: resourceType, ID: "ENG-1"},
+				Action:   authz.Action{Name: "issue:read"},
+			}
+			if grantID != "" {
+				er.Context = map[string]any{"grant_id": grantID}
+			}
+			return er
+		}
+
+		Convey("associated audience", func() {
+			So(r.AuthorizeRequest(ctx, client, req("linear:issue", "g1")), ShouldBeNil)
+		})
+		Convey("unassociated audience", func() {
+			err := r.AuthorizeRequest(ctx, client, req("linear:issue", "g2"))
+			So(err, shouldBeKind(apierrors.Forbidden))
+		})
+		Convey("unknown grant is not an error", func() {
+			So(r.AuthorizeRequest(ctx, client, req("linear:issue", "nope")), ShouldBeNil)
+		})
+		Convey("self mode", func() {
+			err := r.AuthorizeRequest(ctx, self, req("linear:issue", "g1"))
+			So(err, shouldBeKind(apierrors.Forbidden))
+		})
+		Convey("non-authgear type without grant_id", func() {
+			err := r.AuthorizeRequest(ctx, client, req("linear:issue", ""))
+			So(err, shouldBeKind(apierrors.BadRequest))
+		})
+		Convey("batch applies per item", func() {
+			err := r.AuthorizeRequests(ctx, client, []authz.EvaluationRequest{req("linear:issue", "g1"), req("linear:issue", "g2")})
+			So(err, shouldBeKind(apierrors.Forbidden))
+		})
+	})
+}
+
 type countingClientResources struct{ calls map[string]int }
 
 func (f *countingClientResources) GetClientResourceByURI(ctx context.Context, clientID string, uri string) (*resourcescope.Resource, error) {

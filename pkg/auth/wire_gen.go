@@ -4999,10 +4999,21 @@ func newAuthZENEvaluationHandler(p *deps.RequestProvider) http.Handler {
 	clientResourceScopeService := &resourcescope.ClientResourceScopeService{
 		Store: resourcescopeStore,
 	}
+	redisStore := &redis.Store{
+		Redis:       appredisHandle,
+		AppID:       appID,
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
+	authzAgentGrants := &redis.AuthzAgentGrants{
+		Store: redisStore,
+	}
 	callerResolver := &authzen.CallerResolver{
 		ClientResolver:  resolver,
 		Credentials:     oAuthClientCredentials,
 		ClientResources: clientResourceScopeService,
+		AgentGrants:     authzAgentGrants,
 		Database:        handle,
 	}
 	userStore := &user.Store{
@@ -5286,13 +5297,14 @@ func newAuthZENEvaluationHandler(p *deps.RequestProvider) http.Handler {
 		AppID: appID,
 	}
 	authzService := &authz.Service{
-		Database:  handle,
-		Users:     userQueries,
-		Roles:     rolesgroupsStore,
-		Resources: resourcescopeStore,
-		Versions:  versionStore,
-		Cache:     permissionCache,
-		Clock:     clockClock,
+		Database:    handle,
+		Users:       userQueries,
+		Roles:       rolesgroupsStore,
+		Resources:   resourcescopeStore,
+		AgentGrants: authzAgentGrants,
+		Versions:    versionStore,
+		Cache:       permissionCache,
+		Clock:       clockClock,
 	}
 	devMode := environmentConfig.DevMode
 	evaluationHandler := &authzen.EvaluationHandler{
@@ -5372,10 +5384,21 @@ func newAuthZENEvaluationsHandler(p *deps.RequestProvider) http.Handler {
 	clientResourceScopeService := &resourcescope.ClientResourceScopeService{
 		Store: resourcescopeStore,
 	}
+	redisStore := &redis.Store{
+		Redis:       appredisHandle,
+		AppID:       appID,
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
+	authzAgentGrants := &redis.AuthzAgentGrants{
+		Store: redisStore,
+	}
 	callerResolver := &authzen.CallerResolver{
 		ClientResolver:  resolver,
 		Credentials:     oAuthClientCredentials,
 		ClientResources: clientResourceScopeService,
+		AgentGrants:     authzAgentGrants,
 		Database:        handle,
 	}
 	userStore := &user.Store{
@@ -5659,13 +5682,14 @@ func newAuthZENEvaluationsHandler(p *deps.RequestProvider) http.Handler {
 		AppID: appID,
 	}
 	authzService := &authz.Service{
-		Database:  handle,
-		Users:     userQueries,
-		Roles:     rolesgroupsStore,
-		Resources: resourcescopeStore,
-		Versions:  versionStore,
-		Cache:     permissionCache,
-		Clock:     clockClock,
+		Database:    handle,
+		Users:       userQueries,
+		Roles:       rolesgroupsStore,
+		Resources:   resourcescopeStore,
+		AgentGrants: authzAgentGrants,
+		Versions:    versionStore,
+		Cache:       permissionCache,
+		Clock:       clockClock,
 	}
 	devMode := environmentConfig.DevMode
 	evaluationsHandler := &authzen.EvaluationsHandler{

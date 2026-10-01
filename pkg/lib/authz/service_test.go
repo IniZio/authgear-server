@@ -317,3 +317,73 @@ func TestServiceEvaluate(t *testing.T) {
 		})
 	})
 }
+
+type fakeAgentGrants struct{ grants map[string]*AgentGrant }
+
+func (f *fakeAgentGrants) GetAgentGrant(ctx context.Context, id string) (*AgentGrant, error) {
+	return f.grants[id], nil
+}
+
+func TestServiceEvaluateGrant(t *testing.T) {
+	Convey("Service.Evaluate grant requests", t, func() {
+		ctx := context.Background()
+		now := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+		users := &fakeUsers{users: map[string]*model.User{
+			"alice": {},
+			"bob":   {IsDisabled: true},
+		}}
+		permits := func(ns, action, team string) bool {
+			return ns == "linear" && team == "ENG" && (action == "issue:read" || action == "issue:write")
+		}
+		mk := func(user string, expire time.Time) *AgentGrant {
+			return &AgentGrant{UserID: user, Actor: "sbx", Audience: "https://gw", ExpireAt: expire, Permits: permits}
+		}
+		grants := &fakeAgentGrants{grants: map[string]*AgentGrant{
+			"g1":       mk("alice", now.Add(time.Hour)),
+			"expired":  mk("alice", now.Add(-time.Second)),
+			"disabled": mk("bob", now.Add(time.Hour)),
+		}}
+		s := &Service{
+			Clock:       clock.NewMockClockAtTime(now),
+			Database:    newTestAppDBHandle(t),
+			Users:       users,
+			Roles:       &fakeRoles{},
+			Resources:   &fakeResources{},
+			AgentGrants: grants,
+			Versions:    &fakeVersions{version: 1},
+			Cache:       &fakeCache{snaps: map[string]*PermissionSnapshot{}},
+		}
+
+		eval := func(user, grantID, resType, resID, action string, props map[string]any, actor string) bool {
+			c := map[string]any{"grant_id": grantID}
+			if actor != "" {
+				c["actor"] = actor
+			}
+			d, _, err := s.Evaluate(ctx, []EvaluationRequest{{
+				Subject:  Subject{Type: "user", ID: user},
+				Resource: Resource{Type: resType, ID: resID, Properties: props},
+				Action:   Action{Name: action},
+				Context:  c,
+			}}, EvaluationsSemanticExecuteAll)
+			So(err, ShouldBeNil)
+			So(d, ShouldHaveLength, 1)
+			return d[0]
+		}
+		eng := map[string]any{"team": "ENG"}
+		ops := map[string]any{"team": "OPS"}
+
+		So(eval("alice", "g1", "linear:issue", "ENG-1", "issue:read", eng, "sbx"), ShouldBeTrue)
+		So(eval("alice", "g1", "linear:issue", "ENG-1", "issue:read", eng, ""), ShouldBeTrue)
+		So(eval("alice", "g1", "linear:team", "ENG", "issue:read", nil, ""), ShouldBeTrue)
+		So(eval("alice", "g1", "linear:issue", "OPS-1", "issue:read", ops, ""), ShouldBeFalse)
+		So(eval("alice", "g1", "linear:team", "OPS", "issue:read", nil, ""), ShouldBeFalse)
+		So(eval("alice", "g1", "linear:comment", "c1", "comment:delete", eng, ""), ShouldBeFalse)
+		So(eval("carol", "g1", "linear:issue", "ENG-1", "issue:read", eng, ""), ShouldBeFalse)
+		So(eval("alice", "g1", "linear:issue", "ENG-1", "issue:read", eng, "other"), ShouldBeFalse)
+		So(eval("alice", "expired", "linear:issue", "ENG-1", "issue:read", eng, ""), ShouldBeFalse)
+		So(eval("alice", "missing", "linear:issue", "ENG-1", "issue:read", eng, ""), ShouldBeFalse)
+		So(eval("bob", "disabled", "linear:issue", "ENG-1", "issue:read", eng, ""), ShouldBeFalse)
+		So(eval("alice", "g1", "linear:issue", "ENG-1", "issue:read", nil, ""), ShouldBeFalse)
+		So(eval("alice", "g1", "other:issue", "ENG-1", "issue:read", eng, ""), ShouldBeFalse)
+	})
+}

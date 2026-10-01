@@ -20,9 +20,10 @@ func TestEvaluationItemSubjectIDCap(t *testing.T) {
 				ID   string `json:"id"`
 			}{"user", id}
 			item.Resource = &struct {
-				Type string `json:"type"`
-				ID   string `json:"id"`
-			}{"r", "1"}
+				Type       string         `json:"type"`
+				ID         string         `json:"id"`
+				Properties map[string]any `json:"properties"`
+			}{"r", "1", nil}
 			item.Action = &struct {
 				Name string `json:"name"`
 			}{"a"}

@@ -17,7 +17,7 @@ import (
 
 const (
 	SubjectTypeUser      = "user"
-	ResourceTypeAuthgear = "authgear:resource"
+	ResourceTypeAuthgear = authz.ResourceTypeAuthgear
 )
 
 type CallerMode string
@@ -41,6 +41,7 @@ type CallerResolver struct {
 	ClientResolver  oauth.OAuthClientResolver
 	Credentials     *config.OAuthClientCredentials
 	ClientResources ClientResourceQueries
+	AgentGrants     authz.AgentGrantQueries
 	Database        *appdb.Handle
 }
 
@@ -114,8 +115,26 @@ func (r *CallerResolver) AuthorizeRequests(ctx context.Context, caller *Caller, 
 		if er.Subject.Type != SubjectTypeUser {
 			return apierrors.NewBadRequest("unsupported subject.type")
 		}
-		if er.Resource.Type != ResourceTypeAuthgear {
+		isGrant := er.IsGrantRequest()
+		if er.Resource.Type != ResourceTypeAuthgear && !isGrant {
 			return apierrors.NewBadRequest("unsupported resource.type")
+		}
+		if isGrant {
+			if caller.Mode != CallerModeClient {
+				return apierrors.NewForbidden("grant requests require client credentials")
+			}
+			grant, err := r.AgentGrants.GetAgentGrant(ctx, er.GrantID())
+			if err != nil {
+				return err
+			}
+			// Unknown grant: the decision is false, not an error.
+			if grant != nil {
+				if _, ok := seen[grant.Audience]; !ok {
+					seen[grant.Audience] = struct{}{}
+					uris = append(uris, grant.Audience)
+				}
+			}
+			continue
 		}
 
 		switch caller.Mode {
