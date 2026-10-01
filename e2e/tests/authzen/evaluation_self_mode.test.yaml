@@ -1,0 +1,100 @@
+name: AuthZEN self mode - first-party token may evaluate its own subject only
+before:
+  - type: user_import
+    user_import: evaluation_self_users.json
+  - type: custom_sql
+    custom_sql:
+      path: evaluation_self_fixtures.sql
+steps:
+  - name: oauth_setup
+    action: oauth_setup
+
+  - name: create_flow
+    action: create
+    input: |
+      {
+        "type": "login",
+        "name": "default",
+        "url_query": "{{ .steps.oauth_setup.result.query }}"
+      }
+    output:
+      result: |
+        {
+          "action": {
+            "type": "identify"
+          }
+        }
+
+  - name: identify
+    action: input
+    input: |
+      {
+        "identification": "username",
+        "login_id": "e2e_authzen_self"
+      }
+    output:
+      result: |
+        {
+          "action": {
+            "type": "authenticate"
+          }
+        }
+
+  - name: authenticate
+    action: input
+    input: |
+      {
+        "authentication": "primary_password",
+        "password": "password"
+      }
+    output:
+      result: |
+        {
+          "action": {
+            "type": "finished",
+            "data": {
+              "finish_redirect_uri": "[[string]]"
+            }
+          }
+        }
+
+  - name: exchange_code
+    action: oauth_exchange_code
+    oauth_exchange_code_code_verifier: "{{ .steps.oauth_setup.result.code_verifier }}"
+    oauth_exchange_code_redirect_uri: "{{ .steps.authenticate.result.action.data.finish_redirect_uri }}"
+
+  - name: evaluate_own_subject
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: "Bearer {{ .steps.exchange_code.result.access_token }}"
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .steps.exchange_code.result.access_token_claims.sub }}" },
+        "resource": { "type": "authgear:resource", "id": "https://selfresource/1" },
+        "action": { "name": "posts:read" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": true
+        }
+
+  - name: evaluate_other_subject
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: "Bearer {{ .steps.exchange_code.result.access_token }}"
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-someone-else" },
+        "resource": { "type": "authgear:resource", "id": "https://selfresource/1" },
+        "action": { "name": "posts:read" }
+      }
+    http_output:
+      http_status: 403
