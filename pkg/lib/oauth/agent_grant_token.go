@@ -7,6 +7,7 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/util/jwtutil"
 	"github.com/authgear/authgear-server/pkg/util/uuid"
 )
@@ -21,7 +22,7 @@ func (e *AccessTokenEncoding) EncodeAgentGrantToken(ctx context.Context, grant *
 	_ = claims.Set(jwt.ExpirationKey, grant.ExpireAt.Unix())
 	_ = claims.Set("client_id", grant.ClientID)
 	_ = claims.Set("act", map[string]any{"sub": grant.Actor})
-	_ = claims.Set("grant_id", grant.ID)
+	_ = claims.Set(authz.ContextKeyGrantID, grant.ID)
 	_ = claims.Set("authorization_details", grant.AuthorizationDetails)
 	_ = claims.Set("cnf", map[string]any{"jkt": grant.DPoPJKT})
 
