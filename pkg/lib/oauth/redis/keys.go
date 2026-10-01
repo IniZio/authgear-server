@@ -37,3 +37,7 @@ func appSessionKey(appID string, tokenHash string) string {
 func preAuthenticatedURLTokenKey(appID string, tokenHash string) string {
 	return fmt.Sprintf("app:%s:pre-authenticated-url-token:%s", appID, tokenHash)
 }
+
+func agentGrantKey(appID, id string) string {
+	return fmt.Sprintf("app:%s:agent-grant:%s", appID, id)
+}
