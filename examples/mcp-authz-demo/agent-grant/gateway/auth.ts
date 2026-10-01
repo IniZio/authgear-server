@@ -12,7 +12,7 @@ export const gatewayConfig = {
   pdpTimeoutMs: Number(process.env.PDP_TIMEOUT_MS ?? 2000),
   linearUrl: process.env.LINEAR_URL ?? "http://localhost:4300/mcp",
   linearApiKey: process.env.LINEAR_API_KEY ?? "linear-demo-key",
-  pdpClientId: process.env.GATEWAY_PDP_CLIENT_ID ?? "linear-gateway",
+  pdpClientId: process.env.GATEWAY_PDP_CLIENT_ID ?? "linear-gateway-pdp",
   pdpClientSecret: process.env.GATEWAY_PDP_CLIENT_SECRET ?? "",
 };
 const issuer = trimSlash(process.env.AUTHGEAR_ISSUER ?? gatewayConfig.authgearEndpoint);
