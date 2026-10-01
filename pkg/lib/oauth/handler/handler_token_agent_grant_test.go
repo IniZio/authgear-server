@@ -194,6 +194,13 @@ func TestTokenHandlerAgentGrant(t *testing.T) {
 			expectError(proofCtx(), r, "invalid_client")
 		})
 
+		Convey("wrong client secret is rejected before the flag check", func() {
+			clientResolver.ClientConfigs["orchestrator"].AgentGrantExchangeEnabled = false
+			r := newRequest()
+			r["client_secret"] = []string{"wrong"}
+			expectError(proofCtx(), r, "invalid_client")
+		})
+
 		Convey("no DPoP proof", func() {
 			expectError(context.Background(), newRequest(), "invalid_dpop_proof")
 		})

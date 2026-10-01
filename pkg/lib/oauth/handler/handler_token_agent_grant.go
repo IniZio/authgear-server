@@ -51,11 +51,16 @@ func (h *TokenHandler) handleAgentGrantTokenExchange(
 	client *config.OAuthClientConfig,
 	r protocol.TokenRequest,
 ) (*HandleResult, error) {
-	if !client.IsConfidential() || !client.AgentGrantExchangeEnabled {
+	// A public client has no secret to validate. Otherwise authenticate first,
+	// so unauthorized_client is only reachable by an authenticated client.
+	if !client.IsConfidential() {
 		return nil, protocol.NewError("unauthorized_client", "the client is not allowed to use the agent grant exchange")
 	}
 	if _, err := h.validateClientSecret(client, r.ClientSecret()); err != nil {
 		return nil, protocol.NewError("invalid_client", "invalid client secret")
+	}
+	if !client.AgentGrantExchangeEnabled {
+		return nil, protocol.NewError("unauthorized_client", "the client is not allowed to use the agent grant exchange")
 	}
 
 	// Required even if the client sets x_dpop_disabled.
