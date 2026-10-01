@@ -74,18 +74,19 @@ type EvaluationsHandler struct {
 func (h *EvaluationsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	// Authenticate first so bad credentials get 401 regardless of body validity.
+	caller, err := h.Caller.Resolve(ctx, r)
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+
 	var body evaluationsRequest
 	if err := decodeBody(w, r, &body); err != nil {
 		writeError(w, r, err)
 		return
 	}
 	reqs, semantic, err := body.toRequests()
-	if err != nil {
-		writeError(w, r, err)
-		return
-	}
-
-	caller, err := h.Caller.Resolve(ctx, r)
 	if err != nil {
 		writeError(w, r, err)
 		return
