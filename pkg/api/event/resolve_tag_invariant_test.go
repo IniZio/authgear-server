@@ -32,6 +32,8 @@ var payloadRegistry = []any{
 	&nonblocking.AdminAPIMutationAddResourceToClientIDExecutedEventPayload{},
 	&nonblocking.AdminAPIMutationAddRoleToGroupsExecutedEventPayload{},
 	&nonblocking.AdminAPIMutationAddRoleToUsersExecutedEventPayload{},
+	&nonblocking.AdminAPIMutationAddScopesToRoleExecutedEventPayload{},
+	&nonblocking.AdminAPIMutationRemoveScopesFromRoleExecutedEventPayload{},
 	&nonblocking.AdminAPIMutationAddScopesToClientIDExecutedEventPayload{},
 	&nonblocking.AdminAPIMutationAddUserToGroupsExecutedEventPayload{},
 	&nonblocking.AdminAPIMutationAddUserToRolesExecutedEventPayload{},

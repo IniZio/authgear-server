@@ -3,6 +3,7 @@ package graphql
 import (
 	"github.com/graphql-go/graphql"
 
+	"github.com/authgear/authgear-server/pkg/api/event/nonblocking"
 	"github.com/authgear/authgear-server/pkg/lib/rolesgroups"
 	"github.com/authgear/authgear-server/pkg/util/graphqlutil"
 )
@@ -63,6 +64,15 @@ var _ = registerMutationField(
 			gqlCtx := GQLContext(ctx)
 
 			roleID, err := gqlCtx.RolesGroupsFacade.AddScopesToRole(ctx, options)
+			if err != nil {
+				return nil, err
+			}
+
+			err = gqlCtx.Events.DispatchEventOnCommit(ctx, &nonblocking.AdminAPIMutationAddScopesToRoleExecutedEventPayload{
+				RoleKey:     options.RoleKey,
+				ResourceURI: options.ResourceURI,
+				Scopes:      options.Scopes,
+			})
 			if err != nil {
 				return nil, err
 			}
@@ -130,6 +140,15 @@ var _ = registerMutationField(
 			gqlCtx := GQLContext(ctx)
 
 			roleID, err := gqlCtx.RolesGroupsFacade.RemoveScopesFromRole(ctx, options)
+			if err != nil {
+				return nil, err
+			}
+
+			err = gqlCtx.Events.DispatchEventOnCommit(ctx, &nonblocking.AdminAPIMutationRemoveScopesFromRoleExecutedEventPayload{
+				RoleKey:     options.RoleKey,
+				ResourceURI: options.ResourceURI,
+				Scopes:      options.Scopes,
+			})
 			if err != nil {
 				return nil, err
 			}
