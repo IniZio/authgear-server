@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/authgear/authgear-server/pkg/api/model"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/config"
 )
 
@@ -11,6 +12,8 @@ type Commands struct {
 	Store *Store
 
 	OAuthConfig *config.OAuthConfig
+
+	AuthzInvalidator authz.CacheInvalidator
 }
 
 func (c *Commands) CreateResource(ctx context.Context, options *NewResourceOptions) (*model.Resource, error) {
@@ -35,6 +38,7 @@ func (c *Commands) UpdateResource(ctx context.Context, options *UpdateResourceOp
 }
 
 func (c *Commands) DeleteResourceByURI(ctx context.Context, uri string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	resource, err := c.Store.GetResourceByURI(ctx, uri)
 	if err != nil {
 		return err
@@ -68,10 +72,7 @@ func (c *Commands) AddResourceToClientID(ctx context.Context, resourceURI, clien
 	if !found {
 		return ErrClientNotFound
 	}
-	// Only a client that can use client_credentials has any use for an
-	// association: authorization_code and refresh_token are governed
-	// solely by access_policy and never consult one. See
-	// docs/specs/api-resource.md § Which clients may be associated.
+	// Only client_credentials clients use associations. See docs/specs/api-resource.md § Which clients may be associated.
 	if !client.ApplicationType.IsClientCredentialsFlowAllowed() {
 		return ErrClientCannotBeAssociatedWithResource
 	}
@@ -124,6 +125,7 @@ func (c *Commands) UpdateScope(ctx context.Context, options *UpdateScopeOptions)
 }
 
 func (c *Commands) DeleteScope(ctx context.Context, resourceURI string, scope string) error {
+	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	resource, err := c.Store.GetResourceByURI(ctx, resourceURI)
 	if err != nil {
 		return err

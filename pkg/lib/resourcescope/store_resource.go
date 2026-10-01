@@ -368,3 +368,15 @@ func (s *Store) ListClientIDsByResourceIDs(ctx context.Context, resourceIDs []st
 
 	return resourceIDToClientIDsMap, nil
 }
+
+// ResourceExists reports whether a resource with the URI exists.
+func (s *Store) ResourceExists(ctx context.Context, uri string) (bool, error) {
+	_, err := s.GetResourceByURI(ctx, uri)
+	if err != nil {
+		if errors.Is(err, ErrResourceNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}

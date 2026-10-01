@@ -26,6 +26,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/authn/otp"
 	"github.com/authgear/authgear-server/pkg/lib/authn/stdattrs"
 	"github.com/authgear/authgear-server/pkg/lib/authn/user"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/config/configsource"
 	"github.com/authgear/authgear-server/pkg/lib/deps"
 	"github.com/authgear/authgear-server/pkg/lib/elasticsearch"
@@ -57,6 +58,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/oauth/redis"
 	"github.com/authgear/authgear-server/pkg/lib/oauthclient"
 	"github.com/authgear/authgear-server/pkg/lib/ratelimit"
+	"github.com/authgear/authgear-server/pkg/lib/resourcescope"
 	"github.com/authgear/authgear-server/pkg/lib/rolesgroups"
 	"github.com/authgear/authgear-server/pkg/lib/search/pgsearch"
 	"github.com/authgear/authgear-server/pkg/lib/search/reindex"
@@ -436,8 +438,14 @@ func newUserImport(p *deps.AppProvider) *userimport.UserImportService {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -477,8 +485,18 @@ func newUserImport(p *deps.AppProvider) *userimport.UserImportService {
 		SyncDenoClient:  syncDenoClient,
 		AsyncDenoClient: asyncDenoClient,
 	}
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: appID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -869,8 +887,9 @@ func newUserImport(p *deps.AppProvider) *userimport.UserImportService {
 		Translation: translationService,
 	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	userCommands := &user.Commands{
 		RawCommands:        rawCommands,

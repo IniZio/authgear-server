@@ -15,6 +15,33 @@ const typeScope = "Scope"
 
 var ErrInvalidScopeID = apierrors.NewInvalid("invalid scope ID")
 
+func init() {
+	// Scope and role form an initialization cycle, so use AddFieldConfig.
+	nodeScope.AddFieldConfig("roles", &graphql.Field{
+		Type:        connRole.ConnectionType,
+		Description: "The list of roles that grant this scope.",
+		Args:        relay.NewConnectionArgs(graphql.FieldConfigArgument{}),
+		Resolve: func(p graphql.ResolveParams) (any, error) {
+			source := p.Source.(*model.Scope)
+			ctx := p.Context
+			gqlCtx := GQLContext(ctx)
+
+			roles, err := gqlCtx.RolesGroupsFacade.ListRolesByScopeID(ctx, source.ID)
+			if err != nil {
+				return nil, err
+			}
+
+			roleIfaces := make([]any, len(roles))
+			for i, r := range roles {
+				roleIfaces[i] = r
+			}
+
+			args := relay.NewConnectionArguments(p.Args)
+			return graphqlutil.NewConnectionFromArray(roleIfaces, args), nil
+		},
+	})
+}
+
 var nodeScope = node(
 	graphql.NewObject(graphql.ObjectConfig{
 		Name:        typeScope,

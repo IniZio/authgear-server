@@ -1,0 +1,91 @@
+name: AuthZEN batch - execute_all returns one decision per item in order
+before:
+  - type: custom_sql
+    custom_sql:
+      path: batch_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluations
+    http_request_headers:
+      Authorization: "Basic ZTJlbTJtY2xpZW50OmUyZXNlY3JldA=="
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-batch-user" },
+        "resource": { "type": "authgear:resource", "id": "https://batch.example.com/api" },
+        "evaluations": [
+          { "action": { "name": "read" } },
+          { "action": { "name": "delete" } },
+          { "action": { "name": "write" } }
+        ],
+        "options": { "evaluations_semantic": "execute_all" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "evaluations": [
+            { "decision": true },
+            { "decision": false },
+            { "decision": true }
+          ]
+        }
+---
+name: AuthZEN batch - deny_on_first_deny stops at the first false
+before:
+  - type: custom_sql
+    custom_sql:
+      path: batch_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluations
+    http_request_headers:
+      Authorization: "Basic ZTJlbTJtY2xpZW50OmUyZXNlY3JldA=="
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-batch-user" },
+        "resource": { "type": "authgear:resource", "id": "https://batch.example.com/api" },
+        "evaluations": [
+          { "action": { "name": "read" } },
+          { "action": { "name": "delete" } },
+          { "action": { "name": "write" } }
+        ],
+        "options": { "evaluations_semantic": "deny_on_first_deny" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "evaluations": [
+            { "decision": true },
+            { "decision": false }
+          ]
+        }
+---
+name: AuthZEN batch - more than 100 items is 400
+before:
+  - type: custom_sql
+    custom_sql:
+      path: batch_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluations
+    http_request_headers:
+      Authorization: "Basic ZTJlbTJtY2xpZW50OmUyZXNlY3JldA=="
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-batch-user" },
+        "resource": { "type": "authgear:resource", "id": "https://batch.example.com/api" },
+        "evaluations": [
+          {{- range $i := until 101 }}
+          { "action": { "name": "read" } }{{ if lt $i 100 }},{{ end }}
+          {{- end }}
+        ]
+      }
+    http_output:
+      http_status: 400

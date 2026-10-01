@@ -17,3 +17,5 @@ var GroupUnknownKeys = apierrors.NotFound.WithReason("GroupUnknownKeys")
 var UserUnknownKeys = apierrors.NotFound.WithReason("UserUnknownKeys")
 
 var RoleUnknownKeys = apierrors.NotFound.WithReason("RoleUnknownKeys")
+
+var ErrEmptyScopes = apierrors.BadRequest.WithReason("EmptyScopes").New("scopes must not be empty")

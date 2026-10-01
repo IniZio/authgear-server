@@ -1,0 +1,76 @@
+name: AuthZEN consistency - removing a scope from a role invalidates cached decisions
+before:
+  - type: custom_sql
+    custom_sql:
+      path: consistency_fixtures.sql
+steps:
+  - name: evaluate_before
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: "Basic ZTJlbTJtY2xpZW50OmUyZXNlY3JldA=="
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-consistency-user" },
+        "resource": { "type": "authgear:resource", "id": "https://consistency.example.com/api" },
+        "action": { "name": "read" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": true
+        }
+
+  - name: remove_scope
+    action: admin_api_graphql
+    admin_api_request:
+      query: |
+        mutation ($input: RemoveScopesFromRoleInput!) {
+          removeScopesFromRole(input: $input) {
+            role {
+              key
+            }
+          }
+        }
+      variables: |
+        {
+          "input": {
+            "roleKey": "consistency_role",
+            "resourceURI": "https://consistency.example.com/api",
+            "scopes": ["read"]
+          }
+        }
+    admin_api_output:
+      result: |
+        {
+          "data": {
+            "removeScopesFromRole": {
+              "role": {
+                "key": "consistency_role"
+              }
+            }
+          }
+        }
+
+  - name: evaluate_after
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: "Basic ZTJlbTJtY2xpZW50OmUyZXNlY3JldA=="
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-consistency-user" },
+        "resource": { "type": "authgear:resource", "id": "https://consistency.example.com/api" },
+        "action": { "name": "read" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": false
+        }

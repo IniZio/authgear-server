@@ -9,6 +9,7 @@ import (
 	"github.com/google/wire"
 
 	handlerapi "github.com/authgear/authgear-server/pkg/auth/handler/api"
+	handlerauthzen "github.com/authgear/authgear-server/pkg/auth/handler/authzen"
 	handleroauth "github.com/authgear/authgear-server/pkg/auth/handler/oauth"
 	handlersaml "github.com/authgear/authgear-server/pkg/auth/handler/saml"
 	handlerwebapp "github.com/authgear/authgear-server/pkg/auth/handler/webapp"
@@ -98,6 +99,27 @@ func newOAuthMetadataHandler(p *deps.RequestProvider) http.Handler {
 	panic(wire.Build(
 		DependencySet,
 		wire.Bind(new(http.Handler), new(*handleroauth.MetadataHandler)),
+	))
+}
+
+func newAuthZENMetadataHandler(p *deps.RequestProvider) http.Handler {
+	panic(wire.Build(
+		DependencySet,
+		wire.Bind(new(http.Handler), new(*handlerauthzen.MetadataHandler)),
+	))
+}
+
+func newAuthZENEvaluationHandler(p *deps.RequestProvider) http.Handler {
+	panic(wire.Build(
+		DependencySet,
+		wire.Bind(new(http.Handler), new(*handlerauthzen.EvaluationHandler)),
+	))
+}
+
+func newAuthZENEvaluationsHandler(p *deps.RequestProvider) http.Handler {
+	panic(wire.Build(
+		DependencySet,
+		wire.Bind(new(http.Handler), new(*handlerauthzen.EvaluationsHandler)),
 	))
 }
 

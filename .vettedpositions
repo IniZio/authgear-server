@@ -23,6 +23,9 @@
 /pkg/auth/handler/api/workflow_new.go:83:9: requestcontext
 /pkg/auth/handler/api/workflow_v2.go:205:9: requestcontext
 /pkg/auth/handler/api/workflow_websocket.go:52:9: requestcontext
+/pkg/auth/handler/authzen/evaluation.go:99:29: requestcontext
+/pkg/auth/handler/authzen/evaluation.go:108:9: requestcontext
+/pkg/auth/handler/authzen/evaluations.go:70:9: requestcontext
 /pkg/auth/handler/oauth/app_session_token.go:68:9: requestcontext
 /pkg/auth/handler/oauth/authorize.go:46:68: requestcontext
 /pkg/auth/handler/oauth/authorize.go:60:46: requestcontext

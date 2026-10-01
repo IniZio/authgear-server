@@ -2390,23 +2390,7 @@ func (h *TokenHandler) handleClientCredentials(
 }
 
 func (h *TokenHandler) validateClientSecret(client *config.OAuthClientConfig, clientSecret string) (maskedSecret string, err error) {
-	credentialsItem, ok := h.OAuthClientCredentials.Lookup(client.ClientID)
-	if !ok {
-		return "", protocol.NewError("invalid_request", "client secret is not supported for the client")
-	}
-
-	keys := credentialsItem.Keys()
-	for _, secret := range keys {
-		if subtle.ConstantTimeCompare([]byte(clientSecret), secret.Key) == 1 {
-			maskedSecret = secret.Mask()
-			break
-		}
-	}
-	if maskedSecret == "" {
-		return "", protocol.NewError("invalid_request", "invalid client secret")
-	}
-
-	return maskedSecret, nil
+	return oauth.ValidateClientSecret(h.OAuthClientCredentials, client.ClientID, clientSecret)
 }
 
 func (h *TokenHandler) checkUserRateLimit(ctx context.Context, userID string) error {

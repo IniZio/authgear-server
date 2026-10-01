@@ -149,6 +149,24 @@ type AddScopesToClientIDPayload {
 }
 
 """"""
+input AddScopesToRoleInput {
+  """The URI of the resource the scopes belong to."""
+  resourceURI: String!
+
+  """The key of the role."""
+  roleKey: String!
+
+  """The list of scopes."""
+  scopes: [String!]!
+}
+
+""""""
+type AddScopesToRolePayload {
+  """"""
+  role: Role!
+}
+
+""""""
 input AddUserToGroupsInput {
   """The list of group keys."""
   groupKeys: [String!]
@@ -238,6 +256,9 @@ enum AuditLogActivityType {
   ADMIN_API_MUTATION_ADD_SCOPES_TO_CLIENTID_EXECUTED
 
   """"""
+  ADMIN_API_MUTATION_ADD_SCOPES_TO_ROLE_EXECUTED
+
+  """"""
   ADMIN_API_MUTATION_ADD_USER_TO_GROUPS_EXECUTED
 
   """"""
@@ -320,6 +341,9 @@ enum AuditLogActivityType {
 
   """"""
   ADMIN_API_MUTATION_REMOVE_SCOPES_FROM_CLIENTID_EXECUTED
+
+  """"""
+  ADMIN_API_MUTATION_REMOVE_SCOPES_FROM_ROLE_EXECUTED
 
   """"""
   ADMIN_API_MUTATION_REMOVE_USER_FROM_GROUPS_EXECUTED
@@ -1592,6 +1616,9 @@ type Mutation {
   """Associate multiple scopes with a clientID."""
   addScopesToClientID(input: AddScopesToClientIDInput!): AddScopesToClientIDPayload!
 
+  """Add scopes of a resource to the role."""
+  addScopesToRole(input: AddScopesToRoleInput!): AddScopesToRolePayload!
+
   """Add the user to the groups."""
   addUserToGroups(input: AddUserToGroupsInput!): AddUserToGroupsPayload!
 
@@ -1686,6 +1713,9 @@ type Mutation {
 
   """Disassociate multiple scopes from a clientID."""
   removeScopesFromClientID(input: RemoveScopesFromClientIDInput!): RemoveScopesFromClientIDPayload!
+
+  """Remove scopes of a resource from the role."""
+  removeScopesFromRole(input: RemoveScopesFromRoleInput!): RemoveScopesFromRolePayload!
 
   """Remove the user from the groups."""
   removeUserFromGroups(input: RemoveUserFromGroupsInput!): RemoveUserFromGroupsPayload!
@@ -2122,6 +2152,24 @@ type RemoveScopesFromClientIDPayload {
 }
 
 """"""
+input RemoveScopesFromRoleInput {
+  """The URI of the resource the scopes belong to."""
+  resourceURI: String!
+
+  """The key of the role."""
+  roleKey: String!
+
+  """The list of scopes."""
+  scopes: [String!]!
+}
+
+""""""
+type RemoveScopesFromRolePayload {
+  """"""
+  role: Role!
+}
+
+""""""
 input RemoveUserFromGroupsInput {
   """The list of group keys."""
   groupKeys: [String!]
@@ -2310,6 +2358,24 @@ type Role implements Entity & Node {
   """The optional name of the role."""
   name: String
 
+  """The list of scopes granted by this role."""
+  scopes(
+    """"""
+    after: String
+
+    """"""
+    before: String
+
+    """"""
+    first: Int
+
+    """"""
+    last: Int
+
+    """Only return scopes of the resource with this URI."""
+    resourceURI: String
+  ): ScopeConnection
+
   """The update time of entity"""
   updatedAt: DateTime!
 
@@ -2383,6 +2449,9 @@ type Scope implements Entity & Node {
 
   """The resource ID."""
   resourceID: ID!
+
+  """The list of roles that grant this scope."""
+  roles(after: String, before: String, first: Int, last: Int): RoleConnection
 
   """The scope string."""
   scope: String!

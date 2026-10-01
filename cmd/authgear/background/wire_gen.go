@@ -27,6 +27,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/authn/otp"
 	"github.com/authgear/authgear-server/pkg/lib/authn/stdattrs"
 	"github.com/authgear/authgear-server/pkg/lib/authn/user"
+	"github.com/authgear/authgear-server/pkg/lib/authz"
 	"github.com/authgear/authgear-server/pkg/lib/config"
 	"github.com/authgear/authgear-server/pkg/lib/config/configsource"
 	"github.com/authgear/authgear-server/pkg/lib/deps"
@@ -64,6 +65,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/oauth/redis"
 	"github.com/authgear/authgear-server/pkg/lib/oauthclient"
 	"github.com/authgear/authgear-server/pkg/lib/ratelimit"
+	"github.com/authgear/authgear-server/pkg/lib/resourcescope"
 	"github.com/authgear/authgear-server/pkg/lib/rolesgroups"
 	"github.com/authgear/authgear-server/pkg/lib/search/pgsearch"
 	"github.com/authgear/authgear-server/pkg/lib/search/reindex"
@@ -183,9 +185,23 @@ func newUserService(p *deps.BackgroundProvider, appID string, appContext *config
 		Clock:       clockClock,
 		AppID:       configAppID,
 	}
+	redisPool := p.RedisPool
+	hub := p.RedisHub
+	redisEnvironmentConfig := &environmentConfig.RedisConfig
+	redisCredentials := deps.ProvideRedisCredentials(secretConfig)
+	appredisHandle := appredis.NewHandle(redisPool, hub, redisEnvironmentConfig, redisCredentials)
+	versionStore := &authz.VersionStore{
+		Redis: appredisHandle,
+		AppID: configAppID,
+	}
+	invalidator := &authz.Invalidator{
+		Database: handle,
+		Versions: versionStore,
+	}
 	rawCommands := &user.RawCommands{
-		Store: store,
-		Clock: clockClock,
+		Store:            store,
+		Clock:            clockClock,
+		AuthzInvalidator: invalidator,
 	}
 	rawQueries := &user.RawQueries{
 		Store: store,
@@ -263,11 +279,6 @@ func newUserService(p *deps.BackgroundProvider, appID string, appContext *config
 		SQLBuilder:  sqlBuilderApp,
 		SQLExecutor: sqlExecutor,
 	}
-	redisPool := p.RedisPool
-	hub := p.RedisHub
-	redisEnvironmentConfig := &environmentConfig.RedisConfig
-	redisCredentials := deps.ProvideRedisCredentials(secretConfig)
-	appredisHandle := appredis.NewHandle(redisPool, hub, redisEnvironmentConfig, redisCredentials)
 	store2 := &passkey2.Store{
 		Redis: appredisHandle,
 		AppID: configAppID,
@@ -493,8 +504,14 @@ func newUserService(p *deps.BackgroundProvider, appID string, appContext *config
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -535,7 +552,9 @@ func newUserService(p *deps.BackgroundProvider, appID string, appContext *config
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
+		AuthzInvalidator:   invalidator,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,

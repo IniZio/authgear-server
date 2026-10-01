@@ -144,6 +144,13 @@ func (s *Store) DeleteScope(ctx context.Context, resourceURI string, scope strin
 		return err
 	}
 
+	// Role-scope rows reference the scope by FK; delete them first.
+	roleQ := s.SQLBuilder.Delete(s.SQLBuilder.TableName("_auth_role_resource_scope")).
+		Where("scope_id IN (SELECT id FROM "+s.SQLBuilder.TableName("_auth_resource_scope")+" WHERE resource_id = ? AND scope = ?)", resource.ID, scope)
+	if _, err = s.SQLExecutor.ExecWith(ctx, roleQ); err != nil {
+		return err
+	}
+
 	q := s.SQLBuilder.Delete(s.SQLBuilder.TableName("_auth_resource_scope")).
 		Where("resource_id = ? AND scope = ?", resource.ID, scope)
 
@@ -394,6 +401,10 @@ func (s *Store) DeleteAllClientScopeAssociationsByResourceID(ctx context.Context
 }
 
 func (s *Store) DeleteAllResourceScopes(ctx context.Context, resourceID string) error {
+	// Role-scope rows reference the scopes by FK; delete them first.
+	if err := s.deleteRoleResourceScopesByResourceID(ctx, resourceID); err != nil {
+		return err
+	}
 	q := s.SQLBuilder.Delete(s.SQLBuilder.TableName("_auth_resource_scope")).Where("resource_id = ?", resourceID)
 	_, err := s.SQLExecutor.ExecWith(ctx, q)
 	return err
@@ -401,6 +412,13 @@ func (s *Store) DeleteAllResourceScopes(ctx context.Context, resourceID string) 
 
 func (s *Store) DeleteAllClientScopeAssociationsByScopeID(ctx context.Context, scopeID string) error {
 	q := s.SQLBuilder.Delete(s.SQLBuilder.TableName("_auth_client_resource_scope")).Where("scope_id = ?", scopeID)
+	_, err := s.SQLExecutor.ExecWith(ctx, q)
+	return err
+}
+
+func (s *Store) deleteRoleResourceScopesByResourceID(ctx context.Context, resourceID string) error {
+	q := s.SQLBuilder.Delete(s.SQLBuilder.TableName("_auth_role_resource_scope")).
+		Where("scope_id IN (SELECT id FROM "+s.SQLBuilder.TableName("_auth_resource_scope")+" WHERE resource_id = ?)", resourceID)
 	_, err := s.SQLExecutor.ExecWith(ctx, q)
 	return err
 }

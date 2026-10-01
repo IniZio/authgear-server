@@ -1,0 +1,166 @@
+name: AuthZEN client mode - true via direct role
+before:
+  - type: custom_sql
+    custom_sql:
+      path: evaluation_client_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-user-direct" },
+        "resource": { "type": "authgear:resource", "id": "https://evalresource/1" },
+        "action": { "name": "posts:read" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": true
+        }
+---
+name: AuthZEN client mode - true via group role
+before:
+  - type: custom_sql
+    custom_sql:
+      path: evaluation_client_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-user-group" },
+        "resource": { "type": "authgear:resource", "id": "https://evalresource/1" },
+        "action": { "name": "posts:write" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": true
+        }
+---
+name: AuthZEN client mode - false for scope the user is not granted
+before:
+  - type: custom_sql
+    custom_sql:
+      path: evaluation_client_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-user-direct" },
+        "resource": { "type": "authgear:resource", "id": "https://evalresource/1" },
+        "action": { "name": "posts:write" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": false
+        }
+---
+name: AuthZEN client mode - false for unknown scope
+before:
+  - type: custom_sql
+    custom_sql:
+      path: evaluation_client_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-user-direct" },
+        "resource": { "type": "authgear:resource", "id": "https://evalresource/1" },
+        "action": { "name": "posts:nonexistent" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": false
+        }
+---
+name: AuthZEN client mode - false for disabled user
+before:
+  - type: custom_sql
+    custom_sql:
+      path: evaluation_client_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-user-disabled" },
+        "resource": { "type": "authgear:resource", "id": "https://evalresource/1" },
+        "action": { "name": "posts:read" }
+      }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": false
+        }
+---
+name: AuthZEN client mode - 403 for resource not associated with client
+before:
+  - type: custom_sql
+    custom_sql:
+      path: evaluation_client_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-user-direct" },
+        "resource": { "type": "authgear:resource", "id": "https://evalresource/2" },
+        "action": { "name": "other:read" }
+      }
+    http_output:
+      http_status: 403
+---
+name: AuthZEN client mode - 401 for bad client secret
+before:
+  - type: custom_sql
+    custom_sql:
+      path: evaluation_client_fixtures.sql
+steps:
+  - action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:wrongsecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+      {
+        "subject": { "type": "user", "id": "{{ .AppID }}-user-direct" },
+        "resource": { "type": "authgear:resource", "id": "https://evalresource/1" },
+        "action": { "name": "posts:read" }
+      }
+    http_output:
+      http_status: 401

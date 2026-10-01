@@ -8,6 +8,7 @@ import (
 
 	"github.com/authgear/authgear-server/pkg/auth/api"
 	handlerapi "github.com/authgear/authgear-server/pkg/auth/handler/api"
+	handlerauthzen "github.com/authgear/authgear-server/pkg/auth/handler/authzen"
 	handleroauth "github.com/authgear/authgear-server/pkg/auth/handler/oauth"
 	handlersaml "github.com/authgear/authgear-server/pkg/auth/handler/saml"
 	handlerwebapp "github.com/authgear/authgear-server/pkg/auth/handler/webapp"
@@ -175,6 +176,9 @@ var DependencySet = wire.NewSet(
 	handlersaml.DependencySet,
 
 	handlerapi.DependencySet,
+	handlerauthzen.DependencySet,
+	wire.Bind(new(handlerauthzen.MetadataEndpointsProvider), new(*endpoints.Endpoints)),
+	wire.Bind(new(handlerauthzen.ClientResourceQueries), new(*resourcescope.ClientResourceScopeService)),
 	wire.Bind(new(handlerapi.TurboResponseWriter), new(*handlerwebapp.ResponseWriter)),
 	wire.Bind(new(handlerapi.AnonymousUserHandler), new(*oauthhandler.AnonymousUserHandler)),
 	wire.Bind(new(handlerapi.AnonymousUserSignupAPIHandlerAccessTokenEncoding), new(*oauth.AccessTokenEncoding)),

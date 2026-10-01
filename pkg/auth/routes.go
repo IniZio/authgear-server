@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	apihandler "github.com/authgear/authgear-server/pkg/auth/handler/api"
+	authzenhandler "github.com/authgear/authgear-server/pkg/auth/handler/authzen"
 	oauthhandler "github.com/authgear/authgear-server/pkg/auth/handler/oauth"
 	samlhandler "github.com/authgear/authgear-server/pkg/auth/handler/saml"
 	webapphandler "github.com/authgear/authgear-server/pkg/auth/handler/webapp"
@@ -122,6 +123,8 @@ func NewRouter(ctx context.Context, p *deps.RootProvider, configSource *configso
 		p.Middleware(newDPoPMiddleware),
 	)
 	oauthAuthzAPIChain := newOAuthAPIChain()
+	// oauthAPIChain already resolves the session (none is fine), so no extra session middleware.
+	authzenAPIChain := newOAuthAPIChain()
 
 	apiChain := httproute.Chain(
 		projectRootChain,
@@ -279,6 +282,7 @@ func NewRouter(ctx context.Context, p *deps.RootProvider, configSource *configso
 	oauthAPIRoute := httproute.Route{Middleware: oauthAPIChain}
 	dpopOauthAPIRoute := httproute.Route{Middleware: dpopOAuthAPIChain}
 	oauthAuthzAPIRoute := httproute.Route{Middleware: oauthAuthzAPIChain}
+	authzenAPIRoute := httproute.Route{Middleware: authzenAPIChain}
 	apiRoute := httproute.Route{Middleware: apiChain}
 	dpopApiRoute := httproute.Route{Middleware: dpopApiChain}
 	workflowRoute := httproute.Route{Middleware: workflowChain}
@@ -462,6 +466,9 @@ func NewRouter(ctx context.Context, p *deps.RootProvider, configSource *configso
 	router.Add(oauthhandler.ConfigureOIDCMetadataRoute(oauthStaticRoute), p.Handler(newOAuthMetadataHandler))
 	router.Add(oauthhandler.ConfigureOAuthMetadataRoute(oauthStaticRoute), p.Handler(newOAuthMetadataHandler))
 	router.Add(oauthhandler.ConfigureJWKSRoute(oauthStaticRoute), p.Handler(newOAuthJWKSHandler))
+	router.Add(authzenhandler.ConfigureMetadataRoute(oauthStaticRoute), p.Handler(newAuthZENMetadataHandler))
+	router.Add(authzenhandler.ConfigureEvaluationRoute(authzenAPIRoute), p.Handler(newAuthZENEvaluationHandler))
+	router.Add(authzenhandler.ConfigureEvaluationsRoute(authzenAPIRoute), p.Handler(newAuthZENEvaluationsHandler))
 
 	router.Add(oauthhandler.ConfigureAuthorizeRoute(oauthAuthzAPIRoute), p.Handler(newOAuthAuthorizeHandler))
 	router.Add(oauthhandler.ConfigureTokenRoute(dpopOauthAPIRoute), p.Handler(newOAuthTokenHandler))

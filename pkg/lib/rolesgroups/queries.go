@@ -5,12 +5,81 @@ import (
 
 	"github.com/authgear/authgear-server/pkg/api/model"
 	"github.com/authgear/authgear-server/pkg/lib/infra/db"
+	"github.com/authgear/authgear-server/pkg/lib/resourcescope"
 	"github.com/authgear/authgear-server/pkg/util/graphqlutil"
 	"github.com/authgear/authgear-server/pkg/util/slice"
 )
 
 type Queries struct {
-	Store *Store
+	Store              *Store
+	ResourceScopeStore *resourcescope.Store
+}
+
+// ListScopesByRoleID lists scopes of the role, optionally only those of the resource URI.
+func (q *Queries) ListScopesByRoleID(ctx context.Context, roleID string, resourceURI *string) ([]*model.Scope, error) {
+	scopeIDs, err := q.Store.ListScopeIDsByRoleID(ctx, roleID)
+	if err != nil {
+		return nil, err
+	}
+	if len(scopeIDs) == 0 {
+		return []*model.Scope{}, nil
+	}
+
+	scopes, err := q.ResourceScopeStore.GetManyScopes(ctx, scopeIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	var resourceID *string
+	if resourceURI != nil {
+		resource, err := q.ResourceScopeStore.GetResourceByURI(ctx, *resourceURI)
+		if err != nil {
+			return nil, err
+		}
+		resourceID = &resource.ID
+	}
+
+	// GetManyScopes does not preserve the deterministic order of scopeIDs.
+	scopeByID := make(map[string]*resourcescope.Scope, len(scopes))
+	for _, sc := range scopes {
+		scopeByID[sc.ID] = sc
+	}
+
+	models := make([]*model.Scope, 0, len(scopes))
+	for _, id := range scopeIDs {
+		sc, ok := scopeByID[id]
+		if !ok {
+			continue
+		}
+		if resourceID != nil && sc.ResourceID != *resourceID {
+			continue
+		}
+		models = append(models, sc.ToModel())
+	}
+	return models, nil
+}
+
+func (q *Queries) ListRolesByScopeID(ctx context.Context, scopeID string) ([]*model.Role, error) {
+	roleIDs, err := q.Store.ListRoleIDsByScopeID(ctx, scopeID)
+	if err != nil {
+		return nil, err
+	}
+	roles, err := q.GetManyRoles(ctx, roleIDs)
+	if err != nil {
+		return nil, err
+	}
+	// GetManyRoles does not preserve the deterministic order of roleIDs.
+	roleByID := make(map[string]*model.Role, len(roles))
+	for _, r := range roles {
+		roleByID[r.ID] = r
+	}
+	ordered := make([]*model.Role, 0, len(roles))
+	for _, id := range roleIDs {
+		if r, ok := roleByID[id]; ok {
+			ordered = append(ordered, r)
+		}
+	}
+	return ordered, nil
 }
 
 func (q *Queries) GetRole(ctx context.Context, id string) (*model.Role, error) {
