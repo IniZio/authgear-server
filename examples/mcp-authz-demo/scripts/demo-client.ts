@@ -58,7 +58,10 @@ function listenForCode(state: string): { redirectUri: Promise<string>; code: Pro
     server.listen(0, "127.0.0.1", () => {
       resolveUri(`http://127.0.0.1:${(server.address() as AddressInfo).port}/callback`);
     });
-    setTimeout(() => reject(new Error("Timed out waiting for sign-in")), 5 * 60_000).unref();
+    setTimeout(() => {
+      server.close();
+      reject(new Error("Timed out waiting for sign-in"));
+    }, 5 * 60_000).unref();
   });
   return { redirectUri, code };
 }
