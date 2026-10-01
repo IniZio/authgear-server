@@ -23,6 +23,7 @@ type AgentGrant struct {
 	Actor                string                `json:"actor"`
 	Audience             string                `json:"audience"`
 	AuthorizationDetails []AuthorizationDetail `json:"authorization_details"`
+	DPoPJKT              string                `json:"dpop_jkt"`
 	CreatedAt            time.Time             `json:"created_at"`
 	ExpireAt             time.Time             `json:"expire_at"`
 }

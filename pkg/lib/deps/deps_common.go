@@ -505,6 +505,7 @@ var CommonDependencySet = wire.NewSet(
 		wire.Bind(new(handler.TokenHandlerCodeGrantStore), new(*oauthredis.Store)),
 		wire.Bind(new(handler.TokenHandlerSettingsActionGrantStore), new(*oauthredis.Store)),
 		wire.Bind(new(handler.TokenHandlerOfflineGrantStore), new(*oauthredis.Store)),
+		wire.Bind(new(handler.TokenHandlerAgentGrantStore), new(*oauthredis.Store)),
 		wire.Bind(new(handler.TokenHandlerAppSessionTokenStore), new(*oauthredis.Store)),
 
 		oauth.DependencySet,

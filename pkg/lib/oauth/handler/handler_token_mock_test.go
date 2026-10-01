@@ -1005,6 +1005,21 @@ func (m *MockTokenHandlerAccessTokenEncoding) EXPECT() *MockTokenHandlerAccessTo
 	return m.recorder
 }
 
+// EncodeAgentGrantToken mocks base method.
+func (m *MockTokenHandlerAccessTokenEncoding) EncodeAgentGrantToken(ctx context.Context, grant *oauth.AgentGrant) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EncodeAgentGrantToken", ctx, grant)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EncodeAgentGrantToken indicates an expected call of EncodeAgentGrantToken.
+func (mr *MockTokenHandlerAccessTokenEncodingMockRecorder) EncodeAgentGrantToken(ctx, grant interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncodeAgentGrantToken", reflect.TypeOf((*MockTokenHandlerAccessTokenEncoding)(nil).EncodeAgentGrantToken), ctx, grant)
+}
+
 // MakeUserAccessTokenFromPreparationResult mocks base method.
 func (m *MockTokenHandlerAccessTokenEncoding) MakeUserAccessTokenFromPreparationResult(ctx context.Context, options oauth.MakeUserAccessTokenFromPreparationOptions) (*oauth.IssueAccessGrantResult, error) {
 	m.ctrl.T.Helper()
@@ -1018,4 +1033,41 @@ func (m *MockTokenHandlerAccessTokenEncoding) MakeUserAccessTokenFromPreparation
 func (mr *MockTokenHandlerAccessTokenEncodingMockRecorder) MakeUserAccessTokenFromPreparationResult(ctx, options interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MakeUserAccessTokenFromPreparationResult", reflect.TypeOf((*MockTokenHandlerAccessTokenEncoding)(nil).MakeUserAccessTokenFromPreparationResult), ctx, options)
+}
+
+// MockTokenHandlerAgentGrantStore is a mock of TokenHandlerAgentGrantStore interface.
+type MockTokenHandlerAgentGrantStore struct {
+	ctrl     *gomock.Controller
+	recorder *MockTokenHandlerAgentGrantStoreMockRecorder
+}
+
+// MockTokenHandlerAgentGrantStoreMockRecorder is the mock recorder for MockTokenHandlerAgentGrantStore.
+type MockTokenHandlerAgentGrantStoreMockRecorder struct {
+	mock *MockTokenHandlerAgentGrantStore
+}
+
+// NewMockTokenHandlerAgentGrantStore creates a new mock instance.
+func NewMockTokenHandlerAgentGrantStore(ctrl *gomock.Controller) *MockTokenHandlerAgentGrantStore {
+	mock := &MockTokenHandlerAgentGrantStore{ctrl: ctrl}
+	mock.recorder = &MockTokenHandlerAgentGrantStoreMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTokenHandlerAgentGrantStore) EXPECT() *MockTokenHandlerAgentGrantStoreMockRecorder {
+	return m.recorder
+}
+
+// CreateAgentGrant mocks base method.
+func (m *MockTokenHandlerAgentGrantStore) CreateAgentGrant(ctx context.Context, grant *oauth.AgentGrant) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateAgentGrant", ctx, grant)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateAgentGrant indicates an expected call of CreateAgentGrant.
+func (mr *MockTokenHandlerAgentGrantStoreMockRecorder) CreateAgentGrant(ctx, grant interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAgentGrant", reflect.TypeOf((*MockTokenHandlerAgentGrantStore)(nil).CreateAgentGrant), ctx, grant)
 }

@@ -211,6 +211,11 @@ type TokenHandlerAccessTokenEncoding interface {
 		ctx context.Context,
 		options oauth.MakeUserAccessTokenFromPreparationOptions,
 	) (*oauth.IssueAccessGrantResult, error)
+	EncodeAgentGrantToken(ctx context.Context, grant *oauth.AgentGrant) (string, error)
+}
+
+type TokenHandlerAgentGrantStore interface {
+	CreateAgentGrant(ctx context.Context, grant *oauth.AgentGrant) error
 }
 
 type TokenHandler struct {
@@ -229,6 +234,7 @@ type TokenHandler struct {
 	SettingsActionGrantStore        TokenHandlerSettingsActionGrantStore
 	IDPSessions                     TokenHandlerIDPSessionProvider
 	OfflineGrants                   TokenHandlerOfflineGrantStore
+	AgentGrants                     TokenHandlerAgentGrantStore
 	AppSessionTokens                TokenHandlerAppSessionTokenStore
 	OfflineGrantService             TokenHandlerOfflineGrantService
 	PreAuthenticatedURLTokenService PreAuthenticatedURLTokenService
@@ -837,6 +843,8 @@ func (h *TokenHandler) handleTokenExchange(
 	switch r.RequestedTokenType() {
 	case PreAuthenticatedURLTokenTokenType:
 		return h.handlePreAuthenticatedURLToken(ctx, client, r)
+	case AgentGrantTokenType:
+		return h.handleAgentGrantTokenExchange(ctx, client, r)
 	default:
 		// Note(tung): According to spec, requested_token_type is optional,
 		// but we do not support it at the moment.
