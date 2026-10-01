@@ -1,0 +1,47 @@
+query rolePermissionsQuery(
+  $roleID: ID!
+  $resourceID: ID!
+  $resourceURI: String!
+  $first: Int
+) {
+  role: node(id: $roleID) {
+    ... on Role {
+      id
+      scopes(resourceURI: $resourceURI, first: $first) {
+        edges {
+          node {
+            id
+            scope
+          }
+          cursor
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        totalCount
+      }
+    }
+  }
+  resource: node(id: $resourceID) {
+    ... on Resource {
+      id
+      resourceURI
+      scopes(first: $first) {
+        edges {
+          node {
+            id
+            scope
+            description
+          }
+          cursor
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        totalCount
+      }
+    }
+  }
+}

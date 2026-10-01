@@ -1,0 +1,18 @@
+mutation addScopesToRoleMutation(
+  $roleKey: String!
+  $resourceURI: String!
+  $scopes: [String!]!
+) {
+  addScopesToRole(
+    input: { roleKey: $roleKey, resourceURI: $resourceURI, scopes: $scopes }
+  ) {
+    role {
+      id
+      key
+      name
+      description
+      createdAt
+      updatedAt
+    }
+  }
+}
