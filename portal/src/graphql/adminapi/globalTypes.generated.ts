@@ -140,6 +140,20 @@ export type AddScopesToClientIdPayload = {
   scopes: Array<Scope>;
 };
 
+export type AddScopesToRoleInput = {
+  /** The URI of the resource the scopes belong to. */
+  resourceURI: Scalars['String']['input'];
+  /** The key of the role. */
+  roleKey: Scalars['String']['input'];
+  /** The list of scopes. */
+  scopes: Array<Scalars['String']['input']>;
+};
+
+export type AddScopesToRolePayload = {
+  __typename?: 'AddScopesToRolePayload';
+  role: Role;
+};
+
 export type AddUserToGroupsInput = {
   /** The list of group keys. */
   groupKeys?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -195,6 +209,7 @@ export enum AuditLogActivityType {
   AdminApiMutationAddRoleToGroupsExecuted = 'ADMIN_API_MUTATION_ADD_ROLE_TO_GROUPS_EXECUTED',
   AdminApiMutationAddRoleToUsersExecuted = 'ADMIN_API_MUTATION_ADD_ROLE_TO_USERS_EXECUTED',
   AdminApiMutationAddScopesToClientidExecuted = 'ADMIN_API_MUTATION_ADD_SCOPES_TO_CLIENTID_EXECUTED',
+  AdminApiMutationAddScopesToRoleExecuted = 'ADMIN_API_MUTATION_ADD_SCOPES_TO_ROLE_EXECUTED',
   AdminApiMutationAddUserToGroupsExecuted = 'ADMIN_API_MUTATION_ADD_USER_TO_GROUPS_EXECUTED',
   AdminApiMutationAddUserToRolesExecuted = 'ADMIN_API_MUTATION_ADD_USER_TO_ROLES_EXECUTED',
   AdminApiMutationAnonymizeUserExecuted = 'ADMIN_API_MUTATION_ANONYMIZE_USER_EXECUTED',
@@ -223,6 +238,7 @@ export enum AuditLogActivityType {
   AdminApiMutationRemoveRoleFromGroupsExecuted = 'ADMIN_API_MUTATION_REMOVE_ROLE_FROM_GROUPS_EXECUTED',
   AdminApiMutationRemoveRoleFromUsersExecuted = 'ADMIN_API_MUTATION_REMOVE_ROLE_FROM_USERS_EXECUTED',
   AdminApiMutationRemoveScopesFromClientidExecuted = 'ADMIN_API_MUTATION_REMOVE_SCOPES_FROM_CLIENTID_EXECUTED',
+  AdminApiMutationRemoveScopesFromRoleExecuted = 'ADMIN_API_MUTATION_REMOVE_SCOPES_FROM_ROLE_EXECUTED',
   AdminApiMutationRemoveUserFromGroupsExecuted = 'ADMIN_API_MUTATION_REMOVE_USER_FROM_GROUPS_EXECUTED',
   AdminApiMutationRemoveUserFromRolesExecuted = 'ADMIN_API_MUTATION_REMOVE_USER_FROM_ROLES_EXECUTED',
   AdminApiMutationReplaceScopesOfClientidExecuted = 'ADMIN_API_MUTATION_REPLACE_SCOPES_OF_CLIENTID_EXECUTED',
@@ -1020,6 +1036,8 @@ export type Mutation = {
   addRoleToUsers: AddRoleToUsersPayload;
   /** Associate multiple scopes with a clientID. */
   addScopesToClientID: AddScopesToClientIdPayload;
+  /** Add scopes of a resource to the role. */
+  addScopesToRole: AddScopesToRolePayload;
   /** Add the user to the groups. */
   addUserToGroups: AddUserToGroupsPayload;
   /** Add the user to the roles. */
@@ -1078,6 +1096,8 @@ export type Mutation = {
   removeRoleFromUsers: RemoveRoleFromUsersPayload;
   /** Disassociate multiple scopes from a clientID. */
   removeScopesFromClientID: RemoveScopesFromClientIdPayload;
+  /** Remove scopes of a resource from the role. */
+  removeScopesFromRole: RemoveScopesFromRolePayload;
   /** Remove the user from the groups. */
   removeUserFromGroups: RemoveUserFromGroupsPayload;
   /** Remove the user from the roles. */
@@ -1160,6 +1180,11 @@ export type MutationAddRoleToUsersArgs = {
 
 export type MutationAddScopesToClientIdArgs = {
   input: AddScopesToClientIdInput;
+};
+
+
+export type MutationAddScopesToRoleArgs = {
+  input: AddScopesToRoleInput;
 };
 
 
@@ -1305,6 +1330,11 @@ export type MutationRemoveRoleFromUsersArgs = {
 
 export type MutationRemoveScopesFromClientIdArgs = {
   input: RemoveScopesFromClientIdInput;
+};
+
+
+export type MutationRemoveScopesFromRoleArgs = {
+  input: RemoveScopesFromRoleInput;
 };
 
 
@@ -1756,6 +1786,20 @@ export type RemoveScopesFromClientIdPayload = {
   scopes: Array<Scope>;
 };
 
+export type RemoveScopesFromRoleInput = {
+  /** The URI of the resource the scopes belong to. */
+  resourceURI: Scalars['String']['input'];
+  /** The key of the role. */
+  roleKey: Scalars['String']['input'];
+  /** The list of scopes. */
+  scopes: Array<Scalars['String']['input']>;
+};
+
+export type RemoveScopesFromRolePayload = {
+  __typename?: 'RemoveScopesFromRolePayload';
+  role: Role;
+};
+
 export type RemoveUserFromGroupsInput = {
   /** The list of group keys. */
   groupKeys?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -1917,6 +1961,8 @@ export type Role = Entity & Node & {
   key: Scalars['String']['output'];
   /** The optional name of the role. */
   name?: Maybe<Scalars['String']['output']>;
+  /** The list of scopes granted by this role. */
+  scopes?: Maybe<ScopeConnection>;
   /** The update time of entity */
   updatedAt: Scalars['DateTime']['output'];
   /** The list of users who has this role. */
@@ -1930,6 +1976,16 @@ export type RoleGroupsArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+/** Authgear role */
+export type RoleScopesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  resourceURI?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1996,10 +2052,21 @@ export type Scope = Entity & Node & {
   id: Scalars['ID']['output'];
   /** The resource ID. */
   resourceID: Scalars['ID']['output'];
+  /** The list of roles that grant this scope. */
+  roles?: Maybe<RoleConnection>;
   /** The scope string. */
   scope: Scalars['String']['output'];
   /** The update time of entity */
   updatedAt: Scalars['DateTime']['output'];
+};
+
+
+/** Authgear scope */
+export type ScopeRolesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** A connection to a list of items. */
