@@ -11,6 +11,8 @@ const adminUrl = new URL(env("ADMIN_API_ENDPOINT", "http://localhost:3002/graphq
 // The Admin API server resolves the project from the Host header.
 const adminHost = env("ADMIN_API_HOST", new URL(config.authgearEndpoint).host);
 const pdpClientId = env("PDP_CLIENT_ID", "acme-docs-pdp");
+const gatewayPdpClientId = env("GATEWAY_PDP_CLIENT_ID", "linear-gateway-pdp");
+const gatewayResourceUri = env("GATEWAY_RESOURCE_URI", "https://linear-gateway.localhost");
 const DEMO_PASSWORD = "Demo1234!";
 
 // Either a JWK (JSON, as in authgear.secrets.yaml; set by `npm run setup`) or a PEM.
@@ -134,6 +136,26 @@ async function ensureResource(): Promise<void> {
   log("ok", `m2m client ${pdpClientId} associated with resource`);
 }
 
+// Agent demo: the Linear gateway's Resource, evaluated by its own m2m PDP client.
+async function ensureGatewayResource(): Promise<void> {
+  const data = await gql<{ resources: Conn<{ resourceURI: string }> }>(
+    `query($q: String) { resources(first: 50, searchKeyword: $q) { edges { node { resourceURI } } } }`,
+    { q: gatewayResourceUri },
+  );
+  if (nodes(data.resources).some((r) => r.resourceURI === gatewayResourceUri)) {
+    log("ok", `resource ${gatewayResourceUri}`);
+  } else {
+    await gql(`mutation($i: CreateResourceInput!) { createResource(input: $i) { resource { id } } }`, {
+      i: { resourceURI: gatewayResourceUri, name: "Linear Gateway" },
+    });
+    log("created", `resource ${gatewayResourceUri}`);
+  }
+  await gql(`mutation($i: AddResourceToClientIDInput!) { addResourceToClientID(input: $i) { resource { id } } }`, {
+    i: { resourceURI: gatewayResourceUri, clientID: gatewayPdpClientId },
+  });
+  log("ok", `m2m client ${gatewayPdpClientId} associated with resource`);
+}
+
 async function ensureRoles(): Promise<void> {
   const data = await gql<{ roles: Conn<{ key: string }> }>(`{ roles(first: 100) { edges { node { key } } } }`);
   const have = new Set(nodes(data.roles).map((r) => r.key));
@@ -206,6 +228,7 @@ async function ensureUsers(): Promise<void> {
 try {
   console.log(`Seeding ${adminUrl.href} (project host ${adminHost}, app ${config.appId})`);
   await ensureResource();
+  await ensureGatewayResource();
   await ensureRoles();
   await ensureGroups();
   await ensureUsers();

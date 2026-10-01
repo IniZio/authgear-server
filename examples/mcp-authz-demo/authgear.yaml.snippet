@@ -15,6 +15,20 @@ oauth:
       client_id: acme-docs-pdp
       x_application_type: m2m
 
+    # Agent demo (agent-grant/): the orchestrator exchanges a user's ID token for an agent grant token.
+    - name: Agent Orchestrator
+      client_name: Agent Orchestrator
+      client_id: agent-orchestrator
+      x_application_type: confidential
+      redirect_uris:
+        - http://127.0.0.1/callback
+      x_agent_grant_exchange_enabled: true
+
+    # The Linear gateway, acting as the PEP for the agent demo (m2m, like acme-docs-pdp).
+    - name: Linear Gateway PDP client
+      client_id: linear-gateway-pdp
+      x_application_type: m2m
+
     # First-party client for `npm run demo` (authorization code + PKCE, loopback redirect).
     # `scripts/seed.ts` sets allow_static_first_party_client_access on the Resource and its Scopes,
     # which is what lets this client request docs:* scopes.
@@ -31,7 +45,8 @@ oauth:
       access_token_lifetime_seconds: 1800
       issue_jwt_access_token: true # the MCP server verifies JWT access tokens
 
-# Client secret for acme-docs-pdp (no secret is committed here). Generate one:
+# Client secrets for acme-docs-pdp, agent-orchestrator and linear-gateway-pdp (none are committed here;
+# `npm run setup` generates them). For acme-docs-pdp, generate one by hand:
 #   export PDP_CLIENT_SECRET=$(openssl rand -hex 24)
 #   printf %s "$PDP_CLIENT_SECRET" | basenc --base64url -w0 | tr -d =    # -> k below
 # Put the plain value in .env as PDP_CLIENT_SECRET, and add this item to authgear.secrets.yaml
@@ -46,6 +61,9 @@ oauth:
 #             k: <base64url of PDP_CLIENT_SECRET, no padding>
 #             kid: acme-docs-pdp
 #             kty: oct
+#
+# Repeat the item for agent-orchestrator (.env ORCHESTRATOR_CLIENT_SECRET) and
+# linear-gateway-pdp (.env GATEWAY_PDP_CLIENT_SECRET).
 #
 # Alternatively, generate a secret in the portal (Applications -> Acme Docs PDP client)
 # and copy it into .env.
