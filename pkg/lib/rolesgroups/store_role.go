@@ -120,6 +120,15 @@ func (s *Store) DeleteRole(ctx context.Context, id string) error {
 		return err
 	}
 
+	// Remove the role's resource scope grants.
+	q = s.SQLBuilder.Delete(s.SQLBuilder.TableName("_auth_role_resource_scope")).
+		Where("role_id = ?", id)
+
+	_, err = s.SQLExecutor.ExecWith(ctx, q)
+	if err != nil {
+		return err
+	}
+
 	q = s.SQLBuilder.Delete(s.SQLBuilder.TableName("_auth_role")).
 		Where("id = ?", id)
 

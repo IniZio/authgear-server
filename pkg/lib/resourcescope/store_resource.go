@@ -112,6 +112,10 @@ func (s *Store) UpdateResource(ctx context.Context, options *UpdateResourceOptio
 }
 
 func (s *Store) DeleteResource(ctx context.Context, id string) error {
+	if err := s.deleteRoleResourceScopesByResourceID(ctx, id); err != nil {
+		return err
+	}
+
 	q := s.SQLBuilder.Delete(s.SQLBuilder.TableName("_auth_resource")).
 		Where("id = ?", id)
 
