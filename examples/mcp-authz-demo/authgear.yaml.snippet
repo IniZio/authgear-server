@@ -1,0 +1,51 @@
+# Merge into your local project's authgear.yaml (portal: Advanced -> Edit Config, or edit the file directly).
+
+# Demo users sign in with a username.
+identity:
+  login_id:
+    keys:
+      - key: username
+        type: username
+
+oauth:
+  clients:
+    # The MCP server, acting as the Policy Enforcement Point. m2m clients may call
+    # /access/v1/evaluation(s) in client mode for Resources they are associated with.
+    - name: Acme Docs PDP client
+      client_id: acme-docs-pdp
+      x_application_type: m2m
+
+    # First-party client for `npm run demo` (authorization code + PKCE, loopback redirect).
+    # `scripts/seed.ts` sets allow_static_first_party_client_access on the Resource and its Scopes,
+    # which is what lets this client request docs:* scopes.
+    - name: Acme Docs demo client
+      client_id: acme-docs-demo
+      x_application_type: native
+      redirect_uris:
+        - http://127.0.0.1/callback # any loopback port is accepted (RFC 8252)
+      grant_types:
+        - authorization_code
+        - refresh_token
+      response_types:
+        - code
+      access_token_lifetime_seconds: 1800
+      issue_jwt_access_token: true # the MCP server verifies JWT access tokens
+
+# Client secret for acme-docs-pdp (no secret is committed here). Generate one:
+#   export PDP_CLIENT_SECRET=$(openssl rand -hex 24)
+#   printf %s "$PDP_CLIENT_SECRET" | basenc --base64url -w0 | tr -d =    # -> k below
+# Put the plain value in .env as PDP_CLIENT_SECRET, and add this item to authgear.secrets.yaml
+# (merge into the existing `oauth.client_secrets` entry if there is one):
+#
+# - key: oauth.client_secrets
+#   data:
+#     items:
+#       - client_id: acme-docs-pdp
+#         keys:
+#           - created_at: 1729502270
+#             k: <base64url of PDP_CLIENT_SECRET, no padding>
+#             kid: acme-docs-pdp
+#             kty: oct
+#
+# Alternatively, generate a secret in the portal (Applications -> Acme Docs PDP client)
+# and copy it into .env.
