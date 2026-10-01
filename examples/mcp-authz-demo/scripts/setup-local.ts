@@ -2,8 +2,8 @@
 // adds the PDP client secret to authgear.secrets.yaml, and writes .env for `npm run seed`.
 // Idempotent. Usage: npm run setup [-- --config <path> --secrets <path> --env <path>]
 import { randomBytes } from "node:crypto";
-import { copyFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { isMap, isSeq, parseDocument, type Document, type YAMLMap } from "yaml";
 
@@ -15,6 +15,8 @@ const secretsPath = resolve(flags.secrets ?? process.env.AUTHGEAR_SECRETS ?? "..
 const envPath = resolve(flags.env ?? ".env");
 const snippetPath = resolve(import.meta.dirname, "../authgear.yaml.snippet");
 const PDP_CLIENT_ID = "acme-docs-pdp";
+const backupDir = resolve(import.meta.dirname, "../.backup");
+mkdirSync(backupDir, { recursive: true });
 
 function load(path: string): Document {
   if (!existsSync(path)) {
@@ -28,7 +30,7 @@ function load(path: string): Document {
 // Back up (once per run) and write, only when something changed.
 function save(path: string, doc: Document, changed: boolean): void {
   if (!changed) return;
-  copyFileSync(path, `${path}.bak`);
+  copyFileSync(path, resolve(backupDir, `${basename(path)}.bak`));
   writeFileSync(path, doc.toString({ indentSeq: false }));
 }
 
@@ -41,6 +43,14 @@ const cfg = load(configPath);
 const added: string[] = [];
 
 const hasKey = (path: string[], field: string, value: unknown) => asObjects(cfg, path).some((x) => x[field] === value);
+
+function ensureSeq(path: string[], defaults: unknown[]): void {
+  const node = cfg.getIn(path, true);
+  if (node === undefined) cfg.setIn(path, cfg.createNode(defaults));
+  else if (!isSeq(node)) throw new Error(`${configPath}: ${path.join(".")} must be a list`);
+}
+ensureSeq(["identity", "login_id", "keys"], [{ key: "email", type: "email" }]);
+ensureSeq(["oauth", "clients"], []);
 
 for (const item of (snippet.getIn(["identity", "login_id", "keys"]) as { items: YAMLMap[] }).items) {
   const key = item.get("key");

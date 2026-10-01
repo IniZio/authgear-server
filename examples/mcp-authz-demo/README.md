@@ -72,7 +72,7 @@ Notes:
 - A local Authgear (see "Start local development environment" in the repo [`CLAUDE.md`](../../CLAUDE.md)) running a build that includes the Authorization Decision API
 - A local project created with `authgear init` (its Admin API key is read from `authgear.secrets.yaml`)
 
-## Walkthrough (about 5 minutes)
+## Walkthrough
 
 ### 1. Start local Authgear
 
@@ -87,10 +87,12 @@ make start-portal   # portal backend
 
 ```sh
 cd examples/mcp-authz-demo
-npm install && npm run setup && npm run seed
+npm install && npm run setup
+# restart `make start` so Authgear loads the new clients, then:
+npm run seed
 ```
 
-`npm run setup` edits the files `authgear init` created (`AUTHGEAR_CONFIG`, default `../../var/authgear.yaml`; `AUTHGEAR_SECRETS`, default `../../var/authgear.secrets.yaml`; or `--config` / `--secrets`). It merges [`authgear.yaml.snippet`](./authgear.yaml.snippet) (the `m2m` PDP client, a first-party native demo client, the `username` login ID key), generates the PDP client secret, and writes `.env`. It skips what already exists, keeps a `.bak` of any file it changes, and is safe to re-run. **Restart the Authgear server afterwards** so it reloads the config.
+`npm run setup` edits the files `authgear init` created (`AUTHGEAR_CONFIG`, default `../../var/authgear.yaml`; `AUTHGEAR_SECRETS`, default `../../var/authgear.secrets.yaml`; or `--config` / `--secrets`). It merges [`authgear.yaml.snippet`](./authgear.yaml.snippet) (the `m2m` PDP client, a first-party native demo client, the `username` login ID key next to the existing ones, email by default), generates the PDP client secret, and writes `.env`. It skips what already exists, backs up any file it changes to `.backup/`, and is safe to re-run. `npm run seed` needs the restarted server, because it associates the new `m2m` client with the Resource.
 
 Manual fallback: merge the snippet yourself, generate a secret with `openssl rand -hex 24`, put it in `.env` as `PDP_CLIENT_SECRET` and in `authgear.secrets.yaml` as the `oauth.client_secrets` item from the snippet (`k` is base64url, no padding), then `cp .env.example .env`, fill in `ADMIN_API_KEY_ID` and `ADMIN_API_PRIVATE_KEY_JWK` (or `_PEM`) from the Admin API key, and run `npm run seed`.
 
@@ -110,7 +112,7 @@ Open <http://localhost:4100/console> (the server listens on `HOST`, default `127
 npm run demo -- --all
 ```
 
-For each user a browser opens (sign in with the username and `Demo1234!`). The script then lists the tools and calls every one in order (create, update, publish, delete on a document it creates, so allowed calls succeed), and prints a table like:
+For each user a browser opens; sign in with the username and `Demo1234!`. On a headless machine add `--no-browser` and open the printed URL yourself. The script then lists the tools and calls every one in order (create, update, publish, delete on a document it creates, so allowed calls succeed), and prints a table like:
 
 ```
 === carol ===
