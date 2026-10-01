@@ -612,8 +612,14 @@ func newOAuthAuthorizeHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -677,7 +683,8 @@ func newOAuthAuthorizeHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -1215,11 +1222,6 @@ func newOAuthAuthorizeHandler(p *deps.RequestProvider) http.Handler {
 	uiService := &authenticationinfo.UIService{
 		EndpointsProvider: endpointsEndpoints,
 	}
-	resourcescopeStore := &resourcescope.Store{
-		SQLBuilder:  sqlBuilderApp,
-		SQLExecutor: sqlExecutor,
-		Clock:       clockClock,
-	}
 	authorizationService := &oauth.AuthorizationService{
 		AppID:               appID,
 		Store:               authorizationStore,
@@ -1689,8 +1691,14 @@ func newOAuthConsentHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -1754,7 +1762,8 @@ func newOAuthConsentHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -2291,11 +2300,6 @@ func newOAuthConsentHandler(p *deps.RequestProvider) http.Handler {
 	}
 	uiService := &authenticationinfo.UIService{
 		EndpointsProvider: endpointsEndpoints,
-	}
-	resourcescopeStore := &resourcescope.Store{
-		SQLBuilder:  sqlBuilderApp,
-		SQLExecutor: sqlExecutor,
-		Clock:       clockClock,
 	}
 	authorizationService := &oauth.AuthorizationService{
 		AppID:               appID,
@@ -2889,7 +2893,8 @@ func newOAuthTokenHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -2951,7 +2956,8 @@ func newOAuthTokenHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -4049,8 +4055,14 @@ func newOAuthRevokeHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -4091,7 +4103,8 @@ func newOAuthRevokeHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -4576,8 +4589,14 @@ func newOAuthRegisterHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -4618,7 +4637,8 @@ func newOAuthRegisterHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	rolesgroupsCommands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -5142,8 +5162,14 @@ func newOAuthJWKSHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -5207,7 +5233,8 @@ func newOAuthJWKSHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -6043,8 +6070,14 @@ func newOAuthUserInfoHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -6108,7 +6141,8 @@ func newOAuthUserInfoHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -7019,8 +7053,14 @@ func newOAuthEndSessionHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -7061,7 +7101,8 @@ func newOAuthEndSessionHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -7996,7 +8037,8 @@ func newOAuthAppSessionTokenHandler(p *deps.RequestProvider) http.Handler {
 		Clock:       clockClock,
 	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -8058,7 +8100,8 @@ func newOAuthAppSessionTokenHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -9122,8 +9165,14 @@ func newAPIAnonymousUserSignupHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -9164,7 +9213,8 @@ func newAPIAnonymousUserSignupHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -9818,11 +9868,6 @@ func newAPIAnonymousUserSignupHandler(p *deps.RequestProvider) http.Handler {
 		AccessEvents:    eventProvider,
 		MeterService:    meterService,
 		OfflineGrants:   redisStore,
-	}
-	resourcescopeStore := &resourcescope.Store{
-		SQLBuilder:  sqlBuilderApp,
-		SQLExecutor: sqlExecutor,
-		Clock:       clockClock,
 	}
 	authorizationService := &oauth.AuthorizationService{
 		AppID:               appID,
@@ -10240,8 +10285,14 @@ func newAPIAnonymousUserPromotionCodeHandler(p *deps.RequestProvider) http.Handl
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -10282,7 +10333,8 @@ func newAPIAnonymousUserPromotionCodeHandler(p *deps.RequestProvider) http.Handl
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -10937,11 +10989,6 @@ func newAPIAnonymousUserPromotionCodeHandler(p *deps.RequestProvider) http.Handl
 		MeterService:    meterService,
 		OfflineGrants:   redisStore,
 	}
-	resourcescopeStore := &resourcescope.Store{
-		SQLBuilder:  sqlBuilderApp,
-		SQLExecutor: sqlExecutor,
-		Clock:       clockClock,
-	}
 	authorizationService := &oauth.AuthorizationService{
 		AppID:               appID,
 		Store:               authorizationStore,
@@ -11357,8 +11404,14 @@ func newAPIPresignImagesUploadHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -11399,7 +11452,8 @@ func newAPIPresignImagesUploadHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -11929,8 +11983,14 @@ func newWebAppAuthflowV2VerifyBotProtectionHandler(p *deps.RequestProvider) http
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -11971,7 +12031,8 @@ func newWebAppAuthflowV2VerifyBotProtectionHandler(p *deps.RequestProvider) http
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -13158,8 +13219,14 @@ func newWebAppAuthflowV2SelectAccountHandler(p *deps.RequestProvider) http.Handl
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -13200,7 +13267,8 @@ func newWebAppAuthflowV2SelectAccountHandler(p *deps.RequestProvider) http.Handl
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -14394,8 +14462,14 @@ func newWebAppAuthflowV2SSOCallbackHandler(p *deps.RequestProvider) http.Handler
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -14436,7 +14510,8 @@ func newWebAppAuthflowV2SSOCallbackHandler(p *deps.RequestProvider) http.Handler
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -15661,8 +15736,14 @@ func newWechatCallbackHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -15703,7 +15784,8 @@ func newWechatCallbackHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -16773,8 +16855,14 @@ func newWebAppAuthflowV2VerifyLoginLinkOTPHandler(p *deps.RequestProvider) http.
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -16815,7 +16903,8 @@ func newWebAppAuthflowV2VerifyLoginLinkOTPHandler(p *deps.RequestProvider) http.
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -17919,8 +18008,14 @@ func newWebAppAuthflowV2SettingsHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -17961,7 +18056,8 @@ func newWebAppAuthflowV2SettingsHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -19069,8 +19165,14 @@ func newWebAppAuthflowV2SettingsProfileEditHandler(p *deps.RequestProvider) http
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -19111,7 +19213,8 @@ func newWebAppAuthflowV2SettingsProfileEditHandler(p *deps.RequestProvider) http
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -20215,8 +20318,14 @@ func newWebAppAuthflowV2SettingsBiometricHandler(p *deps.RequestProvider) http.H
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -20257,7 +20366,8 @@ func newWebAppAuthflowV2SettingsBiometricHandler(p *deps.RequestProvider) http.H
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -21376,8 +21486,14 @@ func newWebAppAuthflowV2SettingsMFAHandler(p *deps.RequestProvider) http.Handler
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -21418,7 +21534,8 @@ func newWebAppAuthflowV2SettingsMFAHandler(p *deps.RequestProvider) http.Handler
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -22509,8 +22626,14 @@ func newWebAppAuthflowV2SettingsMFAViewRecoveryCodeHandler(p *deps.RequestProvid
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -22551,7 +22674,8 @@ func newWebAppAuthflowV2SettingsMFAViewRecoveryCodeHandler(p *deps.RequestProvid
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -23669,8 +23793,14 @@ func newWebAppAuthflowV2SettingsMFACreatePasswordHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -23711,7 +23841,8 @@ func newWebAppAuthflowV2SettingsMFACreatePasswordHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -24828,8 +24959,14 @@ func newWebAppAuthflowV2SettingsMFAPasswordHandler(p *deps.RequestProvider) http
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -24870,7 +25007,8 @@ func newWebAppAuthflowV2SettingsMFAPasswordHandler(p *deps.RequestProvider) http
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -25987,8 +26125,14 @@ func newWebAppAuthflowV2SettingsMFAChangePasswordHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -26029,7 +26173,8 @@ func newWebAppAuthflowV2SettingsMFAChangePasswordHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -27135,8 +27280,14 @@ func newWebAppAuthflowV2SettingsTOTPHandler(p *deps.RequestProvider) http.Handle
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -27177,7 +27328,8 @@ func newWebAppAuthflowV2SettingsTOTPHandler(p *deps.RequestProvider) http.Handle
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -28303,8 +28455,14 @@ func newWebAppAuthflowV2SettingsMFACreateTOTPHandler(p *deps.RequestProvider) ht
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -28345,7 +28503,8 @@ func newWebAppAuthflowV2SettingsMFACreateTOTPHandler(p *deps.RequestProvider) ht
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -29462,8 +29621,14 @@ func newWebAppAuthflowV2SettingsMFAEnterTOTPHandler(p *deps.RequestProvider) htt
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -29504,7 +29669,8 @@ func newWebAppAuthflowV2SettingsMFAEnterTOTPHandler(p *deps.RequestProvider) htt
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -30622,8 +30788,14 @@ func newWebAppAuthflowV2SettingsOOBOTPHandler(p *deps.RequestProvider) http.Hand
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -30664,7 +30836,8 @@ func newWebAppAuthflowV2SettingsOOBOTPHandler(p *deps.RequestProvider) http.Hand
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -31791,8 +31964,14 @@ func newWebAppAuthflowV2SettingsMFACreateOOBOTPHandler(p *deps.RequestProvider) 
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -31833,7 +32012,8 @@ func newWebAppAuthflowV2SettingsMFACreateOOBOTPHandler(p *deps.RequestProvider) 
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -32950,8 +33130,14 @@ func newWebAppAuthflowV2SettingsMFAEnterOOBOTPHandler(p *deps.RequestProvider) h
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -32992,7 +33178,8 @@ func newWebAppAuthflowV2SettingsMFAEnterOOBOTPHandler(p *deps.RequestProvider) h
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -34101,8 +34288,14 @@ func newWebAppAuthflowV2SettingsChangePasskeyHandler(p *deps.RequestProvider) ht
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -34143,7 +34336,8 @@ func newWebAppAuthflowV2SettingsChangePasskeyHandler(p *deps.RequestProvider) ht
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -35282,8 +35476,14 @@ func newWebAppAuthflowV2SettingsSessionsHandler(p *deps.RequestProvider) http.Ha
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -35324,7 +35524,8 @@ func newWebAppAuthflowV2SettingsSessionsHandler(p *deps.RequestProvider) http.Ha
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -36432,8 +36633,14 @@ func newWebAppAuthflowV2SettingsAuthorizedAppsHandler(p *deps.RequestProvider) h
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -36474,7 +36681,8 @@ func newWebAppAuthflowV2SettingsAuthorizedAppsHandler(p *deps.RequestProvider) h
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -37215,11 +37423,6 @@ func newWebAppAuthflowV2SettingsAuthorizedAppsHandler(p *deps.RequestProvider) h
 		AccessEvents:    eventProvider,
 		MeterService:    meterService,
 		OfflineGrants:   redisStore,
-	}
-	resourcescopeStore := &resourcescope.Store{
-		SQLBuilder:  sqlBuilderApp,
-		SQLExecutor: sqlExecutor,
-		Clock:       clockClock,
 	}
 	authorizationService := &oauth.AuthorizationService{
 		AppID:               appID,
@@ -37445,6 +37648,7 @@ func newWebAppAuthflowV2SettingsAuthorizedAppHandler(p *deps.RequestProvider) ht
 		Request:            request,
 		TrustProxy:         trustProxy,
 		TranslationService: translationService,
+		OAuthConfig:        oAuthConfig,
 	}
 	passkeyService := &passkey2.Service{
 		Store:         store2,
@@ -37592,8 +37796,14 @@ func newWebAppAuthflowV2SettingsAuthorizedAppHandler(p *deps.RequestProvider) ht
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -37634,7 +37844,8 @@ func newWebAppAuthflowV2SettingsAuthorizedAppHandler(p *deps.RequestProvider) ht
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -38375,11 +38586,6 @@ func newWebAppAuthflowV2SettingsAuthorizedAppHandler(p *deps.RequestProvider) ht
 		AccessEvents:    eventProvider,
 		MeterService:    meterService,
 		OfflineGrants:   redisStore,
-	}
-	resourcescopeStore := &resourcescope.Store{
-		SQLBuilder:  sqlBuilderApp,
-		SQLExecutor: sqlExecutor,
-		Clock:       clockClock,
 	}
 	authorizationService := &oauth.AuthorizationService{
 		AppID:               appID,
@@ -38756,8 +38962,14 @@ func newWebAppAuthflowV2SettingsChangePasswordHandler(p *deps.RequestProvider) h
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -38798,7 +39010,8 @@ func newWebAppAuthflowV2SettingsChangePasswordHandler(p *deps.RequestProvider) h
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -39904,8 +40117,14 @@ func newWebAppAuthflowV2SettingsDeleteAccountHandler(p *deps.RequestProvider) ht
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -39946,7 +40165,8 @@ func newWebAppAuthflowV2SettingsDeleteAccountHandler(p *deps.RequestProvider) ht
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -41048,8 +41268,14 @@ func newWebAppAuthflowV2SettingsDeleteAccountSuccessHandler(p *deps.RequestProvi
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -41090,7 +41316,8 @@ func newWebAppAuthflowV2SettingsDeleteAccountSuccessHandler(p *deps.RequestProvi
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -42172,8 +42399,14 @@ func newWebAppAuthflowV2SettingsAdvancedSettingsHandler(p *deps.RequestProvider)
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -42214,7 +42447,8 @@ func newWebAppAuthflowV2SettingsAdvancedSettingsHandler(p *deps.RequestProvider)
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -43292,8 +43526,14 @@ func newWebAppLogoutHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -43334,7 +43574,8 @@ func newWebAppLogoutHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -44517,8 +44758,14 @@ func newWebAppReturnHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -44559,7 +44806,8 @@ func newWebAppReturnHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -45623,8 +45871,14 @@ func newWebAppAuthflowV2ErrorHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -45665,7 +45919,8 @@ func newWebAppAuthflowV2ErrorHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -46852,8 +47107,14 @@ func newWebAppCSRFErrorInstructionHandler(p *deps.RequestProvider) http.Handler 
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -46894,7 +47155,8 @@ func newWebAppCSRFErrorInstructionHandler(p *deps.RequestProvider) http.Handler 
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -48095,8 +48357,14 @@ func newWebAppAuthflowV2NotFoundHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -48137,7 +48405,8 @@ func newWebAppAuthflowV2NotFoundHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -49231,8 +49500,14 @@ func newWebAppPasskeyCreationOptionsHandler(p *deps.RequestProvider) http.Handle
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -49273,7 +49548,8 @@ func newWebAppPasskeyCreationOptionsHandler(p *deps.RequestProvider) http.Handle
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -50292,8 +50568,14 @@ func newWebAppPasskeyRequestOptionsHandler(p *deps.RequestProvider) http.Handler
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -50334,7 +50616,8 @@ func newWebAppPasskeyRequestOptionsHandler(p *deps.RequestProvider) http.Handler
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -51340,8 +51623,14 @@ func newWebAppClientLogoHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -51381,7 +51670,8 @@ func newWebAppClientLogoHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -51867,8 +52157,14 @@ func newWebAppFeatureDisabledHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -51909,7 +52205,8 @@ func newWebAppFeatureDisabledHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -52987,8 +53284,14 @@ func newWebAppTesterHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -53029,7 +53332,8 @@ func newWebAppTesterHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -53767,11 +54071,6 @@ func newWebAppTesterHandler(p *deps.RequestProvider) http.Handler {
 		MeterService:    meterService,
 		OfflineGrants:   redisStore,
 	}
-	resourcescopeStore := &resourcescope.Store{
-		SQLBuilder:  sqlBuilderApp,
-		SQLExecutor: sqlExecutor,
-		Clock:       clockClock,
-	}
 	authorizationService := &oauth.AuthorizationService{
 		AppID:               appID,
 		Store:               authorizationStore,
@@ -54266,8 +54565,14 @@ func newAPIWorkflowNewHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -54308,7 +54613,8 @@ func newAPIWorkflowNewHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -55338,8 +55644,14 @@ func newAPIWorkflowGetHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -55380,7 +55692,8 @@ func newAPIWorkflowGetHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -56362,8 +56675,14 @@ func newAPIWorkflowInputHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -56404,7 +56723,8 @@ func newAPIWorkflowInputHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -57420,8 +57740,14 @@ func newAPIWorkflowV2Handler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -57462,7 +57788,8 @@ func newAPIWorkflowV2Handler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -58494,8 +58821,14 @@ func newAPIAuthenticationFlowV1CreateHandler(p *deps.RequestProvider) http.Handl
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -58536,7 +58869,8 @@ func newAPIAuthenticationFlowV1CreateHandler(p *deps.RequestProvider) http.Handl
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -59644,8 +59978,14 @@ func newAPIAuthenticationFlowV1InputHandler(p *deps.RequestProvider) http.Handle
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -59686,7 +60026,8 @@ func newAPIAuthenticationFlowV1InputHandler(p *deps.RequestProvider) http.Handle
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -60762,8 +61103,14 @@ func newAPIAuthenticationFlowV1GetHandler(p *deps.RequestProvider) http.Handler 
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -60804,7 +61151,8 @@ func newAPIAuthenticationFlowV1GetHandler(p *deps.RequestProvider) http.Handler 
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -61912,8 +62260,14 @@ func newAPIAccountManagementV1IdentificationHandler(p *deps.RequestProvider) htt
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -61954,7 +62308,8 @@ func newAPIAccountManagementV1IdentificationHandler(p *deps.RequestProvider) htt
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -62863,8 +63218,14 @@ func newAPIAccountManagementV1IdentificationOAuthHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -62905,7 +63266,8 @@ func newAPIAccountManagementV1IdentificationOAuthHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -63823,8 +64185,14 @@ func newWebAppAuthflowV2LoginHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -63865,7 +64233,8 @@ func newWebAppAuthflowV2LoginHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -65076,8 +65445,14 @@ func newWebAppAuthflowV2SignupHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -65118,7 +65493,8 @@ func newWebAppAuthflowV2SignupHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -66322,8 +66698,14 @@ func newWebAppAuthflowV2PromoteHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -66364,7 +66746,8 @@ func newWebAppAuthflowV2PromoteHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -67558,8 +67941,14 @@ func newWebAppAuthflowV2EnterPasswordHandler(p *deps.RequestProvider) http.Handl
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -67600,7 +67989,8 @@ func newWebAppAuthflowV2EnterPasswordHandler(p *deps.RequestProvider) http.Handl
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -68791,8 +69181,14 @@ func newWebAppAuthflowV2EnterOOBOTPHandler(p *deps.RequestProvider) http.Handler
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -68833,7 +69229,8 @@ func newWebAppAuthflowV2EnterOOBOTPHandler(p *deps.RequestProvider) http.Handler
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -70028,8 +70425,14 @@ func newWebAppAuthflowV2CreatePasswordHandler(p *deps.RequestProvider) http.Hand
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -70070,7 +70473,8 @@ func newWebAppAuthflowV2CreatePasswordHandler(p *deps.RequestProvider) http.Hand
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -71263,8 +71667,14 @@ func newWebAppAuthflowV2EnterTOTPHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -71305,7 +71715,8 @@ func newWebAppAuthflowV2EnterTOTPHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -72496,8 +72907,14 @@ func newWebAppAuthflowV2SetupTOTPHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -72538,7 +72955,8 @@ func newWebAppAuthflowV2SetupTOTPHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -73725,8 +74143,14 @@ func newWebAppAuthflowV2ViewRecoveryCodeHandler(p *deps.RequestProvider) http.Ha
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -73767,7 +74191,8 @@ func newWebAppAuthflowV2ViewRecoveryCodeHandler(p *deps.RequestProvider) http.Ha
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -74954,8 +75379,14 @@ func newWebAppAuthflowV2OOBOTPLinkHandler(p *deps.RequestProvider) http.Handler 
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -74996,7 +75427,8 @@ func newWebAppAuthflowV2OOBOTPLinkHandler(p *deps.RequestProvider) http.Handler 
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -76188,8 +76620,14 @@ func newWebAppAuthflowV2ChangePasswordHandler(p *deps.RequestProvider) http.Hand
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -76230,7 +76668,8 @@ func newWebAppAuthflowV2ChangePasswordHandler(p *deps.RequestProvider) http.Hand
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -77423,8 +77862,14 @@ func newWebAppAuthflowV2ChangePasswordSuccessHandler(p *deps.RequestProvider) ht
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -77465,7 +77910,8 @@ func newWebAppAuthflowV2ChangePasswordSuccessHandler(p *deps.RequestProvider) ht
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -78652,8 +79098,14 @@ func newWebAppAuthflowV2UsePasskeyHandler(p *deps.RequestProvider) http.Handler 
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -78694,7 +79146,8 @@ func newWebAppAuthflowV2UsePasskeyHandler(p *deps.RequestProvider) http.Handler 
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -79885,8 +80338,14 @@ func newWebAppAuthflowV2PromptCreatePasskeyHandler(p *deps.RequestProvider) http
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -79927,7 +80386,8 @@ func newWebAppAuthflowV2PromptCreatePasskeyHandler(p *deps.RequestProvider) http
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -81114,8 +81574,14 @@ func newWebAppAuthflowV2EnterRecoveryCodeHandler(p *deps.RequestProvider) http.H
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -81156,7 +81622,8 @@ func newWebAppAuthflowV2EnterRecoveryCodeHandler(p *deps.RequestProvider) http.H
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -82343,8 +82810,14 @@ func newWebAppAuthflowV2SetupOOBOTPHandler(p *deps.RequestProvider) http.Handler
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -82385,7 +82858,8 @@ func newWebAppAuthflowV2SetupOOBOTPHandler(p *deps.RequestProvider) http.Handler
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -83572,8 +84046,14 @@ func newWebAppAuthflowV2TerminateOtherSessionsHandler(p *deps.RequestProvider) h
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -83614,7 +84094,8 @@ func newWebAppAuthflowV2TerminateOtherSessionsHandler(p *deps.RequestProvider) h
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -84801,8 +85282,14 @@ func newWebAppAuthflowV2ForgotPasswordHandler(p *deps.RequestProvider) http.Hand
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -84843,7 +85330,8 @@ func newWebAppAuthflowV2ForgotPasswordHandler(p *deps.RequestProvider) http.Hand
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -86037,8 +86525,14 @@ func newWebAppAuthflowV2ForgotPasswordOTPHandler(p *deps.RequestProvider) http.H
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -86079,7 +86573,8 @@ func newWebAppAuthflowV2ForgotPasswordOTPHandler(p *deps.RequestProvider) http.H
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -87268,8 +87763,14 @@ func newWebAppAuthflowV2ForgotPasswordLinkSentHandler(p *deps.RequestProvider) h
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -87310,7 +87811,8 @@ func newWebAppAuthflowV2ForgotPasswordLinkSentHandler(p *deps.RequestProvider) h
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -88498,8 +89000,14 @@ func newWebAppAuthflowV2ReauthHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -88540,7 +89048,8 @@ func newWebAppAuthflowV2ReauthHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -89740,8 +90249,14 @@ func newWebAppAuthflowV2ResetPasswordHandler(p *deps.RequestProvider) http.Handl
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -89782,7 +90297,8 @@ func newWebAppAuthflowV2ResetPasswordHandler(p *deps.RequestProvider) http.Handl
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -91049,8 +91565,14 @@ func newWebAppAuthflowV2ResetPasswordSuccessHandler(p *deps.RequestProvider) htt
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -91091,7 +91613,8 @@ func newWebAppAuthflowV2ResetPasswordSuccessHandler(p *deps.RequestProvider) htt
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -92838,8 +93361,14 @@ func newWebAppAuthflowV2OAuthProviderDemoCredentialHandler(p *deps.RequestProvid
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -92880,7 +93409,8 @@ func newWebAppAuthflowV2OAuthProviderDemoCredentialHandler(p *deps.RequestProvid
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -94067,8 +94597,14 @@ func newWebAppAuthflowV2FinishFlowHandler(p *deps.RequestProvider) http.Handler 
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -94109,7 +94645,8 @@ func newWebAppAuthflowV2FinishFlowHandler(p *deps.RequestProvider) http.Handler 
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -95296,8 +95833,14 @@ func newWebAppAuthflowV2AccountLinkingHandler(p *deps.RequestProvider) http.Hand
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -95338,7 +95881,8 @@ func newWebAppAuthflowV2AccountLinkingHandler(p *deps.RequestProvider) http.Hand
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -96665,8 +97209,14 @@ func newWebAppAuthflowV2WechatHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -96707,7 +97257,8 @@ func newWebAppAuthflowV2WechatHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -97896,8 +98447,14 @@ func newWebAppAuthflowV2LDAPLoginHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -97938,7 +98495,8 @@ func newWebAppAuthflowV2LDAPLoginHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -99112,8 +99670,14 @@ func newSAMLMetadataHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -99177,7 +99741,8 @@ func newSAMLMetadataHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -100042,8 +100607,14 @@ func newSAMLLoginHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -100107,7 +100678,8 @@ func newSAMLLoginHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -101002,8 +101574,14 @@ func newSAMLLoginFinishHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -101067,7 +101645,8 @@ func newSAMLLoginFinishHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -101955,8 +102534,14 @@ func newSAMLLogoutHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -102020,7 +102605,8 @@ func newSAMLLogoutHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -102939,8 +103525,14 @@ func newWebAppAuthflowV2SettingsProfile(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -102981,7 +103573,8 @@ func newWebAppAuthflowV2SettingsProfile(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -104071,8 +104664,14 @@ func newWebAppAuthflowV2SettingsIdentityAddEmailHandler(p *deps.RequestProvider)
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -104113,7 +104712,8 @@ func newWebAppAuthflowV2SettingsIdentityAddEmailHandler(p *deps.RequestProvider)
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -105218,8 +105818,14 @@ func newWebAppAuthflowV2SettingsIdentityEditEmailHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -105260,7 +105866,8 @@ func newWebAppAuthflowV2SettingsIdentityEditEmailHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -106367,8 +106974,14 @@ func newWebAppAuthflowV2SettingsIdentityListEmailHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -106409,7 +107022,8 @@ func newWebAppAuthflowV2SettingsIdentityListEmailHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -107502,8 +108116,14 @@ func newWebAppAuthflowV2SettingsIdentityVerifyEmailHandler(p *deps.RequestProvid
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -107544,7 +108164,8 @@ func newWebAppAuthflowV2SettingsIdentityVerifyEmailHandler(p *deps.RequestProvid
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -108654,8 +109275,14 @@ func newWebAppAuthflowV2SettingsIdentityViewEmailHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -108696,7 +109323,8 @@ func newWebAppAuthflowV2SettingsIdentityViewEmailHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -109812,8 +110440,14 @@ func newWebAppAuthflowV2SettingsIdentityChangePrimaryEmailHandler(p *deps.Reques
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -109854,7 +110488,8 @@ func newWebAppAuthflowV2SettingsIdentityChangePrimaryEmailHandler(p *deps.Reques
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -110952,8 +111587,14 @@ func newWebAppAuthflowV2SettingsIdentityAddPhoneHandler(p *deps.RequestProvider)
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -110994,7 +111635,8 @@ func newWebAppAuthflowV2SettingsIdentityAddPhoneHandler(p *deps.RequestProvider)
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -112100,8 +112742,14 @@ func newWebAppAuthflowV2SettingsIdentityEditPhoneHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -112142,7 +112790,8 @@ func newWebAppAuthflowV2SettingsIdentityEditPhoneHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -113250,8 +113899,14 @@ func newWebAppAuthflowV2SettingsIdentityListPhoneHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -113292,7 +113947,8 @@ func newWebAppAuthflowV2SettingsIdentityListPhoneHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -114385,8 +115041,14 @@ func newWebAppAuthflowV2SettingsIdentityViewPhoneHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -114427,7 +115089,8 @@ func newWebAppAuthflowV2SettingsIdentityViewPhoneHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -115538,8 +116201,14 @@ func newWebAppAuthflowV2SettingsIdentityChangePrimaryPhoneHandler(p *deps.Reques
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -115580,7 +116249,8 @@ func newWebAppAuthflowV2SettingsIdentityChangePrimaryPhoneHandler(p *deps.Reques
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -116678,8 +117348,14 @@ func newWebAppAuthflowV2SettingsIdentityVerifyPhoneHandler(p *deps.RequestProvid
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -116720,7 +117396,8 @@ func newWebAppAuthflowV2SettingsIdentityVerifyPhoneHandler(p *deps.RequestProvid
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -117830,8 +118507,14 @@ func newWebAppAuthflowV2SettingsIdentityListUsernameHandler(p *deps.RequestProvi
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -117872,7 +118555,8 @@ func newWebAppAuthflowV2SettingsIdentityListUsernameHandler(p *deps.RequestProvi
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -118930,8 +119614,14 @@ func newWebAppAuthflowV2SettingsIdentityNewUsernameHandler(p *deps.RequestProvid
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -118972,7 +119662,8 @@ func newWebAppAuthflowV2SettingsIdentityNewUsernameHandler(p *deps.RequestProvid
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -120078,8 +120769,14 @@ func newWebAppAuthflowV2SettingsIdentityViewUsernameHandler(p *deps.RequestProvi
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -120120,7 +120817,8 @@ func newWebAppAuthflowV2SettingsIdentityViewUsernameHandler(p *deps.RequestProvi
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -121229,8 +121927,14 @@ func newWebAppAuthflowV2SettingsIdentityEditUsernameHandler(p *deps.RequestProvi
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -121271,7 +121975,8 @@ func newWebAppAuthflowV2SettingsIdentityEditUsernameHandler(p *deps.RequestProvi
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -122401,8 +123106,14 @@ func newWebAppAuthflowV2SettingsIdentityListOAuthHandler(p *deps.RequestProvider
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -122443,7 +123154,8 @@ func newWebAppAuthflowV2SettingsIdentityListOAuthHandler(p *deps.RequestProvider
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -124217,8 +124929,14 @@ func newSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -124280,7 +124998,8 @@ func newSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -125137,8 +125856,14 @@ func newWebAppSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -125179,7 +125904,8 @@ func newWebAppSessionMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -126237,8 +126963,14 @@ func newWebAppUIParamMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -126302,7 +127034,8 @@ func newWebAppUIParamMiddleware(p *deps.RequestProvider) httproute.Middleware {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -127238,8 +127971,14 @@ func newSettingsSubRoutesMiddleware(p *deps.RequestProvider) httproute.Middlewar
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -127280,7 +128019,8 @@ func newSettingsSubRoutesMiddleware(p *deps.RequestProvider) httproute.Middlewar
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -128213,8 +128953,14 @@ func newAuthenticationFlowRateLimitMiddleware(p *deps.RequestProvider) httproute
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -128255,7 +129001,8 @@ func newAuthenticationFlowRateLimitMiddleware(p *deps.RequestProvider) httproute
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -128709,8 +129456,14 @@ func newAccountManagementRateLimitMiddleware(p *deps.RequestProvider) httproute.
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -128751,7 +129504,8 @@ func newAccountManagementRateLimitMiddleware(p *deps.RequestProvider) httproute.
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,

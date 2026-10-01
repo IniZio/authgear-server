@@ -4,10 +4,77 @@ import (
 	"context"
 
 	"github.com/authgear/authgear-server/pkg/api/model"
+	"github.com/authgear/authgear-server/pkg/lib/resourcescope"
 )
 
 type Commands struct {
-	Store *Store
+	Store              *Store
+	ResourceScopeStore *resourcescope.Store
+}
+
+type AddScopesToRoleOptions struct {
+	RoleKey     string
+	ResourceURI string
+	Scopes      []string
+}
+
+type RemoveScopesFromRoleOptions struct {
+	RoleKey     string
+	ResourceURI string
+	Scopes      []string
+}
+
+// resolveRoleScopes returns the role and the IDs of the scopes.
+// Any unknown scope fails with ErrScopeNotFound.
+func (c *Commands) resolveRoleScopes(ctx context.Context, roleKey string, resourceURI string, scopes []string) (*Role, []string, error) {
+	role, err := c.Store.GetRoleByKey(ctx, roleKey)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resource, err := c.ResourceScopeStore.GetResourceByURI(ctx, resourceURI)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	found, err := c.ResourceScopeStore.GetScopesByResourceIDAndScopes(ctx, resource.ID, scopes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	scopeIDs := make([]string, 0, len(scopes))
+	for _, name := range scopes {
+		sc, ok := found[name]
+		if !ok {
+			return nil, nil, resourcescope.ErrScopeNotFound
+		}
+		scopeIDs = append(scopeIDs, sc.ID)
+	}
+	return role, scopeIDs, nil
+}
+
+func (c *Commands) AddScopesToRole(ctx context.Context, options *AddScopesToRoleOptions) (*model.Role, error) {
+	role, scopeIDs, err := c.resolveRoleScopes(ctx, options.RoleKey, options.ResourceURI, options.Scopes)
+	if err != nil {
+		return nil, err
+	}
+	err = c.Store.AddScopesToRole(ctx, role.ID, scopeIDs)
+	if err != nil {
+		return nil, err
+	}
+	return role.ToModel(), nil
+}
+
+func (c *Commands) RemoveScopesFromRole(ctx context.Context, options *RemoveScopesFromRoleOptions) (*model.Role, error) {
+	role, scopeIDs, err := c.resolveRoleScopes(ctx, options.RoleKey, options.ResourceURI, options.Scopes)
+	if err != nil {
+		return nil, err
+	}
+	err = c.Store.RemoveScopesFromRole(ctx, role.ID, scopeIDs)
+	if err != nil {
+		return nil, err
+	}
+	return role.ToModel(), nil
 }
 
 func (c *Commands) CreateRole(ctx context.Context, options *NewRoleOptions) (*model.Role, error) {

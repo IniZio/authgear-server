@@ -38,6 +38,40 @@ func init() {
 		},
 	})
 
+	nodeRole.AddFieldConfig("scopes", &graphql.Field{
+		Type:        connScope.ConnectionType,
+		Description: "The list of scopes granted by this role.",
+		Args: relay.NewConnectionArgs(graphql.FieldConfigArgument{
+			"resourceURI": &graphql.ArgumentConfig{
+				Type:        graphql.String,
+				Description: "Only return scopes of the resource with this URI.",
+			},
+		}),
+		Resolve: func(p graphql.ResolveParams) (any, error) {
+			source := p.Source.(*model.Role)
+			ctx := p.Context
+			gqlCtx := GQLContext(ctx)
+
+			var resourceURI *string
+			if v, ok := p.Args["resourceURI"].(string); ok {
+				resourceURI = &v
+			}
+
+			scopes, err := gqlCtx.RolesGroupsFacade.ListScopesByRoleID(ctx, source.ID, resourceURI)
+			if err != nil {
+				return nil, err
+			}
+
+			scopeIfaces := make([]any, len(scopes))
+			for i, s := range scopes {
+				scopeIfaces[i] = s
+			}
+
+			args := relay.NewConnectionArguments(p.Args)
+			return graphqlutil.NewConnectionFromArray(scopeIfaces, args), nil
+		},
+	})
+
 	nodeRole.AddFieldConfig("users", &graphql.Field{
 		Type:        connUser.ConnectionType,
 		Description: "The list of users who has this role.",

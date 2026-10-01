@@ -34,6 +34,9 @@ type RolesGroupsCommands interface {
 
 	AddUserToGroups(ctx context.Context, options *rolesgroups.AddUserToGroupsOptions) error
 	RemoveUserFromGroups(ctx context.Context, options *rolesgroups.RemoveUserFromGroupsOptions) error
+
+	AddScopesToRole(ctx context.Context, options *rolesgroups.AddScopesToRoleOptions) (*model.Role, error)
+	RemoveScopesFromRole(ctx context.Context, options *rolesgroups.RemoveScopesFromRoleOptions) (*model.Role, error)
 }
 
 type RolesGroupsQueries interface {
@@ -43,6 +46,8 @@ type RolesGroupsQueries interface {
 	ListGroups(ctx context.Context, options *rolesgroups.ListGroupsOptions, pageArgs graphqlutil.PageArgs) ([]model.PageItemRef, error)
 	ListGroupsByRoleID(ctx context.Context, roleID string) ([]*model.Group, error)
 	ListRolesByGroupID(ctx context.Context, groupID string) ([]*model.Role, error)
+	ListScopesByRoleID(ctx context.Context, roleID string, resourceURI *string) ([]*model.Scope, error)
+	ListRolesByScopeID(ctx context.Context, scopeID string) ([]*model.Role, error)
 	ListRolesByUserID(ctx context.Context, userID string) ([]*model.Role, error)
 	ListGroupsByUserID(ctx context.Context, userID string) ([]*model.Group, error)
 	ListUserIDsByRoleID(ctx context.Context, roleID string, pageArgs graphqlutil.PageArgs) ([]model.PageItemRef, error)
@@ -331,4 +336,32 @@ func (f *RolesGroupsFacade) GetRole(ctx context.Context, roleID string) (*model.
 
 func (f *RolesGroupsFacade) GetGroup(ctx context.Context, groupID string) (*model.Group, error) {
 	return f.RolesGroupsQueries.GetGroup(ctx, groupID)
+}
+
+func (f *RolesGroupsFacade) AddScopesToRole(ctx context.Context, options *rolesgroups.AddScopesToRoleOptions) (roleID string, err error) {
+	r, err := f.RolesGroupsCommands.AddScopesToRole(ctx, options)
+	if err != nil {
+		return
+	}
+
+	roleID = r.ID
+	return
+}
+
+func (f *RolesGroupsFacade) RemoveScopesFromRole(ctx context.Context, options *rolesgroups.RemoveScopesFromRoleOptions) (roleID string, err error) {
+	r, err := f.RolesGroupsCommands.RemoveScopesFromRole(ctx, options)
+	if err != nil {
+		return
+	}
+
+	roleID = r.ID
+	return
+}
+
+func (f *RolesGroupsFacade) ListScopesByRoleID(ctx context.Context, roleID string, resourceURI *string) ([]*model.Scope, error) {
+	return f.RolesGroupsQueries.ListScopesByRoleID(ctx, roleID, resourceURI)
+}
+
+func (f *RolesGroupsFacade) ListRolesByScopeID(ctx context.Context, scopeID string) ([]*model.Role, error) {
+	return f.RolesGroupsQueries.ListRolesByScopeID(ctx, scopeID)
 }

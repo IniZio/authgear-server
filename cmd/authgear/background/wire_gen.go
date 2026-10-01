@@ -64,6 +64,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/oauth/redis"
 	"github.com/authgear/authgear-server/pkg/lib/oauthclient"
 	"github.com/authgear/authgear-server/pkg/lib/ratelimit"
+	"github.com/authgear/authgear-server/pkg/lib/resourcescope"
 	"github.com/authgear/authgear-server/pkg/lib/rolesgroups"
 	"github.com/authgear/authgear-server/pkg/lib/search/pgsearch"
 	"github.com/authgear/authgear-server/pkg/lib/search/reindex"
@@ -493,8 +494,14 @@ func newUserService(p *deps.BackgroundProvider, appID string, appContext *config
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -535,7 +542,8 @@ func newUserService(p *deps.BackgroundProvider, appID string, appContext *config
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,

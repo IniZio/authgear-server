@@ -113,12 +113,16 @@ type RolesGroupsFacade interface {
 	UpdateRole(ctx context.Context, options *rolesgroups.UpdateRoleOptions) error
 	DeleteRole(ctx context.Context, id string) error
 	ListGroupsByRoleID(ctx context.Context, roleID string) ([]*apimodel.Group, error)
+	ListScopesByRoleID(ctx context.Context, roleID string, resourceURI *string) ([]*apimodel.Scope, error)
+	AddScopesToRole(ctx context.Context, options *rolesgroups.AddScopesToRoleOptions) (string, error)
+	RemoveScopesFromRole(ctx context.Context, options *rolesgroups.RemoveScopesFromRoleOptions) (string, error)
 	ListRoles(ctx context.Context, options *rolesgroups.ListRolesOptions, pageArgs graphqlutil.PageArgs) ([]apimodel.PageItemRef, *graphqlutil.PageResult, error)
 
 	CreateGroup(ctx context.Context, options *rolesgroups.NewGroupOptions) (string, error)
 	UpdateGroup(ctx context.Context, options *rolesgroups.UpdateGroupOptions) error
 	DeleteGroup(ctx context.Context, id string) error
 	ListRolesByGroupID(ctx context.Context, groupID string) ([]*apimodel.Role, error)
+	ListRolesByScopeID(ctx context.Context, scopeID string) ([]*apimodel.Role, error)
 	ListGroups(ctx context.Context, options *rolesgroups.ListGroupsOptions, pageArgs graphqlutil.PageArgs) ([]apimodel.PageItemRef, *graphqlutil.PageResult, error)
 
 	AddRoleToGroups(ctx context.Context, options *rolesgroups.AddRoleToGroupsOptions) (string, error)

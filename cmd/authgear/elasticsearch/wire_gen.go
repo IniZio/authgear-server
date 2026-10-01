@@ -33,6 +33,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/lib/infra/db/appdb"
 	"github.com/authgear/authgear-server/pkg/lib/infra/db/globaldb"
 	"github.com/authgear/authgear-server/pkg/lib/oauthclient"
+	"github.com/authgear/authgear-server/pkg/lib/resourcescope"
 	"github.com/authgear/authgear-server/pkg/lib/rolesgroups"
 	"github.com/authgear/authgear-server/pkg/lib/search/reindex"
 	"github.com/authgear/authgear-server/pkg/lib/translation"
@@ -377,8 +378,14 @@ func NewReindexer(pool *db.Pool, databaseCredentials *CmdDBCredential, appID Cmd
 		SQLExecutor: sqlExecutor,
 		Clock:       clock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,

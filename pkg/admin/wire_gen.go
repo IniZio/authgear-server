@@ -498,8 +498,14 @@ func newGraphQLHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -573,7 +579,8 @@ func newGraphQLHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -812,11 +819,6 @@ func newGraphQLHandler(p *deps.RequestProvider) http.Handler {
 		Store:    readStore,
 	}
 	auditLogLoader := loader.NewAuditLogLoader(query, readHandle)
-	resourcescopeStore := &resourcescope.Store{
-		SQLBuilder:  sqlBuilderApp,
-		SQLExecutor: sqlExecutor,
-		Clock:       clockClock,
-	}
 	resourcescopeQueries := &resourcescope.Queries{
 		Store: resourcescopeStore,
 	}
@@ -1817,8 +1819,14 @@ func newUserImportCreateHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -1859,7 +1867,8 @@ func newUserImportCreateHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -2337,8 +2346,14 @@ func newUserImportGetHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -2379,7 +2394,8 @@ func newUserImportGetHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
@@ -2858,8 +2874,14 @@ func newUserExportCreateHandler(p *deps.RequestProvider) http.Handler {
 		SQLExecutor: sqlExecutor,
 		Clock:       clockClock,
 	}
+	resourcescopeStore := &resourcescope.Store{
+		SQLBuilder:  sqlBuilderApp,
+		SQLExecutor: sqlExecutor,
+		Clock:       clockClock,
+	}
 	rolesgroupsQueries := &rolesgroups.Queries{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	userQueries := &user.Queries{
 		RawQueries:         rawQueries,
@@ -2900,7 +2922,8 @@ func newUserExportCreateHandler(p *deps.RequestProvider) http.Handler {
 		AsyncDenoClient: asyncDenoClient,
 	}
 	commands := &rolesgroups.Commands{
-		Store: rolesgroupsStore,
+		Store:              rolesgroupsStore,
+		ResourceScopeStore: resourcescopeStore,
 	}
 	sink := &hook.Sink{
 		Config:             hookConfig,
