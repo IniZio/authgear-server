@@ -1,0 +1,124 @@
+name: Agent grant - exchange without DPoP proof is rejected
+authgear.yaml:
+  override: |
+    authentication:
+      identities:
+      - login_id
+      primary_authenticators:
+      - password
+    oauth:
+      clients:
+      - access_token_lifetime_seconds: 1800
+        client_id: e2e
+        grant_types:
+        - authorization_code
+        - refresh_token
+        client_name: reactweb
+        name: reactweb
+        redirect_uris:
+        - http://localhost:4000
+        refresh_token_lifetime_seconds: 31449600
+        response_types:
+        - code
+        - none
+        x_application_type: spa
+        issue_jwt_access_token: true
+      - access_token_lifetime_seconds: 1800
+        client_id: e2econfidential
+        client_name: Orchestrator
+        name: Orchestrator
+        redirect_uris:
+        - http://localhost
+        x_application_type: confidential
+        x_agent_grant_exchange_enabled: true
+      - access_token_lifetime_seconds: 1800
+        client_id: e2em2mclient
+        client_name: Gateway
+        name: Gateway
+        x_application_type: m2m
+        issue_jwt_access_token: true
+before:
+  - type: user_import
+    user_import: users.json
+  - type: custom_sql
+    custom_sql:
+      path: fixtures.sql
+steps:
+  - name: oauth_setup
+    action: oauth_setup
+
+  - name: create_flow
+    action: create
+    input: |
+      {
+        "type": "login",
+        "name": "default",
+        "url_query": "{{ .steps.oauth_setup.result.query }}"
+      }
+    output:
+      result: |
+        {
+          "action": {
+            "type": "identify"
+          }
+        }
+
+  - name: identify
+    action: input
+    input: |
+      {
+        "identification": "username",
+        "login_id": "e2e_agent_grant"
+      }
+    output:
+      result: |
+        {
+          "action": {
+            "type": "authenticate"
+          }
+        }
+
+  - name: authenticate
+    action: input
+    input: |
+      {
+        "authentication": "primary_password",
+        "password": "password"
+      }
+    output:
+      result: |
+        {
+          "action": {
+            "type": "finished",
+            "data": {
+              "finish_redirect_uri": "[[string]]"
+            }
+          }
+        }
+
+  - name: exchange_code
+    action: oauth_exchange_code
+    oauth_exchange_code_code_verifier: "{{ .steps.oauth_setup.result.code_verifier }}"
+    oauth_exchange_code_redirect_uri: "{{ .steps.authenticate.result.action.data.finish_redirect_uri }}"
+
+  - name: exchange_without_dpop
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/oauth2/token
+    http_request_form_urlencoded_body:
+      grant_type: urn:ietf:params:oauth:grant-type:token-exchange
+      client_id: e2econfidential
+      client_secret: e2esecret
+      subject_token_type: urn:ietf:params:oauth:token-type:id_token
+      subject_token: "{{ .steps.exchange_code.result.raw_id_token }}"
+      actor_token_type: urn:authgear:params:oauth:token-type:sandbox-id
+      actor_token: sandbox-1
+      requested_token_type: urn:authgear:params:oauth:token-type:agent-grant
+      resource: https://linear-gateway/mcp
+      authorization_details: '[{"type":"linear","actions":["issue:read"],"teams":["ENG"]}]'
+    http_output:
+      http_status: 400
+      json_body: |
+        {
+          "error": "invalid_dpop_proof"
+        }

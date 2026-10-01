@@ -1,0 +1,269 @@
+name: Agent grant - exchange, decide, search, revoke
+authgear.yaml:
+  override: |
+    authentication:
+      identities:
+      - login_id
+      primary_authenticators:
+      - password
+    oauth:
+      clients:
+      - access_token_lifetime_seconds: 1800
+        client_id: e2e
+        grant_types:
+        - authorization_code
+        - refresh_token
+        client_name: reactweb
+        name: reactweb
+        redirect_uris:
+        - http://localhost:4000
+        refresh_token_lifetime_seconds: 31449600
+        response_types:
+        - code
+        - none
+        x_application_type: spa
+        issue_jwt_access_token: true
+      - access_token_lifetime_seconds: 1800
+        client_id: e2econfidential
+        client_name: Orchestrator
+        name: Orchestrator
+        redirect_uris:
+        - http://localhost
+        x_application_type: confidential
+        x_agent_grant_exchange_enabled: true
+      - access_token_lifetime_seconds: 1800
+        client_id: e2em2mclient
+        client_name: Gateway
+        name: Gateway
+        x_application_type: m2m
+        issue_jwt_access_token: true
+before:
+  - type: user_import
+    user_import: users.json
+  - type: custom_sql
+    custom_sql:
+      path: fixtures.sql
+steps:
+  - name: oauth_setup
+    action: oauth_setup
+
+  - name: create_flow
+    action: create
+    input: |
+      {
+        "type": "login",
+        "name": "default",
+        "url_query": "{{ .steps.oauth_setup.result.query }}"
+      }
+    output:
+      result: |
+        {
+          "action": {
+            "type": "identify"
+          }
+        }
+
+  - name: identify
+    action: input
+    input: |
+      {
+        "identification": "username",
+        "login_id": "e2e_agent_grant"
+      }
+    output:
+      result: |
+        {
+          "action": {
+            "type": "authenticate"
+          }
+        }
+
+  - name: authenticate
+    action: input
+    input: |
+      {
+        "authentication": "primary_password",
+        "password": "password"
+      }
+    output:
+      result: |
+        {
+          "action": {
+            "type": "finished",
+            "data": {
+              "finish_redirect_uri": "[[string]]"
+            }
+          }
+        }
+
+  - name: exchange_code
+    action: oauth_exchange_code
+    oauth_exchange_code_code_verifier: "{{ .steps.oauth_setup.result.code_verifier }}"
+    oauth_exchange_code_redirect_uri: "{{ .steps.authenticate.result.action.data.finish_redirect_uri }}"
+
+  - name: exchange
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/oauth2/token
+    http_request_headers:
+      DPoP: '{{ generateDPoPProof "POST" (printf "http://%s.authgeare2e.localhost:4000/oauth2/token" .AppID) (printf "%s-jti" .AppID) }}'
+    http_request_form_urlencoded_body:
+      grant_type: urn:ietf:params:oauth:grant-type:token-exchange
+      client_id: e2econfidential
+      client_secret: e2esecret
+      subject_token_type: urn:ietf:params:oauth:token-type:id_token
+      subject_token: "{{ .steps.exchange_code.result.raw_id_token }}"
+      actor_token_type: urn:authgear:params:oauth:token-type:sandbox-id
+      actor_token: sandbox-1
+      requested_token_type: urn:authgear:params:oauth:token-type:agent-grant
+      resource: https://linear-gateway/mcp
+      authorization_details: '[{"type":"linear","actions":["issue:read"],"teams":["ENG"]}]'
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "access_token": "[[string]]",
+          "token_type": "DPoP",
+          "expires_in": 900
+        }
+
+  - name: eval_eng_allowed
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+        {
+          "subject": { "type": "user", "id": "{{ .steps.exchange_code.result.id_token.sub }}" },
+          "resource": { "type": "linear:issue", "id": "ENG-1", "properties": { "team": "ENG" } },
+          "action": { "name": "issue:read" },
+          "context": { "grant_id": "{{ $p := (index (splitList "." .steps.exchange.result.http_json_body.access_token) 1 | replace "-" "+" | replace "_" "/") }}{{ print $p (repeat (int (mod (sub 4 (mod (len $p) 4)) 4)) "=") | b64dec | regexFind "grant_id\":\"[^\"]+" | trimPrefix "grant_id\":\"" }}", "actor": "sandbox-1" }
+        }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": true
+        }
+
+
+  - name: eval_ops_denied
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+        {
+          "subject": { "type": "user", "id": "{{ .steps.exchange_code.result.id_token.sub }}" },
+          "resource": { "type": "linear:issue", "id": "OPS-1", "properties": { "team": "OPS" } },
+          "action": { "name": "issue:read" },
+          "context": { "grant_id": "{{ $p := (index (splitList "." .steps.exchange.result.http_json_body.access_token) 1 | replace "-" "+" | replace "_" "/") }}{{ print $p (repeat (int (mod (sub 4 (mod (len $p) 4)) 4)) "=") | b64dec | regexFind "grant_id\":\"[^\"]+" | trimPrefix "grant_id\":\"" }}", "actor": "sandbox-1" }
+        }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": false
+        }
+
+
+  - name: eval_comment_delete_denied
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+        {
+          "subject": { "type": "user", "id": "{{ .steps.exchange_code.result.id_token.sub }}" },
+          "resource": { "type": "linear:issue", "id": "ENG-1", "properties": { "team": "ENG" } },
+          "action": { "name": "comment:delete" },
+          "context": { "grant_id": "{{ $p := (index (splitList "." .steps.exchange.result.http_json_body.access_token) 1 | replace "-" "+" | replace "_" "/") }}{{ print $p (repeat (int (mod (sub 4 (mod (len $p) 4)) 4)) "=") | b64dec | regexFind "grant_id\":\"[^\"]+" | trimPrefix "grant_id\":\"" }}", "actor": "sandbox-1" }
+        }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": false
+        }
+
+
+  - name: search_issue_read
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/search/resource
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+        {
+          "subject": { "type": "user", "id": "{{ .steps.exchange_code.result.id_token.sub }}" },
+          "resource": { "type": "linear:team" },
+          "action": { "name": "issue:read" },
+          "context": { "grant_id": "{{ $p := (index (splitList "." .steps.exchange.result.http_json_body.access_token) 1 | replace "-" "+" | replace "_" "/") }}{{ print $p (repeat (int (mod (sub 4 (mod (len $p) 4)) 4)) "=") | b64dec | regexFind "grant_id\":\"[^\"]+" | trimPrefix "grant_id\":\"" }}", "actor": "sandbox-1" }
+        }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "results": [{ "type": "linear:team", "id": "ENG" }]
+        }
+
+
+  - name: revoke
+    action: http_request
+    http_request_method: DELETE
+    http_request_url: 'http://{{ .AppID }}.authgeare2e.localhost:4000/oauth2/agent_grants/{{ $p := (index (splitList "." .steps.exchange.result.http_json_body.access_token) 1 | replace "-" "+" | replace "_" "/") }}{{ print $p (repeat (int (mod (sub 4 (mod (len $p) 4)) 4)) "=") | b64dec | regexFind "grant_id\":\"[^\"]+" | trimPrefix "grant_id\":\"" }}'
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2econfidential:e2esecret" | b64enc }}'
+    http_output:
+      http_status: 204
+
+  - name: eval_eng_after_revoke
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/evaluation
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+        {
+          "subject": { "type": "user", "id": "{{ .steps.exchange_code.result.id_token.sub }}" },
+          "resource": { "type": "linear:issue", "id": "ENG-1", "properties": { "team": "ENG" } },
+          "action": { "name": "issue:read" },
+          "context": { "grant_id": "{{ $p := (index (splitList "." .steps.exchange.result.http_json_body.access_token) 1 | replace "-" "+" | replace "_" "/") }}{{ print $p (repeat (int (mod (sub 4 (mod (len $p) 4)) 4)) "=") | b64dec | regexFind "grant_id\":\"[^\"]+" | trimPrefix "grant_id\":\"" }}", "actor": "sandbox-1" }
+        }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "decision": false
+        }
+
+
+  - name: search_after_revoke
+    action: http_request
+    http_request_method: POST
+    http_request_url: http://{{ .AppID }}.authgeare2e.localhost:4000/access/v1/search/resource
+    http_request_headers:
+      Authorization: 'Basic {{ printf "e2em2mclient:e2esecret" | b64enc }}'
+      Content-Type: application/json
+    http_request_body: |
+        {
+          "subject": { "type": "user", "id": "{{ .steps.exchange_code.result.id_token.sub }}" },
+          "resource": { "type": "linear:team" },
+          "action": { "name": "issue:read" },
+          "context": { "grant_id": "{{ $p := (index (splitList "." .steps.exchange.result.http_json_body.access_token) 1 | replace "-" "+" | replace "_" "/") }}{{ print $p (repeat (int (mod (sub 4 (mod (len $p) 4)) 4)) "=") | b64dec | regexFind "grant_id\":\"[^\"]+" | trimPrefix "grant_id\":\"" }}", "actor": "sandbox-1" }
+        }
+    http_output:
+      http_status: 200
+      json_body: |
+        {
+          "results": []
+        }
+
