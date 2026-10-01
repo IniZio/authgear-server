@@ -1,0 +1,18 @@
+mutation removeScopesFromRoleMutation(
+  $roleKey: String!
+  $resourceURI: String!
+  $scopes: [String!]!
+) {
+  removeScopesFromRole(
+    input: { roleKey: $roleKey, resourceURI: $resourceURI, scopes: $scopes }
+  ) {
+    role {
+      id
+      key
+      name
+      description
+      createdAt
+      updatedAt
+    }
+  }
+}

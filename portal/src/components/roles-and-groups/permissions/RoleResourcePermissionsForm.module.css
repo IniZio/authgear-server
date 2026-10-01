@@ -1,0 +1,88 @@
+.root {
+  @apply flex flex-col gap-3;
+}
+
+.empty {
+  @apply py-2;
+}
+
+.empty p {
+  margin: 0;
+}
+
+.toolbar {
+  @apply flex flex-wrap items-center justify-between gap-x-6 gap-y-2;
+}
+
+.selectActions {
+  @apply flex items-center gap-2;
+}
+
+.textAction {
+  @apply inline-flex cursor-pointer items-center border-0 bg-transparent p-0 text-sm font-semibold;
+  color: var(--accent-11);
+}
+
+.textAction:hover {
+  color: var(--accent-10);
+}
+
+.textAction:disabled {
+  @apply cursor-default;
+  color: var(--gray-a8);
+}
+
+.selectDivider {
+  width: 1px;
+  height: 1rem;
+  background-color: var(--gray-a6);
+}
+
+.list {
+  @apply m-0 list-none p-0;
+  border: 1px solid var(--gray-a5);
+  border-radius: var(--radius-3);
+  background-color: var(--color-panel-solid);
+  overflow: hidden;
+}
+
+.list > li + li {
+  border-top: 1px solid var(--gray-a4);
+}
+
+.row {
+  @apply flex cursor-pointer items-start gap-3 px-4 py-3;
+  transition: background-color 0.12s ease;
+}
+
+.row:hover {
+  background-color: var(--gray-a2);
+}
+
+.checkbox {
+  @apply shrink-0;
+  margin-top: 0.125rem;
+}
+
+.rowText {
+  @apply flex min-w-0 flex-1 flex-row items-baseline gap-4;
+  @apply mobile:flex-col mobile:items-start mobile:gap-0.5;
+}
+
+.scope {
+  @apply text-sm font-medium;
+  flex: 0 0 14rem;
+  @apply mobile:flex-auto;
+  font-family: var(--code-font-family);
+  color: var(--gray-12);
+  overflow-wrap: anywhere;
+}
+
+.description {
+  @apply min-w-0;
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  @apply flex flex-wrap items-center gap-2 pt-1;
+}

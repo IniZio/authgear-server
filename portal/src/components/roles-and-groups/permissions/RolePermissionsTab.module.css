@@ -1,0 +1,107 @@
+.root {
+  @apply flex flex-col gap-4;
+  max-width: 56rem;
+}
+
+.description {
+  @apply m-0;
+  max-width: 40rem;
+}
+
+.searchField {
+  width: 18.75rem;
+  max-width: 100%;
+}
+
+.searchClearButton {
+  @apply inline-flex items-center justify-center border-0 bg-transparent p-0 cursor-pointer;
+  color: var(--gray-a11);
+}
+
+.searchClearButton:hover {
+  color: var(--gray-12);
+}
+
+.noResults {
+  @apply m-0 py-4;
+}
+
+.resourceList {
+  @apply m-0 list-none p-0;
+  @apply flex flex-col gap-2;
+}
+
+.resource {
+  border: 1px solid var(--gray-a5);
+  border-radius: var(--radius-3);
+  background-color: var(--color-panel-solid);
+  transition: border-color 0.12s ease;
+}
+
+.resourceExpanded {
+  border-color: var(--gray-a7);
+}
+
+.resourceHeader {
+  @apply flex w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-4 py-3 text-left;
+  border-radius: var(--radius-3);
+  color: inherit;
+}
+
+.resourceHeader:hover {
+  background-color: var(--gray-a2);
+}
+
+.resourceHeader:focus {
+  outline: 2px solid var(--accent-9);
+  outline-offset: -2px;
+}
+
+.chevron {
+  @apply shrink-0;
+  width: 1rem;
+  height: 1rem;
+  color: var(--gray-11);
+  transition: transform 0.15s ease;
+}
+
+.chevronExpanded {
+  transform: rotate(90deg);
+}
+
+.resourceText {
+  @apply flex min-w-0 flex-1 flex-row items-baseline gap-3;
+  @apply mobile:flex-col mobile:items-start mobile:gap-0.5;
+}
+
+.name {
+  @apply min-w-0 truncate;
+  color: var(--gray-12);
+}
+
+.uri {
+  @apply min-w-0 truncate;
+  font-family: var(--code-font-family);
+  max-width: 100%;
+}
+
+.resourcePanel {
+  @apply px-4 pb-4 pt-1;
+  /* Indent under the resource name, past the chevron. */
+  padding-left: 2.75rem;
+  @apply mobile:px-3;
+}
+
+.emptyCard {
+  @apply flex flex-col gap-1 px-6 py-8;
+  border: 1px dashed var(--gray-a6);
+  border-radius: var(--radius-3);
+}
+
+.emptyCard p {
+  margin: 0;
+}
+
+.pagination {
+  @apply self-start;
+}

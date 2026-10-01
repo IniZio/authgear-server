@@ -11,18 +11,20 @@ import { RoleAndGroupsLayout } from "../../RoleAndGroupsLayout";
 import { OverflowTabs } from "../../components/v2/OverflowTabs/OverflowTabs";
 import { RoleDetailsSettingsForm } from "../../components/roles-and-groups/form/RoleDetailsSettingsForm";
 import RoleDetailsScreenGroupListContainer from "../../components/roles-and-groups/list/RoleDetailsScreenGroupListContainer";
+import { RolePermissionsTab } from "../../components/roles-and-groups/permissions/RolePermissionsTab";
 
 const SETTINGS_KEY = "settings";
 const GROUPS_KEY = "groups";
+const PERMISSIONS_KEY = "permissions";
+type TabKey = typeof SETTINGS_KEY | typeof GROUPS_KEY | typeof PERMISSIONS_KEY;
+// Module-level so its identity is stable across renders.
+const TAB_KEYS: TabKey[] = [SETTINGS_KEY, GROUPS_KEY, PERMISSIONS_KEY];
 
 function RoleDetailsScreenLoaded(props: { role: RoleQueryNodeFragment }) {
   const { role } = props;
   const { renderToString } = useContext(MessageContext);
 
-  const { selectedKey, onChangeKey } = usePivotNavigation([
-    SETTINGS_KEY,
-    GROUPS_KEY,
-  ]);
+  const { selectedKey, onChangeKey } = usePivotNavigation<TabKey>(TAB_KEYS);
 
   const tabs = useMemo(
     () => [
@@ -33,6 +35,10 @@ function RoleDetailsScreenLoaded(props: { role: RoleQueryNodeFragment }) {
       {
         value: GROUPS_KEY,
         label: renderToString("RoleDetailsScreen.tabs.groups"),
+      },
+      {
+        value: PERMISSIONS_KEY,
+        label: renderToString("RoleDetailsScreen.tabs.permissions"),
       },
     ],
     [renderToString]
@@ -54,12 +60,14 @@ function RoleDetailsScreenLoaded(props: { role: RoleQueryNodeFragment }) {
         className="mb-8"
         value={selectedKey}
         onValueChange={(value) => {
-          onChangeKey(value as typeof SETTINGS_KEY | typeof GROUPS_KEY);
+          onChangeKey(value as TabKey);
         }}
         tabs={tabs}
       />
       {selectedKey === GROUPS_KEY ? (
         <RoleDetailsScreenGroupListContainer role={role} />
+      ) : selectedKey === PERMISSIONS_KEY ? (
+        <RolePermissionsTab role={role} />
       ) : (
         <RoleDetailsSettingsForm role={role} />
       )}
