@@ -7,7 +7,7 @@ import type { AddressInfo } from "node:net";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport, StreamableHTTPError } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { config, env } from "../src/config.ts";
-import { tools } from "../src/tools.ts";
+import { allScopes, tools } from "../src/tools.ts";
 
 const clientId = env("DEMO_CLIENT_ID", "acme-docs-demo");
 const mcpUrl = env("MCP_URL", `${config.publicUrl}/mcp`);
@@ -15,9 +15,13 @@ const DEMO_USERS = ["alice", "bob", "carol"];
 
 const args = process.argv.slice(2);
 const flag = (name: string) => args.includes(`--${name}`);
-const option = (name: string) => args[args.indexOf(`--${name}`) + 1];
+const option = (name: string) => {
+  const i = args.indexOf(`--${name}`);
+  const value = i === -1 ? undefined : args[i + 1];
+  return value === undefined || value.startsWith("--") ? undefined : value;
+};
 
-const requestedScopes = (option("scope") ?? tools.map((t) => t.scope).join(",")).split(/[,\s]+/);
+const requestedScopes = (option("scope") ?? allScopes.join(",")).split(/[,\s]+/);
 
 const b64url = (b: Buffer) => b.toString("base64url");
 
@@ -103,8 +107,8 @@ async function login(user: string): Promise<string> {
 }
 
 // Each call runs against a document this script creates, so the seed content stays intact.
-function sampleArgs(stamp: number): Record<string, Record<string, unknown>> {
-  const id = `demo-note-${stamp}`;
+// `id` is the ID returned by create_doc. Publish runs before delete so both succeed when allowed.
+function sampleArgs(stamp: number, id: string): Record<string, Record<string, unknown>> {
   return {
     search_docs: { query: "incident" },
     read_doc: { id: "handbook" },
@@ -114,6 +118,8 @@ function sampleArgs(stamp: number): Record<string, Record<string, unknown>> {
     delete_doc: { id },
   };
 }
+
+const callOrder = ["search_docs", "read_doc", "create_doc", "update_doc", "publish_doc", "delete_doc"];
 
 const textOf = (content: unknown): string =>
   (content as { type: string; text?: string }[]).map((c) => c.text ?? "").join(" ").replace(/\s+/g, " ");
@@ -128,14 +134,17 @@ async function runAs(user: string): Promise<void> {
   );
 
   const listed = new Set((await client.listTools()).tools.map((t) => t.name));
-  const samples = sampleArgs(Date.now());
+  const stamp = Date.now();
+  let docId = `demo-note-${stamp}`;
 
   const rows: string[][] = [];
-  for (const tool of tools) {
+  const ordered = [...tools].sort((a, b) => callOrder.indexOf(a.name) - callOrder.indexOf(b.name));
+  for (const tool of ordered) {
     let outcome: string;
     try {
-      const result = await client.callTool({ name: tool.name, arguments: samples[tool.name] });
+      const result = await client.callTool({ name: tool.name, arguments: sampleArgs(stamp, docId)[tool.name] });
       const text = textOf(result.content);
+      if (tool.name === "create_doc" && !result.isError) docId = /Created draft "([^"]+)"/.exec(text)?.[1] ?? docId;
       outcome = result.isError ? `DENIED  ${text}` : `ok      ${text}`;
     } catch (err) {
       outcome =

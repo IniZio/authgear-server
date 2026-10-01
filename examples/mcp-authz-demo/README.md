@@ -85,10 +85,10 @@ make start-portal   # portal backend
 
 ### 2. Configure the project and seed it
 
-Merge [`authgear.yaml.snippet`](./authgear.yaml.snippet) into your local project config. It adds the `m2m` client for the PDP, a first-party native client for the demo, and the `username` login ID key. The snippet holds no real secret. Generate one with `openssl rand -base64 32`, then use the same value in both places:
+Merge [`authgear.yaml.snippet`](./authgear.yaml.snippet) into your local project config. It adds the `m2m` client for the PDP, a first-party native client for the demo, and the `username` login ID key. The snippet holds no real secret. Generate one with `openssl rand -hex 24`, then use the same value in both places:
 
-- Authgear: the `m2m` client secret (portal, or `authgear.secrets.yaml` as shown in the snippet, where `k` is the value base64url-encoded).
 - `.env`: `PDP_CLIENT_SECRET`, the plain value.
+- Authgear: add an `oauth.client_secrets` item for `acme-docs-pdp` to `authgear.secrets.yaml`, where `k` is the value base64url-encoded without padding (the exact YAML is in the snippet).
 
 Alternatively, generate the secret in the portal and copy it into `PDP_CLIENT_SECRET`.
 
@@ -107,7 +107,7 @@ npm run seed
 npm start
 ```
 
-Open <http://localhost:4100/console>. Keep it visible for the rest of the walkthrough.
+Open <http://localhost:4100/console> (the server listens on `HOST`, default `127.0.0.1`, port `PORT`, default `4100`). The console has no login and is demo-only. Keep it visible for the rest of the walkthrough.
 
 ### 4. See three different tool lists
 
@@ -115,7 +115,7 @@ Open <http://localhost:4100/console>. Keep it visible for the rest of the walkth
 npm run demo -- --all
 ```
 
-For each user a browser opens (sign in with the username and `Demo1234!`). The script then lists the tools and calls every one, and prints a table like:
+For each user a browser opens (sign in with the username and `Demo1234!`). The script then lists the tools and calls every one in order (create, update, publish, delete on a document it creates, so allowed calls succeed), and prints a table like:
 
 ```
 === carol ===
