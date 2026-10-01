@@ -27,7 +27,9 @@ Which mechanism grants a Resource depends on the **grant**, and the two partitio
 
 **Scope** — a permission value defined on a Resource (e.g. `read:orders`). Scopes are local to their Resource; `read:orders` on `https://onlinestore.myapp.com` is a different permission from `read:orders` on `https://inventory.myapp.com`.
 
-**Client-Resource Association** — an explicit link between an OAuth client and a Resource, together with a subset of the Resource's Scopes that the client may request. Required by, and available only to, clients using the `client_credentials` grant.
+**Client-Resource Association** — an explicit link between an OAuth client and a Resource, together with a subset of the Resource's Scopes that the client may request. Required by, and available only to, clients using the `client_credentials` grant. An association also lets the client ask the [Authorization Decision API](./authorization-pdp.md#caller-authentication) about that Resource.
+
+A Scope can also be granted to a Role as a Permission, which the [Authorization Decision API](./authorization-pdp.md) evaluates. This does not affect token issuance.
 
 ## Resource URI Requirements
 

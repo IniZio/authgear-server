@@ -10,6 +10,7 @@
 - [Changes in blocking event hooks](#changes-in-blocking-event-hooks)
 - [Changes in user listing](#changes-in-user-listing)
 - [Changes in account deletion and account anonymization](#changes-in-account-deletion-and-account-anonymization)
+- [Permissions](#permissions)
 
 # Roles and Groups
 
@@ -483,3 +484,7 @@ Searching with keyword is mutually exclusive with filtering with group keys.
 # Changes in account deletion and account anonymization
 
 The roles and the groups of the users are removed at account deletion and account anonymization.
+
+# Permissions
+
+A role can be granted Scopes of Resources. See [Authorization Decision API](./authorization-pdp.md#permission-model).
