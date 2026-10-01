@@ -102,6 +102,24 @@ func (r *CallerResolver) resolveSelf(ctx context.Context, s session.ResolvedSess
 	}, nil
 }
 
+func (r *CallerResolver) collectGrantAudience(ctx context.Context, caller *Caller, er authz.EvaluationRequest, seen map[string]struct{}, uris []string) ([]string, error) {
+	if caller.Mode != CallerModeClient {
+		return nil, apierrors.NewForbidden("grant requests require client credentials")
+	}
+	grant, err := r.AgentGrants.GetAgentGrant(ctx, er.GrantID())
+	if err != nil {
+		return nil, err
+	}
+	// Unknown grant: the decision is false, not an error.
+	if grant != nil {
+		if _, ok := seen[grant.Audience]; !ok {
+			seen[grant.Audience] = struct{}{}
+			uris = append(uris, grant.Audience)
+		}
+	}
+	return uris, nil
+}
+
 func (r *CallerResolver) AuthorizeRequest(ctx context.Context, caller *Caller, er authz.EvaluationRequest) error {
 	return r.AuthorizeRequests(ctx, caller, []authz.EvaluationRequest{er})
 }
@@ -110,6 +128,7 @@ func (r *CallerResolver) AuthorizeRequest(ctx context.Context, caller *Caller, e
 // once per distinct resource URI, in a single read-only transaction.
 func (r *CallerResolver) AuthorizeRequests(ctx context.Context, caller *Caller, ers []authz.EvaluationRequest) error {
 	var uris []string
+	var err error
 	seen := map[string]struct{}{}
 	for _, er := range ers {
 		if er.Subject.Type != SubjectTypeUser {
@@ -120,19 +139,9 @@ func (r *CallerResolver) AuthorizeRequests(ctx context.Context, caller *Caller, 
 			return apierrors.NewBadRequest("unsupported resource.type")
 		}
 		if isGrant {
-			if caller.Mode != CallerModeClient {
-				return apierrors.NewForbidden("grant requests require client credentials")
-			}
-			grant, err := r.AgentGrants.GetAgentGrant(ctx, er.GrantID())
+			uris, err = r.collectGrantAudience(ctx, caller, er, seen, uris)
 			if err != nil {
 				return err
-			}
-			// Unknown grant: the decision is false, not an error.
-			if grant != nil {
-				if _, ok := seen[grant.Audience]; !ok {
-					seen[grant.Audience] = struct{}{}
-					uris = append(uris, grant.Audience)
-				}
 			}
 			continue
 		}
@@ -155,7 +164,7 @@ func (r *CallerResolver) AuthorizeRequests(ctx context.Context, caller *Caller, 
 	if len(uris) == 0 {
 		return nil
 	}
-	err := r.Database.ReadOnly(ctx, func(ctx context.Context) error {
+	err = r.Database.ReadOnly(ctx, func(ctx context.Context) error {
 		for _, uri := range uris {
 			if _, err := r.ClientResources.GetClientResourceByURI(ctx, caller.ClientID, uri); err != nil {
 				return err
