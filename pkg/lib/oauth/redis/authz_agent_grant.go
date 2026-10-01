@@ -21,11 +21,16 @@ func (a *AuthzAgentGrants) GetAgentGrant(ctx context.Context, id string) (*authz
 	if err != nil {
 		return nil, err
 	}
+	details := make([]authz.AgentGrantDetail, 0, len(g.AuthorizationDetails))
+	for _, d := range g.AuthorizationDetails {
+		details = append(details, authz.AgentGrantDetail{Type: d.Type, Teams: d.Teams, Actions: d.Actions})
+	}
 	return &authz.AgentGrant{
 		UserID:   g.UserID,
 		Actor:    g.Actor,
 		Audience: g.Audience,
 		ExpireAt: g.ExpireAt,
+		Details:  details,
 		Permits:  g.Permits,
 	}, nil
 }

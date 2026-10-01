@@ -183,7 +183,7 @@ Evaluations do not generate events and are not written to the [audit log](./audi
 }
 ```
 
-`policy_decision_point` is the project endpoint, identical to the OIDC `issuer`. Search endpoints are omitted until they exist.
+`policy_decision_point` is the project endpoint, identical to the OIDC `issuer`. Only `search_resource_endpoint` is advertised, see [Resource Search](./agent-delegated-grants.md#resource-search); other search endpoints are omitted until they exist.
 
 ## Use with MCP Servers
 
@@ -259,7 +259,7 @@ Each item below is a separate spec when picked up.
 
 - **Conditions.** CEL expressions on a Permission over the Subject's attributes, the AuthZEN resource's `properties`, and `context`. This gives `context` and `properties` an effect.
 - **Query plan.** An endpoint returning the condition under which an Action is allowed, for a PEP to turn into a database filter ("list all posts the user can see").
-- **Search.** AuthZEN subject, resource, and action search endpoints.
+- **Search.** AuthZEN subject and action search endpoints. Resource search for Grants is in [Resource Search](./agent-delegated-grants.md#resource-search).
 - **MCP tool registration.** Declaring an MCP server's tools and their Scopes, so `insufficient_scope` challenges and `tools/list` filtering need no PEP-side mapping.
 - **Hook-derived data.** Hooks that compute user attributes when data changes, so conditions read stored values instead of calling a hook per evaluation.
 - **Check-time hook.** An opt-in blocking hook consulted during evaluation, with a decision cache and deny on timeout.

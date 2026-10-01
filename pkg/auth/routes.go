@@ -470,6 +470,7 @@ func NewRouter(ctx context.Context, p *deps.RootProvider, configSource *configso
 	router.Add(authzenhandler.ConfigureMetadataRoute(oauthStaticRoute), p.Handler(newAuthZENMetadataHandler))
 	router.Add(authzenhandler.ConfigureEvaluationRoute(authzenAPIRoute), p.Handler(newAuthZENEvaluationHandler))
 	router.Add(authzenhandler.ConfigureEvaluationsRoute(authzenAPIRoute), p.Handler(newAuthZENEvaluationsHandler))
+	router.Add(authzenhandler.ConfigureSearchResourceRoute(authzenAPIRoute), p.Handler(newAuthZENSearchResourceHandler))
 
 	router.Add(oauthhandler.ConfigureAuthorizeRoute(oauthAuthzAPIRoute), p.Handler(newOAuthAuthorizeHandler))
 	router.Add(oauthhandler.ConfigureTokenRoute(dpopOauthAPIRoute), p.Handler(newOAuthTokenHandler))

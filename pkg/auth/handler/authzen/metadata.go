@@ -29,6 +29,7 @@ func (h *MetadataHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		"policy_decision_point":       origin.String(),
 		"access_evaluation_endpoint":  origin.JoinPath("access/v1/evaluation").String(),
 		"access_evaluations_endpoint": origin.JoinPath("access/v1/evaluations").String(),
+		"search_resource_endpoint":    origin.JoinPath("access/v1/search/resource").String(),
 	}
 
 	rw.Header().Set("Content-Type", "application/json")

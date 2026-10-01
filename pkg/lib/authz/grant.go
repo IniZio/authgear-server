@@ -15,6 +15,13 @@ const (
 	ResourceKindTeam  = "team"
 )
 
+// AgentGrantDetail is an authorization_details entry of a grant.
+type AgentGrantDetail struct {
+	Type    string
+	Teams   []string
+	Actions []string
+}
+
 // AgentGrant is the part of an agent grant the PDP needs.
 // It is decoupled from oauth.AgentGrant to avoid an import cycle.
 type AgentGrant struct {
@@ -22,6 +29,7 @@ type AgentGrant struct {
 	Actor    string
 	Audience string
 	ExpireAt time.Time
+	Details  []AgentGrantDetail
 	Permits  func(namespace string, action string, team string) bool
 }
 

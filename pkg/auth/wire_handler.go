@@ -124,6 +124,13 @@ func newAuthZENEvaluationsHandler(p *deps.RequestProvider) http.Handler {
 	))
 }
 
+func newAuthZENSearchResourceHandler(p *deps.RequestProvider) http.Handler {
+	panic(wire.Build(
+		DependencySet,
+		wire.Bind(new(http.Handler), new(*handlerauthzen.SearchResourceHandler)),
+	))
+}
+
 func newAgentGrantRevokeHandler(p *deps.RequestProvider) http.Handler {
 	panic(wire.Build(
 		DependencySet,
