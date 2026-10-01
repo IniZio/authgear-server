@@ -16,7 +16,7 @@ import (
 
 const permissionCacheTTL = time.Hour
 
-// PermissionSnapshot is a user's effective permissions; Grants are "resourceID scope".
+// PermissionSnapshot is a user's effective permissions; Grants are "resourceURI scope".
 type PermissionSnapshot struct {
 	Disabled bool     `json:"disabled"`
 	Grants   []string `json:"grants"`
@@ -54,12 +54,12 @@ func (c *PermissionCache) Get(ctx context.Context, version int64, userID string)
 	return snap, snap != nil, nil
 }
 
-func (c *PermissionCache) Set(ctx context.Context, version int64, userID string, snap *PermissionSnapshot) error {
+func (c *PermissionCache) Set(ctx context.Context, version int64, userID string, snap *PermissionSnapshot, ttl time.Duration) error {
 	data, err := json.Marshal(snap)
 	if err != nil {
 		return err
 	}
 	return c.Redis.WithConnContext(ctx, func(ctx context.Context, conn redis.Redis_6_0_Cmdable) error {
-		return conn.Set(ctx, permissionKey(c.AppID, version, userID), data, permissionCacheTTL).Err()
+		return conn.Set(ctx, permissionKey(c.AppID, version, userID), data, ttl).Err()
 	})
 }

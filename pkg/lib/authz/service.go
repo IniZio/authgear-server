@@ -9,6 +9,7 @@ import (
 	"github.com/authgear/authgear-server/pkg/api/model"
 	"github.com/authgear/authgear-server/pkg/lib/infra/db/appdb"
 	"github.com/authgear/authgear-server/pkg/util/accesscontrol"
+	"github.com/authgear/authgear-server/pkg/util/clock"
 	"github.com/authgear/authgear-server/pkg/util/slogutil"
 )
 
@@ -80,7 +81,7 @@ type VersionGetter interface {
 
 type SnapshotCache interface {
 	Get(ctx context.Context, version int64, userID string) (*PermissionSnapshot, bool, error)
-	Set(ctx context.Context, version int64, userID string, snap *PermissionSnapshot) error
+	Set(ctx context.Context, version int64, userID string, snap *PermissionSnapshot, ttl time.Duration) error
 }
 
 type Service struct {
@@ -90,6 +91,7 @@ type Service struct {
 	Resources ResourceQueries
 	Versions  VersionGetter
 	Cache     SnapshotCache
+	Clock     clock.Clock
 }
 
 func (s *Service) Evaluate(ctx context.Context, reqs []EvaluationRequest, semantic EvaluationsSemantic) (decisions []bool, info EvaluationInfo, err error) {
@@ -103,7 +105,7 @@ func (s *Service) Evaluate(ctx context.Context, reqs []EvaluationRequest, semant
 
 	allHit := true
 	snapshots := map[string]*PermissionSnapshot{}
-	resources := map[string]bool{}
+	var resources map[string]bool
 
 	decisions = make([]bool, 0, len(reqs))
 	for _, req := range reqs {
@@ -118,17 +120,13 @@ func (s *Service) Evaluate(ctx context.Context, reqs []EvaluationRequest, semant
 			snapshots[req.Subject.ID] = snap
 		}
 
-		exists, ok := resources[req.Resource.ID]
-		if !ok {
-			err = s.Database.ReadOnly(ctx, func(ctx context.Context) (err error) {
-				exists, err = s.Resources.ResourceExists(ctx, req.Resource.ID)
-				return
-			})
+		if resources == nil {
+			resources, err = s.resolveResources(ctx, reqs)
 			if err != nil {
 				return nil, info, err
 			}
-			resources[req.Resource.ID] = exists
 		}
+		exists := resources[req.Resource.ID]
 
 		decision := exists && !snap.Disabled && containsGrant(snap.Grants, req.Resource.ID, req.Action.Name)
 		decisions = append(decisions, decision)
@@ -145,6 +143,40 @@ func (s *Service) Evaluate(ctx context.Context, reqs []EvaluationRequest, semant
 	return decisions, info, nil
 }
 
+// resolveResources checks every distinct resource URI in one ReadOnly transaction.
+func (s *Service) resolveResources(ctx context.Context, reqs []EvaluationRequest) (map[string]bool, error) {
+	result := map[string]bool{}
+	err := s.Database.ReadOnly(ctx, func(ctx context.Context) error {
+		for _, req := range reqs {
+			uri := req.Resource.ID // the Resource URI
+			if _, ok := result[uri]; ok {
+				continue
+			}
+			exists, err := s.Resources.ResourceExists(ctx, uri)
+			if err != nil {
+				return err
+			}
+			result[uri] = exists
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// earliestTime returns the earliest non-nil time, or nil.
+func earliestTime(ts ...*time.Time) *time.Time {
+	var min *time.Time
+	for _, t := range ts {
+		if t != nil && (min == nil || t.Before(*min)) {
+			min = t
+		}
+	}
+	return min
+}
+
 func (s *Service) loadSnapshot(ctx context.Context, version int64, userID string) (snap *PermissionSnapshot, hit bool, err error) {
 	snap, hit, err = s.Cache.Get(ctx, version, userID)
 	if err != nil {
@@ -155,14 +187,28 @@ func (s *Service) loadSnapshot(ctx context.Context, version int64, userID string
 	}
 
 	snap = &PermissionSnapshot{}
+	ttl := permissionCacheTTL
+	cacheable := true
 	err = s.Database.ReadOnly(ctx, func(ctx context.Context) error {
 		user, err := s.Users.Get(ctx, userID, accesscontrol.RoleGreatest)
 		if err != nil {
 			if apierrors.IsKind(err, api.UserNotFound) {
+				// Not cached: the user may be created later.
 				snap.Disabled = true
+				cacheable = false
 				return nil
 			}
 			return err
+		}
+		// Cap TTL so time-based disablement is honored.
+		staleFrom := earliestTime(user.AccountValidUntil, user.TemporarilyDisabledFrom, user.AccountStatusStaleFrom)
+		if staleFrom != nil {
+			remaining := staleFrom.Sub(s.Clock.NowUTC())
+			if remaining <= 0 {
+				cacheable = false
+			} else if remaining < ttl {
+				ttl = remaining
+			}
 		}
 		if user.IsDisabled || user.IsAnonymized {
 			snap.Disabled = true
@@ -183,8 +229,10 @@ func (s *Service) loadSnapshot(ctx context.Context, version int64, userID string
 		return nil, false, err
 	}
 
-	if setErr := s.Cache.Set(ctx, version, userID, snap); setErr != nil {
-		ServiceLogger.GetLogger(ctx).WithError(setErr).Warn(ctx, "failed to cache permission snapshot")
+	if cacheable {
+		if setErr := s.Cache.Set(ctx, version, userID, snap, ttl); setErr != nil {
+			ServiceLogger.GetLogger(ctx).WithError(setErr).Warn(ctx, "failed to cache permission snapshot")
+		}
 	}
 	return snap, false, nil
 }

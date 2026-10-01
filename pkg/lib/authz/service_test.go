@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
@@ -13,6 +14,7 @@ import (
 	dbinfra "github.com/authgear/authgear-server/pkg/lib/infra/db"
 	"github.com/authgear/authgear-server/pkg/lib/infra/db/appdb"
 	"github.com/authgear/authgear-server/pkg/util/accesscontrol"
+	"github.com/authgear/authgear-server/pkg/util/clock"
 	"github.com/authgear/authgear-server/pkg/util/otelutil/oteldatabasesql"
 )
 
@@ -95,6 +97,7 @@ type fakeCache struct {
 	getErr error
 	setErr error
 	sets   int
+	ttl    time.Duration
 }
 
 func (f *fakeCache) Get(ctx context.Context, version int64, userID string) (*PermissionSnapshot, bool, error) {
@@ -105,8 +108,9 @@ func (f *fakeCache) Get(ctx context.Context, version int64, userID string) (*Per
 	return s, ok, nil
 }
 
-func (f *fakeCache) Set(ctx context.Context, version int64, userID string, snap *PermissionSnapshot) error {
+func (f *fakeCache) Set(ctx context.Context, version int64, userID string, snap *PermissionSnapshot, ttl time.Duration) error {
 	f.sets++
+	f.ttl = ttl
 	if f.setErr != nil {
 		return f.setErr
 	}
@@ -138,7 +142,9 @@ func TestServiceEvaluate(t *testing.T) {
 		versions := &fakeVersions{version: 1}
 		cache := &fakeCache{snaps: map[string]*PermissionSnapshot{}}
 
+		now := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 		s := &Service{
+			Clock:     clock.NewMockClockAtTime(now),
 			Database:  newTestAppDBHandle(t),
 			Users:     users,
 			Roles:     roles,
@@ -261,6 +267,45 @@ func TestServiceEvaluate(t *testing.T) {
 			cache.getErr = errors.New("redis down")
 			_, _, err := s.Evaluate(ctx, []EvaluationRequest{req("alice", res, "read")}, EvaluationsSemanticExecuteAll)
 			So(err, ShouldBeError, "redis down")
+		})
+
+		Convey("ttl capped by stale-from", func() {
+			stale := now.Add(10 * time.Minute)
+			users.users["alice"] = &model.User{AccountStatusStaleFrom: &stale}
+			d, _, err := s.Evaluate(ctx, []EvaluationRequest{req("alice", res, "read")}, EvaluationsSemanticExecuteAll)
+			So(err, ShouldBeNil)
+			So(d, ShouldResemble, []bool{true})
+			So(cache.sets, ShouldEqual, 1)
+			So(cache.ttl, ShouldEqual, 10*time.Minute)
+		})
+
+		Convey("default ttl", func() {
+			_, _, err := s.Evaluate(ctx, []EvaluationRequest{req("alice", res, "read")}, EvaluationsSemanticExecuteAll)
+			So(err, ShouldBeNil)
+			So(cache.ttl, ShouldEqual, permissionCacheTTL)
+		})
+
+		Convey("already stale not cached", func() {
+			stale := now.Add(-time.Minute)
+			users.users["alice"] = &model.User{AccountValidUntil: &stale}
+			_, _, err := s.Evaluate(ctx, []EvaluationRequest{req("alice", res, "read")}, EvaluationsSemanticExecuteAll)
+			So(err, ShouldBeNil)
+			So(cache.sets, ShouldEqual, 0)
+		})
+
+		Convey("not-found user not cached", func() {
+			_, _, err := s.Evaluate(ctx, []EvaluationRequest{req("nobody", res, "read")}, EvaluationsSemanticExecuteAll)
+			So(err, ShouldBeNil)
+			So(cache.sets, ShouldEqual, 0)
+		})
+
+		Convey("grant keyed by resource URI", func() {
+			const uri = "https://other.example.com/v1"
+			roles.perms["alice"] = []Permission{{ResourceID: uri, Scope: "read"}}
+			resources.uris[uri] = true
+			d, _, err := s.Evaluate(ctx, []EvaluationRequest{req("alice", uri, "read"), req("alice", res, "read")}, EvaluationsSemanticExecuteAll)
+			So(err, ShouldBeNil)
+			So(d, ShouldResemble, []bool{true, false})
 		})
 
 		Convey("cache write error still decides", func() {

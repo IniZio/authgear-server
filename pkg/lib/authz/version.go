@@ -52,6 +52,12 @@ func (s *VersionStore) Bump(ctx context.Context) error {
 	})
 }
 
+// CacheInvalidator schedules an authz version bump after the current transaction commits.
+// Consumers depend on this interface, not the concrete Invalidator.
+type CacheInvalidator interface {
+	InvalidateAfterCommit(ctx context.Context)
+}
+
 type Invalidator struct {
 	Database *appdb.Handle
 	Versions *VersionStore
@@ -61,6 +67,8 @@ type Invalidator struct {
 func (i *Invalidator) InvalidateAfterCommit(ctx context.Context) {
 	i.Database.UseHook(ctx, &bumpHook{Versions: i.Versions})
 }
+
+var _ CacheInvalidator = (*Invalidator)(nil)
 
 type bumpHook struct {
 	Versions *VersionStore
@@ -74,6 +82,8 @@ func (h *bumpHook) WillCommitTx(ctx context.Context) error {
 
 // DidCommitTx cannot fail the request: the commit already happened.
 func (h *bumpHook) DidCommitTx(ctx context.Context) {
+	// The commit already happened; a cancelled request ctx must not skip the bump.
+	ctx = context.WithoutCancel(ctx)
 	if err := h.Versions.Bump(ctx); err != nil {
 		VersionLogger.GetLogger(ctx).WithError(err).Warn(ctx, "failed to bump authz version")
 	}

@@ -11,7 +11,7 @@ import (
 type Commands struct {
 	Store              *Store
 	ResourceScopeStore *resourcescope.Store
-	AuthzInvalidator   *authz.Invalidator
+	AuthzInvalidator   authz.CacheInvalidator
 }
 
 type AddScopesToRoleOptions struct {
@@ -82,7 +82,6 @@ func (c *Commands) RemoveScopesFromRole(ctx context.Context, options *RemoveScop
 }
 
 func (c *Commands) CreateRole(ctx context.Context, options *NewRoleOptions) (*model.Role, error) {
-	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := ValidateKey(ctx, options.Key)
 	if err != nil {
 		return nil, err
@@ -98,7 +97,6 @@ func (c *Commands) CreateRole(ctx context.Context, options *NewRoleOptions) (*mo
 }
 
 func (c *Commands) UpdateRole(ctx context.Context, options *UpdateRoleOptions) (*model.Role, error) {
-	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	if options.RequireUpdate() {
 		if options.NewKey != nil {
 			err := ValidateKey(ctx, *options.NewKey)
@@ -127,7 +125,6 @@ func (c *Commands) DeleteRole(ctx context.Context, id string) error {
 }
 
 func (c *Commands) CreateGroup(ctx context.Context, options *NewGroupOptions) (*model.Group, error) {
-	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	err := ValidateKey(ctx, options.Key)
 	if err != nil {
 		return nil, err
@@ -143,7 +140,6 @@ func (c *Commands) CreateGroup(ctx context.Context, options *NewGroupOptions) (*
 }
 
 func (c *Commands) UpdateGroup(ctx context.Context, options *UpdateGroupOptions) (*model.Group, error) {
-	c.AuthzInvalidator.InvalidateAfterCommit(ctx)
 	if options.RequireUpdate() {
 		if options.NewKey != nil {
 			err := ValidateKey(ctx, *options.NewKey)

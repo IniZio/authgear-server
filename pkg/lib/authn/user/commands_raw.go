@@ -13,7 +13,7 @@ import (
 type RawCommands struct {
 	Store            store
 	Clock            clock.Clock
-	AuthzInvalidator *authz.Invalidator
+	AuthzInvalidator authz.CacheInvalidator
 }
 
 func (c *RawCommands) New(userID string) *User {
