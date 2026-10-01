@@ -145,6 +145,10 @@ Run `/mcp` in Claude Code and authenticate. The server advertises only `docs:rea
 
 > Resource URI. `RESOURCE_URI` defaults to `https://docs.acme.localhost`, the Authgear Resource identifier and the token `aud`. Some MCP clients require the advertised `resource` to match the server URL they connect to. If your client refuses to continue, create the Resource with the server URL instead (for example `http://localhost:4100/mcp`) by setting `RESOURCE_URI` before `npm run seed` and `npm start`.
 
+## Agent sandbox demo
+
+[`agent-grant/`](./agent-grant/README.md) shows the same PDP guarding an AI agent that runs in a network-isolated sandbox. An orchestrator exchanges a user's ID token for a DPoP-bound grant, a gateway asks the PDP on every call, and revoking the grant cuts the agent off. Run it with `npm run agent-demo` after the steps above; see its README for prerequisites and known gaps.
+
 ## Decision Console
 
 `/console` is one static page with live updates over Server-Sent Events. It follows your light or dark setting and works on a narrow screen.
@@ -164,6 +168,7 @@ Run `/mcp` in Claude Code and authenticate. The server advertises only `docs:rea
 | `npm run setup` | Merge the demo config into your local Authgear files and write `.env`. |
 | `npm run seed` | Create the demo Resource, Scopes, roles, group, users and grants. |
 | `npm run demo -- --all` | Sign in as each user and print the tools and call results. |
+| `npm run agent-demo` | Run the [agent sandbox demo](./agent-grant/README.md). |
 | `npm run typecheck` | Type-check the TypeScript. |
 | `npm run build` | Compile to `dist/` (run it with `node dist/server.js`). |
 
