@@ -183,7 +183,8 @@ const notAllowed = (_req: express.Request, res: express.Response) => {
 app.get("/mcp", notAllowed);
 app.delete("/mcp", notAllowed);
 
-app.listen(config.port, () => {
+app.listen(config.port, config.host, () => {
+  console.log(`Listening on    ${config.host}:${config.port}`);
   console.log(`Acme Docs MCP   ${config.publicUrl}/mcp`);
   console.log(`Decision Console ${config.publicUrl}/console`);
   console.log(`Resource metadata ${resourceMetadataUrl}`);

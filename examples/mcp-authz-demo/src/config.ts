@@ -19,6 +19,8 @@ const port = Number(env("PORT", "4100"));
 
 export const config = {
   port,
+  /** Bind address; loopback by default so the demo is not exposed on the network. */
+  host: env("HOST", "127.0.0.1"),
   /** Where MCP clients reach this server. */
   publicUrl: trimSlash(env("PUBLIC_URL", `http://localhost:${port}`)),
   authgearEndpoint: trimSlash(env("AUTHGEAR_ENDPOINT", "http://localhost:3100")),

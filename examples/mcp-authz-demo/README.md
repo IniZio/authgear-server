@@ -17,6 +17,10 @@ A small, self-contained MCP server that shows what the [Authorization Decision A
 
 Everything here is example code: documents live in memory, and the Decision Console has no login. Do not expose it beyond localhost.
 
+- The server binds `127.0.0.1` by default. Set `HOST=0.0.0.0` only if you understand the console is then reachable by anyone on the network.
+- `/console` is unauthenticated and demo-only. Never expose it.
+- JWT verification pins `RS256` (`jwtVerify` algorithms), so tokens signed with any other algorithm are rejected.
+
 ## How it works
 
 A tool is usable only when **both** of these hold:
@@ -81,7 +85,12 @@ make start-portal   # portal backend
 
 ### 2. Configure the project and seed it
 
-Merge [`authgear.yaml.snippet`](./authgear.yaml.snippet) into your local project config. It adds the `m2m` client for the PDP, a first-party native client for the demo, and the `username` login ID key. Generate a secret for the `m2m` client in the portal, or use the one in the snippet.
+Merge [`authgear.yaml.snippet`](./authgear.yaml.snippet) into your local project config. It adds the `m2m` client for the PDP, a first-party native client for the demo, and the `username` login ID key. The snippet holds no real secret. Generate one with `openssl rand -base64 32`, then use the same value in both places:
+
+- Authgear: the `m2m` client secret (portal, or `authgear.secrets.yaml` as shown in the snippet, where `k` is the value base64url-encoded).
+- `.env`: `PDP_CLIENT_SECRET`, the plain value.
+
+Alternatively, generate the secret in the portal and copy it into `PDP_CLIENT_SECRET`.
 
 ```sh
 cd examples/mcp-authz-demo
@@ -146,7 +155,7 @@ Run `/mcp` in Claude Code and authenticate. The server advertises only `docs:rea
 - **Decisions / min**: PDP calls in the last minute.
 - **Allow ratio**: share of tool calls the PDP allowed, over the last 5 minutes.
 - **p50 / p95 latency**: PDP latency from `Server-Timing`, or the measured round trip if the header is missing.
-- **Cache hit ratio**: from the `desc` of `Server-Timing`.
+- **Cache hit ratio**: from the `desc` of `Server-Timing`. The `desc` (cache-hit/cache-miss) is sent only when the Authgear server runs with `DEV_MODE=true`; otherwise these tiles stay empty and the console degrades gracefully.
 - **Why?** links to the Roles page in the portal. The text beside it says what was decided and by which permissions.
 
 ## Scripts

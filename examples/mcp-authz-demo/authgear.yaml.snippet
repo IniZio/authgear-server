@@ -33,14 +33,15 @@ oauth:
 
 # Client secret for acme-docs-pdp. Easiest: portal -> Applications -> Acme Docs PDP client ->
 # generate a secret, then put it in .env as PDP_CLIENT_SECRET.
-# Or add to authgear.secrets.yaml (secret below is "acme-docs-demo-secret"):
+# Or add to authgear.secrets.yaml. Generate one with `openssl rand -base64 32`; `k` is that same
+# value base64url-encoded, and PDP_CLIENT_SECRET in .env is the plain value.
 #
 # - data:
 #     items:
 #       - client_id: acme-docs-pdp
 #         keys:
 #           - created_at: 1729502270
-#             k: YWNtZS1kb2NzLWRlbW8tc2VjcmV0
+#             k: <base64url-of-your-generated-secret>
 #             kid: acme-docs-demo
 #             kty: oct
 #   key: oauth.client_secrets

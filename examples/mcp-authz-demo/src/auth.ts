@@ -35,6 +35,7 @@ export async function authenticate(req: IncomingMessage): Promise<AuthInfo> {
     const { payload } = await jwtVerify(token, jwks, {
       issuer: config.authgearEndpoint,
       audience: config.resourceUri,
+      algorithms: ["RS256"],
     });
     if (!payload.sub) throw new Error("token has no sub");
     const scope = typeof payload.scope === "string" ? payload.scope : "";
